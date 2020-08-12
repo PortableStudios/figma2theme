@@ -68,6 +68,9 @@ const getAllNodesByType = <T extends FindableNode>(
       case type:
         nodes.push(child as Figma.Node<T>);
         break;
+      case 'INSTANCE':
+        // Skip component instances as they may have overridden values
+        break;
       default:
         // Otherwise if the node has children, recursively search it
         if ('children' in child) {
@@ -88,14 +91,23 @@ const getAllTextNodes = (from: Figma.Node<'CANVAS'>) =>
 
 // Convert a Figma shadow "effect style" to a CSS box-shadow value
 const convertFigmaShadowToCss = (shadow: Figma.EffectShadow): string => {
-  // TODO: Add shadow spread when value is exposed by API
+  // Use 'inset' for inner shadows
+  const type = shadow.type === 'INNER_SHADOW' ? 'inset ' : '';
+
+  // Convert shadow colour to CSS value
   const r = Math.round(shadow.color.r * 255);
   const g = Math.round(shadow.color.g * 255);
   const b = Math.round(shadow.color.b * 255);
-  const a = shadow.color.a.toFixed(2);
+  const a = parseFloat(shadow.color.a.toFixed(2));
   const colour = `rgba(${r}, ${g}, ${b}, ${a})`;
-  const type = shadow.type === 'INNER_SHADOW' ? 'inset ' : '';
-  return `${type}${shadow.offset.x}px ${shadow.offset.y}px ${shadow.radius}px 0px ${colour}`;
+
+  // Convert shadow offset and radius to px
+  // TODO: Add shadow spread when value is exposed by API
+  const x = shadow.offset.x === 0 ? '0' : `${shadow.offset.x}px`;
+  const y = shadow.offset.y === 0 ? '0' : `${shadow.offset.y}px`;
+  const radius = shadow.radius === 0 ? '0' : `${shadow.radius}px`;
+
+  return `${type}${x} ${y} ${radius} 0 ${colour}`;
 };
 
 /**
@@ -233,6 +245,7 @@ const getShadows = (
     // Convert each shadow to a CSS `box-shadow` value, then join them
     shadows[shadowStyles[effectKey]] = effects
       .map((e) => convertFigmaShadowToCss(e as Figma.EffectShadow))
+      .reverse()
       .join(', ');
   });
 
@@ -400,10 +413,13 @@ const getLetterSpacing = (
     // Sort them in ascending order of letter spacing
     .sort((a, b) => a.letterSpacing - b.letterSpacing)
     // Remove "letterSpacing_" prefix from name and convert letter spacing to em
-    .map((l) => ({
-      name: l.name.replace('letterSpacing_', ''),
-      letterSpacing: `${l.letterSpacing.toFixed(2)}em`,
-    }));
+    .map((l) => {
+      const ls = parseFloat(l.letterSpacing.toFixed(3));
+      return {
+        name: l.name.replace('letterSpacing_', ''),
+        letterSpacing: ls === 0 ? '0' : `${ls}em`,
+      };
+    });
 
   // Convert array to object
   return letterSpacing.reduce(

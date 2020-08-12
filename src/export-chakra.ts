@@ -1,13 +1,113 @@
-import { logError } from './utils';
+import fs from 'fs-extra';
+import ejs from 'ejs';
+import path from 'path';
+import prettier from 'prettier';
+import type { Data } from 'ejs';
+
 import type { Tokens } from './types';
 
+const prettierConfigFile = path.resolve(__dirname, '../.prettierrc');
+const defaultThemeDir = path.resolve(__dirname, '../theme/default');
+const templateDir = path.resolve(__dirname, '../theme/templates');
+
+// Run Prettier on TypeScript code using the config file
+const formatFileContents = async (contents: string) => {
+  return prettier.resolveConfig(prettierConfigFile).then((options) => {
+    return prettier.format(contents, { ...options, parser: 'typescript' });
+  });
+};
+
+// Render an EJS template with the given data, format it with Prettier and write the result to the output path
+const renderTemplate = async (
+  templatePath: string,
+  outputPath: string,
+  data: Data
+) => {
+  const contents = await ejs
+    .renderFile(templatePath, data)
+    .then((str) => formatFileContents(str));
+  return fs.writeFile(outputPath, contents);
+};
+
 export default async function exportChakraFromTokens(
-  _tokens: Tokens,
-  _outputDir: string
+  tokens: Tokens,
+  outputDir: string
 ) {
-  logError(
-    'Chakra export has not been implemented yet.',
-    '- Please ask Darcy to write the code.'
+  // Create the output folder and copy in the contents of the default Chakra UI theme
+  await fs.mkdir(outputDir);
+  await fs.copy(defaultThemeDir, outputDir);
+
+  // Create a config for the templates by combining the design tokens with default Chakra values
+  const chakra = {
+    breakpoints: tokens.breakpoints,
+    colours: tokens.colours,
+    radii: {
+      none: '0',
+      ...tokens.radii,
+      full: '9999px',
+    },
+    shadows: {
+      ...tokens.shadows,
+      none: 'none',
+    },
+    spacing: {
+      px: '1px',
+      '0': '0',
+      ...tokens.spacing,
+    },
+    sizes: {
+      full: '100%',
+      ...tokens.sizes,
+    },
+    typography: {
+      fonts: {
+        mono:
+          'SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace',
+        ...tokens.typography.fonts,
+      },
+      fontSizes: tokens.typography.fontSizes,
+      lineHeights: tokens.typography.lineHeights,
+      letterSpacing: tokens.typography.letterSpacing,
+    },
+  };
+
+  // Specify which templates should be rendered and where they should be saved
+  const templates = [
+    {
+      input: `${templateDir}/foundations/index.ts.ejs`,
+      output: `${outputDir}/foundations/index.ts`,
+    },
+    {
+      input: `${templateDir}/foundations/breakpoints.ts.ejs`,
+      output: `${outputDir}/foundations/breakpoints.ts`,
+    },
+    {
+      input: `${templateDir}/foundations/customColors.ts.ejs`,
+      output: `${outputDir}/foundations/customColors.ts`,
+    },
+    {
+      input: `${templateDir}/foundations/radius.ts.ejs`,
+      output: `${outputDir}/foundations/radius.ts`,
+    },
+    // TODO: Export shadows when the shadow "spread" value is returned by the Figma API
+    // {
+    //   input: `${templateDir}/foundations/shadows.ts.ejs`,
+    //   output: `${outputDir}/foundations/shadows.ts`,
+    // },
+    {
+      input: `${templateDir}/foundations/sizes.ts.ejs`,
+      output: `${outputDir}/foundations/sizes.ts`,
+    },
+    {
+      input: `${templateDir}/foundations/typography.ts.ejs`,
+      output: `${outputDir}/foundations/typography.ts`,
+    },
+  ];
+
+  // Render and save all the templates simultaneously
+  await Promise.all(
+    templates.map((template) => {
+      return renderTemplate(template.input, template.output, { chakra });
+    })
   );
-  process.exit(1);
 }
