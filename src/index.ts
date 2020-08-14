@@ -54,8 +54,8 @@ async function main() {
   console.log(JSON.stringify(tokens, undefined, 2));
 
   // Generate a Chakra UI theme using the tokens
-  const outputDir = path.resolve(__dirname, '../output');
-  console.log('Exporting Chakra UI theme to "output" folder...'.bold);
+  const outputDir = path.resolve(__dirname, '../theme');
+  console.log('Exporting Chakra UI theme to "theme" folder...'.bold);
   rimraf.sync(outputDir);
   await exportChakraFromTokens(tokens, outputDir);
 }

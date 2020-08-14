@@ -32,15 +32,10 @@ module.exports = {
       },
       overrides: [
         {
-          // Disable certain rules for the downloaded Chakra UI theme to prevent unfixable lint errors
-          files: ['**/theme/default/**/*.ts?(x)'],
+          // Allow importing dev dependencies in generated theme files
+          files: ['**/theme/**/*.{ts,tsx}'],
           rules: {
-            '@typescript-eslint/no-use-before-define': 'off',
-            '@typescript-eslint/no-explicit-any': 'off',
-            '@typescript-eslint/no-unused-vars': 'off',
             'import/no-extraneous-dependencies': 'off',
-            'no-underscore-dangle': 'off',
-            'no-nested-ternary': 'off',
           },
         },
       ],
