@@ -9,14 +9,18 @@ module.exports = {
         project: './tsconfig.json',
         tsconfigRootDir: __dirname,
       },
-      plugins: ['@typescript-eslint'],
+      plugins: ['react', '@typescript-eslint'],
       extends: [
-        'airbnb-typescript/base',
+        'plugin:react/recommended',
+        'airbnb-typescript',
         'plugin:prettier/recommended',
         'plugin:@typescript-eslint/eslint-recommended',
         'plugin:@typescript-eslint/recommended',
       ],
       rules: {
+        'react/prop-types': 0,
+        'react/jsx-props-no-spreading': 0,
+        'react/jsx-one-expression-per-line': 0,
         '@typescript-eslint/explicit-function-return-type': 0,
         '@typescript-eslint/explicit-module-boundary-types': 0,
         '@typescript-eslint/indent': 0,
@@ -32,8 +36,8 @@ module.exports = {
       },
       overrides: [
         {
-          // Allow importing dev dependencies in generated theme files
-          files: ['**/theme/**/*.{ts,tsx}'],
+          // Allow importing dev dependencies in stories and the generated theme
+          files: ['**/theme/**/*.{ts,tsx}', '**/*.stories.tsx'],
           rules: {
             'import/no-extraneous-dependencies': 'off',
           },
