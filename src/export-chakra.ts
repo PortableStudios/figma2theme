@@ -56,9 +56,10 @@ export default async function exportChakraFromTokens(
     },
     typography: {
       fonts: {
-        mono:
-          'SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace',
         ...tokens.typography.fonts,
+        heading: `"${tokens.typography.fonts.heading}", sans-serif`,
+        body: `"${tokens.typography.fonts.body}", sans-serif`,
+        mono: '"Courier New", Courier, monospace',
       },
       fontSizes: tokens.typography.fontSizes,
       lineHeights: tokens.typography.lineHeights,
