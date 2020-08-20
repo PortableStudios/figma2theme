@@ -12,10 +12,9 @@ import {
   ListItem,
   Stack,
   Text,
+  useTheme,
 } from '@chakra-ui/core';
 import type { Story, Meta } from '@storybook/react';
-
-import theme from '@/theme';
 
 export default {
   title: 'Theme/Styles/Typography',
@@ -39,6 +38,7 @@ const VariantList: React.FC<VariantListProps> = ({
   variants,
   component: Component,
 }) => {
+  const theme = useTheme();
   const variantKeys = Object.keys(variants);
   const renderExample = (variant: string, styles?: Variant) => {
     return (
@@ -149,16 +149,21 @@ const VariantList: React.FC<VariantListProps> = ({
 };
 
 export const HeadingVariants: Story = () => {
+  const theme = useTheme();
   return (
     <VariantList
-      variants={theme.components.Heading.variants}
+      variants={theme.components.Heading?.variants ?? {}}
       component={Heading}
     />
   );
 };
 
 export const TextVariants: Story = () => {
+  const theme = useTheme();
   return (
-    <VariantList variants={theme.components.Text.variants} component={Text} />
+    <VariantList
+      variants={theme.components.Text?.variants ?? {}}
+      component={Text}
+    />
   );
 };

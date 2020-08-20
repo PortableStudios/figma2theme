@@ -1,9 +1,14 @@
 import React from 'react';
 import { action } from '@storybook/addon-actions';
-import { Button, Divider, Flex, Heading, Stack } from '@chakra-ui/core';
+import {
+  Button,
+  Divider,
+  Flex,
+  Heading,
+  Stack,
+  useTheme,
+} from '@chakra-ui/core';
 import type { Story, Meta } from '@storybook/react';
-
-import theme from '@/theme';
 
 export default {
   title: 'Theme/Styles/Button',
@@ -40,6 +45,7 @@ const List: React.FC<ListProps> = ({ property, values, defaultValue }) => {
 };
 
 export const Variants: Story = () => {
+  const theme = useTheme();
   const variants = Object.keys(theme.components.Button.variants ?? {});
   const defaultValue = theme.components.Button.defaultProps?.variant;
   return (
@@ -48,6 +54,7 @@ export const Variants: Story = () => {
 };
 
 export const Sizes: Story = () => {
+  const theme = useTheme();
   const sizes = Object.keys(theme.components.Button.sizes ?? {});
   const defaultValue = theme.components.Button.defaultProps?.size;
   return <List property="size" values={sizes} defaultValue={defaultValue} />;

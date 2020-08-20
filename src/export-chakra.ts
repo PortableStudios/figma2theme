@@ -8,7 +8,6 @@ import type { Tokens } from './types';
 
 const prettierConfigFile = path.resolve(__dirname, '../.prettierrc');
 const templateDir = path.resolve(__dirname, '../templates');
-const storiesDir = path.resolve(__dirname, '../stories');
 
 // Run Prettier on TypeScript code using the config file
 const formatFileContents = async (contents: string) => {
@@ -88,7 +87,4 @@ export default async function exportChakraFromTokens(
       });
     })
   );
-
-  // Copy the stories in to the output folder
-  await fs.copy(storiesDir, `${outputDir}/stories`);
 }

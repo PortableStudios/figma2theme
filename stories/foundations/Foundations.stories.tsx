@@ -1,14 +1,13 @@
 import React from 'react';
 import { Story, Meta } from '@storybook/react';
-import { Box, Divider, Flex, Heading, Stack } from '@chakra-ui/core';
-
-import theme from '@/theme';
+import { Box, Divider, Flex, Heading, Stack, useTheme } from '@chakra-ui/core';
 
 export default {
   title: 'Theme/Foundations',
 } as Meta;
 
 export const Breakpoints: Story = () => {
+  const theme = useTheme();
   const breakpoints = theme.breakpoints;
   return (
     <Box
@@ -45,6 +44,7 @@ export const Breakpoints: Story = () => {
 };
 
 export const Radii: Story = () => {
+  const theme = useTheme();
   const radii = theme.radii;
   return (
     <Stack spacing={4}>
@@ -74,6 +74,7 @@ export const Radii: Story = () => {
 };
 
 export const Shadows: Story = () => {
+  const theme = useTheme();
   const shadows = theme.shadows;
   return (
     <Stack spacing={4}>
@@ -103,6 +104,7 @@ export const Shadows: Story = () => {
 };
 
 export const Sizes: Story = () => {
+  const theme = useTheme();
   // Get the relevant sizing keys
   const sizeKeys = Object.keys(theme.sizes)
     .map((key) => {
@@ -185,9 +187,10 @@ export const Sizes: Story = () => {
 };
 
 export const Spacing: Story = () => {
-  const spacing = Object.keys(theme.spaces)
+  const theme = useTheme();
+  const spacing = Object.keys(theme.space)
     .map((key) => {
-      const size = theme.spaces[key as keyof typeof theme.spaces];
+      const size = theme.space[key];
       let px;
       if (size.endsWith('rem')) {
         px = parseFloat(size) * 16;
