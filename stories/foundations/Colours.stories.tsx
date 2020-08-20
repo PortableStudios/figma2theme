@@ -2,14 +2,14 @@ import React from 'react';
 import { Story, Meta } from '@storybook/react';
 import { Box, Divider, Flex, Heading, Stack, Text } from '@chakra-ui/core';
 
-import theme from '../theme';
+import theme from '@/theme';
 
 export default {
   title: 'Theme/Foundations/Colours',
 } as Meta;
 
 type SectionProps = {
-  colours: typeof theme.colors.brand | typeof theme.colors.portable;
+  colours: Omit<typeof theme.colors, 'custom'> | typeof theme.colors.custom;
 };
 const Section: React.FC<SectionProps> = ({ colours }) => {
   return (
@@ -77,10 +77,16 @@ const Section: React.FC<SectionProps> = ({ colours }) => {
   );
 };
 
-export const Project: Story = () => {
-  return <Section colours={theme.colors.brand} />;
+export const Default: Story = () => {
+  const colours = { ...theme.colors };
+  delete colours.transparent;
+  delete colours.current;
+  delete colours.whiteAlpha;
+  delete colours.blackAlpha;
+  delete colours.custom;
+  return <Section colours={colours} />;
 };
 
-export const Portable: Story = () => {
-  return <Section colours={theme.colors.portable} />;
+export const Custom: Story = () => {
+  return <Section colours={theme.colors.custom} />;
 };

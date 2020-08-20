@@ -89,6 +89,9 @@ const getAllRectangleNodes = (from: Figma.Node<'CANVAS'>) =>
 // Helper function to get all text nodes from a page
 const getAllTextNodes = (from: Figma.Node<'CANVAS'>) =>
   getAllNodesByType('TEXT', from);
+// Helper function to get all component nodes from a page
+const getAllComponentNodes = (from: Figma.Node<'CANVAS'>) =>
+  getAllNodesByType('COMPONENT', from);
 
 // Convert a Figma shadow "effect style" to a CSS box-shadow value
 const convertFigmaShadowToCss = (shadow: Figma.EffectShadow): string => {
@@ -130,16 +133,30 @@ const getStyleMap = (
 
 // Extract 'breakpoint' design tokens from a canvas
 const getBreakpoints = (canvas: Figma.Node<'CANVAS'>): Breakpoints => {
-  return (
-    getAllRectangleNodes(canvas)
-      // Get all the rectangles named 'breakpoint'
-      .filter((r) => r.name === 'breakpoint')
-      // Get the pixel width of the rectangles
-      .map((r) => r.absoluteBoundingBox.width)
-      // Sort the widths in ascending order
-      .sort((a, b) => a - b)
-      // Convert pixels to rem
-      .map((px) => `${px / 16}rem`)
+  const prefix = 'breakpoint-';
+  const breakpoints = getAllRectangleNodes(canvas)
+    // Get all the rectangles with a name prefixed 'breakpoint-'
+    .filter((r) => r.name.startsWith(prefix))
+    // Get the name and pixel width of the rectangles
+    .map((r) => ({
+      name: r.name.replace(prefix, ''),
+      width: r.absoluteBoundingBox.width,
+    }))
+    // Sort the widths in ascending order
+    .sort((a, b) => a.width - b.width)
+    // Convert pixels to rem
+    .map((r) => ({
+      name: r.name,
+      width: `${r.width / 16}rem`,
+    }));
+
+  // Convert array to object
+  return breakpoints.reduce(
+    (obj, r) => ({
+      ...obj,
+      [r.name]: r.width,
+    }),
+    {}
   );
 };
 
@@ -181,7 +198,8 @@ const getColours = (
     const green = Math.round(colour.g * 255);
     const blue = Math.round(colour.b * 255);
     const hex = colorConvert.rgb.hex([red, green, blue]);
-    setWith(palette, colourStyles[fillKey], `#${hex}`, Object);
+    const key = colourStyles[fillKey].replace(/\//g, '.');
+    setWith(palette, key, `#${hex}`, Object);
   });
 
   return palette;
@@ -189,16 +207,17 @@ const getColours = (
 
 // Extract 'border radius' design tokens from a canvas
 const getRadii = (canvas: Figma.Node<'CANVAS'>): Radii => {
+  const prefix = 'radii-';
   const radii = getAllRectangleNodes(canvas)
-    // Get all the rectangles with a name prefixed 'radii_'
-    .filter((r) => r.name.startsWith('radii_'))
+    // Get all the rectangles with a name prefixed 'radii-'
+    .filter((r) => r.name.startsWith(prefix))
     // Get the name and border radius of the rectangles
     .map((r) => ({ name: r.name, cornerRadius: r.cornerRadius }))
     // Sort them in ascending order of radius
     .sort((a, b) => a.cornerRadius - b.cornerRadius)
-    // Remove "radii_" prefix from name and convert radius from px to rem
+    // Remove prefix from name and convert radius from px to rem
     .map((r) => ({
-      name: r.name.replace('radii_', ''),
+      name: r.name.replace(prefix, ''),
       cornerRadius: r.cornerRadius ? `${r.cornerRadius / 16}rem` : '0',
     }));
 
@@ -217,12 +236,13 @@ const getShadows = (
   canvas: Figma.Node<'CANVAS'>,
   styles: Dictionary<Figma.Style>
 ): Shadows => {
-  // Get all the effect styles with a name prefixed 'shadow_'
+  // Get all the effect styles with a name prefixed 'shadow-'
+  const prefix = 'shadow-';
   const shadowStyles: Dictionary<string> = {};
   Object.keys(styles).forEach((key) => {
     const style = styles[key];
-    if (style.name.startsWith('shadow_')) {
-      shadowStyles[key] = style.name.replace('shadow_', '');
+    if (style.name.startsWith(prefix)) {
+      shadowStyles[key] = style.name.replace(prefix, '');
     }
   });
 
@@ -256,16 +276,17 @@ const getShadows = (
 
 // Extract 'sizes' design tokens from a canvas
 const getSizes = (canvas: Figma.Node<'CANVAS'>): Sizes => {
+  const prefix = 'size-';
   const sizes = getAllRectangleNodes(canvas)
-    // Get all the rectangles with a name prefixed 'size_'
-    .filter((r) => r.name.startsWith('size_'))
+    // Get all the rectangles with a name prefixed 'size-'
+    .filter((r) => r.name.startsWith(prefix))
     // Get the name and pixel size of the rectangles
     .map((r) => ({ name: r.name, size: r.absoluteBoundingBox.width }))
     // Sort them in ascending order of size
     .sort((a, b) => a.size - b.size)
-    // Remove "size_" prefix from name and convert size from px to rem
+    // Remove prefix from name and convert size from px to rem
     .map((r) => ({
-      name: r.name.replace('size_', ''),
+      name: r.name.replace(prefix, ''),
       size: r.size > 1 ? `${r.size / 16}rem` : `${r.size}px`,
     }));
 
@@ -281,16 +302,17 @@ const getSizes = (canvas: Figma.Node<'CANVAS'>): Sizes => {
 
 // Extract 'spacing' design tokens from a canvas
 const getSpacing = (canvas: Figma.Node<'CANVAS'>): Spacing => {
-  const spacing = getAllRectangleNodes(canvas)
-    // Get all the rectangles with a name prefixed 'space_'
-    .filter((r) => r.name.startsWith('space_'))
+  const prefix = 'space-';
+  const spacing = getAllComponentNodes(canvas)
+    // Get all the components with a name prefixed 'space-'
+    .filter((r) => r.name.startsWith(prefix))
     // Get the name and pixel size of the rectangles
     .map((r) => ({ name: r.name, size: r.absoluteBoundingBox.width }))
     // Sort them in ascending order of size
     .sort((a, b) => a.size - b.size)
-    // Remove "space_" prefix from name and convert size from px to rem
+    // Remove prefix from name and convert size from px to rem
     .map((r) => ({
-      name: r.name.replace('space_', ''),
+      name: r.name.replace(prefix, ''),
       size: r.size > 1 ? `${r.size / 16}rem` : `${r.size}px`,
     }));
 
@@ -308,22 +330,24 @@ const getSpacing = (canvas: Figma.Node<'CANVAS'>): Spacing => {
 const getFontFamilies = (canvas: Figma.Node<'CANVAS'>): Typography['fonts'] => {
   const textElements = getAllTextNodes(canvas);
 
-  // Get the text element named "font_heading", log an error and exit if it's missing
-  const headingFont = textElements.find((e) => e.name === 'font_heading');
+  // Get the text element named "font-heading", log an error and exit if it's missing
+  const headingFontName = 'font-heading';
+  const headingFont = textElements.find((e) => e.name === headingFontName);
   if (headingFont === undefined) {
     logError(
       'Heading font not found in "Typography" page',
-      '- Please add a text element named "font_heading".'
+      `- Please add a text element named "${headingFontName}".`
     );
     process.exit(1);
   }
 
-  // Get the text element named "font_body", log an error and exit if it's missing
-  const bodyFont = textElements.find((e) => e.name === 'font_body');
+  // Get the text element named "font-body", log an error and exit if it's missing
+  const bodyFontName = 'font-body';
+  const bodyFont = textElements.find((e) => e.name === bodyFontName);
   if (bodyFont === undefined) {
     logError(
       'Body font not found in "Typography" page',
-      '- Please add a text element named "font_body".'
+      `- Please add a text element named "${bodyFontName}".`
     );
     process.exit(1);
   }
@@ -338,16 +362,17 @@ const getFontFamilies = (canvas: Figma.Node<'CANVAS'>): Typography['fonts'] => {
 const getFontSizes = (
   canvas: Figma.Node<'CANVAS'>
 ): Typography['fontSizes'] => {
+  const prefix = 'fontSize-';
   const fontSizes = getAllTextNodes(canvas)
-    // Get all the text element with a name prefixed 'fontSize_'
-    .filter((e) => e.name.startsWith('fontSize_'))
+    // Get all the text element with a name prefixed 'fontSize-'
+    .filter((e) => e.name.startsWith(prefix))
     // Get the name and font size of the elements
     .map((e) => ({ name: e.name, size: e.style.fontSize }))
     // Sort them in ascending order of font size
     .sort((a, b) => a.size - b.size)
-    // Remove "fontSize_" prefix from name and convert font size from px to rem
+    // Remove prefix from name and convert font size from px to rem
     .map((s) => ({
-      name: s.name.replace('fontSize_', ''),
+      name: s.name.replace(prefix, ''),
       size: `${s.size / 16}rem`,
     }));
 
@@ -365,9 +390,10 @@ const getFontSizes = (
 const getLineHeights = (
   canvas: Figma.Node<'CANVAS'>
 ): Typography['lineHeights'] => {
+  const prefix = 'lineHeight-';
   const lineHeights = getAllTextNodes(canvas)
-    // Get all the text elements with a name prefixed 'lineHeight_'
-    .filter((e) => e.name.startsWith('lineHeight_'))
+    // Get all the text elements with a name prefixed 'lineHeight-'
+    .filter((e) => e.name.startsWith(prefix))
     // Get the name and font size of the elements
     .map((e) => ({
       name: e.name,
@@ -383,9 +409,9 @@ const getLineHeights = (
       }
       return a.lineHeight - b.lineHeight;
     })
-    // Remove "lineHeight_" prefix from name and convert from % to decimal
+    // Remove prefix from name and convert from % to decimal
     .map((s) => ({
-      name: s.name.replace('lineHeight_', ''),
+      name: s.name.replace(prefix, ''),
       lineHeight:
         s.lineHeight !== undefined ? `${s.lineHeight / 100}` : 'normal',
     }));
@@ -404,9 +430,10 @@ const getLineHeights = (
 const getLetterSpacing = (
   canvas: Figma.Node<'CANVAS'>
 ): Typography['letterSpacing'] => {
+  const prefix = 'letterSpacing-';
   const letterSpacing = getAllTextNodes(canvas)
-    // Get all the text element with a name prefixed 'letterSpacing_'
-    .filter((e) => e.name.startsWith('letterSpacing_'))
+    // Get all the text element with a name prefixed 'letterSpacing-'
+    .filter((e) => e.name.startsWith(prefix))
     // Get the name and calculate the letter spacing %
     .map((e) => ({
       name: e.name,
@@ -414,11 +441,11 @@ const getLetterSpacing = (
     }))
     // Sort them in ascending order of letter spacing
     .sort((a, b) => a.letterSpacing - b.letterSpacing)
-    // Remove "letterSpacing_" prefix from name and convert letter spacing to em
+    // Remove prefix from name and convert letter spacing to em
     .map((l) => {
       const ls = parseFloat(l.letterSpacing.toFixed(3));
       return {
-        name: l.name.replace('letterSpacing_', ''),
+        name: l.name.replace(prefix, ''),
         letterSpacing: ls === 0 ? '0' : `${ls}em`,
       };
     });
@@ -491,20 +518,19 @@ const getTextStyles = (
 
     // Get the style values (i.e. font family, font size, etc.)
     const values = getTextStyleValues(t);
-    // Get the style name and extract the breakpoint # if it exists (e.g. 2 from "body_breakpoint2")
+    // Get the style name and extract the breakpoint name if it exists (e.g. "sm" from "body/sm")
     let name = textStyles[styleKey];
-    const breakpoint = name.match(/_breakpoint(\d+)/)?.[1];
+    const bp = name.split('/')?.[1];
 
-    if (breakpoint) {
-      // If the style does correspond to a breakpoint, add the values to the correct array indexes
-      name = name.replace(`_breakpoint${breakpoint}`, '');
-      const idx = parseInt(breakpoint, 10) - 1;
-      setWith(variants, `${name}.fontFamily[${idx}]`, values.fontFamily);
-      setWith(variants, `${name}.fontSize[${idx}]`, values.fontSize);
-      setWith(variants, `${name}.fontStyle[${idx}]`, values.fontStyle);
-      setWith(variants, `${name}.fontWeight[${idx}]`, values.fontWeight);
-      setWith(variants, `${name}.letterSpacing[${idx}]`, values.letterSpacing);
-      setWith(variants, `${name}.lineHeight[${idx}]`, values.lineHeight);
+    if (bp) {
+      // If the style does correspond to a breakpoint, add the values under that key
+      name = name.replace(`/${bp}`, '');
+      setWith(variants, `${name}.fontFamily.${bp}`, values.fontFamily);
+      setWith(variants, `${name}.fontSize.${bp}]`, values.fontSize);
+      setWith(variants, `${name}.fontStyle.${bp}]`, values.fontStyle);
+      setWith(variants, `${name}.fontWeight.${bp}]`, values.fontWeight);
+      setWith(variants, `${name}.letterSpacing.${bp}]`, values.letterSpacing);
+      setWith(variants, `${name}.lineHeight.${bp}]`, values.lineHeight);
       return;
     }
 
@@ -513,12 +539,11 @@ const getTextStyles = (
   });
 
   // Iterate over the styles and flatten any unnecessary responsive values
-  // e.g. change `fontSize: ['1rem', '1rem', '1rem', '1rem']` to just `fontSize: '1rem'`
-  const flatten = (v: string | string[]) => {
-    if (Array.isArray(v) && v.every((a) => a === v[0])) {
-      return v[0];
-    }
-    return v;
+  // e.g. change `fontSize: { base: '1rem', sm: '1rem', md: '1rem' }` to just `fontSize: '1rem'`
+  const flatten = (value: string | string[]) => {
+    const objValues =
+      typeof value === 'object' ? Object.values(value) : undefined;
+    return objValues?.every((v) => v === objValues[0]) ? objValues[0] : value;
   };
   Object.keys(variants).forEach((k) => {
     const v = variants[k];
@@ -548,7 +573,6 @@ const pageNames = {
   sizes: 'Sizes',
   spacing: 'Spacing',
   typography: 'Typography',
-  textStyles: 'Text Styles',
 };
 
 export default async function importTokensFromFigma(
@@ -581,10 +605,7 @@ export default async function importTokensFromFigma(
   // Extract the design tokens from the file and return them in a Tokens object
   return {
     breakpoints: getBreakpoints(canvases.breakpoints),
-    colours: {
-      portable: getColours(canvases.colours, file.styles, 'portable.'),
-      brand: getColours(canvases.colours, file.styles, 'brand.'),
-    },
+    colours: getColours(canvases.colours, file.styles, 'custom/'),
     radii: getRadii(canvases.radii),
     shadows: getShadows(canvases.shadows, file.styles),
     sizes: getSizes(canvases.sizes),
@@ -595,11 +616,11 @@ export default async function importTokensFromFigma(
       lineHeights: getLineHeights(canvases.typography),
       letterSpacing: getLetterSpacing(canvases.typography),
     },
-    textVariants: getTextStyles(canvases.textStyles, file.styles, 'text_'),
+    textVariants: getTextStyles(canvases.typography, file.styles, 'text/'),
     headingVariants: getTextStyles(
-      canvases.textStyles,
+      canvases.typography,
       file.styles,
-      'heading_'
+      'heading/'
     ),
   };
 }

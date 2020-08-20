@@ -2,7 +2,7 @@ import React from 'react';
 import { Story, Meta } from '@storybook/react';
 import { Box, Divider, Flex, Heading, Stack } from '@chakra-ui/core';
 
-import theme from '../theme';
+import theme from '@/theme';
 
 export default {
   title: 'Theme/Foundations',
@@ -26,7 +26,7 @@ export const Breakpoints: Story = () => {
         </Box>
       </Box>
       <Box as="tbody">
-        {breakpoints.map((rem, i) => {
+        {(breakpoints as string[]).map((rem, i) => {
           const px = `${parseFloat(rem) * 16}px`;
           return (
             <Box key={rem} as="tr" borderTop="1px solid" borderColor="gray.200">

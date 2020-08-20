@@ -5,7 +5,11 @@
     "strict": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
-    "jsx": "react"
+    "jsx": "react",
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["*"]
+    }
   },
   "include": ["src/**/*", "theme/**/*", "stories/**/*"],
   "exclude": ["node_modules"]
