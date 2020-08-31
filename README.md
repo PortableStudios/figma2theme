@@ -1,28 +1,105 @@
 # figma2theme 🎨
 
-This is a Portable tool designed to allow us to extract
+This CLI is a Portable tool designed to allow us to extract
 design tokens (colour palettes, typography, spacing scales, etc.)
 from a Figma file and then use them to generate a theme.
 
 **Figma template:**
-https://www.figma.com/file/m1rARkfdPU6dB7n9ofBRHw/
+https://www.figma.com/file/m1rARkfdPU6dB7n9ofBRHw/Portable-UI-Kit
 
-## Getting Started
+## Usage
 
-First, create your .env file:
+### 1. Add `figma2theme` to your project
+
+```bash
+yarn add --dev figma2theme
+```
+
+### 2. Define your variables
+
+Create a `.figma2themerc` file in your project containing the
+Figma file URL, here's an example using the URL of our Figma template:
+
+```json
+{
+  "fileUrl": "https://www.figma.com/file/m1rARkfdPU6dB7n9ofBRHw/Portable-UI-Kit"
+}
+```
+
+Now add your Figma API key to the `.env` file of your project.
+A key can be generated under the 'Personal Access Tokens' section of the Figma settings.
 
 ```
 FIGMA_API_KEY=
-FIGMA_FILE_URL=
 ```
 
-Enter your Figma API key (these can be generated under the
-'Personal Access Tokens' section of the settings) and the URL of the
-Figma file you want to use (the template above can be used for testing).
+Both of these variables can be provided through either the `.figma2themerc` file, the
+environment variables or the CLI arguments. We recommend the above setup for most projects.
 
-Now run:
+### 3. Generate your theme
+
+Run the following command to generate your Chakra UI theme:
 
 ```bash
-yarn install
-yarn start
+figma2theme generate-chakra
 ```
+
+By default the generated theme file(s) will be saved to `./theme`.
+
+### 4. Import the theme
+
+Update your imports from `import theme from "@chakra-ui/theme"` to the generated theme location.
+
+### 5. Import the stories (Optional)
+
+`figma2theme` provides a variety of Storybook stories that allow you to view elements of your
+current Chakra UI theme, including foundational values (e.g. colour palettes, font sizes, etc.)
+and component styles (e.g. button variants, heading/text variants, etc.)
+
+To view these stories in the Storybook of your project, open `.storybook/main.js` and insert
+the following glob to the `stories` array: `../node_modules/figma2theme/lib/**/*.stories.js`
+
+## Development
+
+### Running the CLI
+
+While developing the CLI you can use it by running:
+
+```bash
+yarn dev
+```
+
+This is equivalent to running `figma2theme` in a project.
+
+For example, to generate a Chakra UI theme run the following:
+
+```bash
+yarn dev generate-chakra
+```
+
+---
+
+If you want to test `figma2theme` globally run the following:
+
+```bash
+yarn global:install
+```
+
+This will build the CLI and use Yarn to install it globally,
+allowing you to run the CLI by typing `figma2theme` anywhere.
+
+To remove the globally installed package run the following:
+
+```bash
+yarn global:remove
+```
+
+### Storybook
+
+The provided stories can be previewed by running:
+
+```bash
+yarn storybook
+```
+
+Ensure you have generated a theme beforehand using `yarn dev generate-chakra`.

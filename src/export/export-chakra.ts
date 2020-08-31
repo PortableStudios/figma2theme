@@ -4,10 +4,11 @@ import path from 'path';
 import prettier from 'prettier';
 import type { Data } from 'ejs';
 
-import type { Tokens } from './types';
+import { version } from '../../package.json';
+import type { Tokens } from '../utils/types';
 
-const prettierConfigFile = path.resolve(__dirname, '../.prettierrc');
-const templateDir = path.resolve(__dirname, '../templates');
+const prettierConfigFile = path.resolve(__dirname, '../../.prettierrc');
+const templateDir = path.resolve(__dirname, '../../templates');
 
 // Run Prettier on TypeScript code using the config file
 const formatFileContents = async (contents: string) => {
@@ -83,6 +84,7 @@ export default async function exportChakraFromTokens(
     templates.map((template) => {
       return renderTemplate(template.input, template.output, {
         chakra,
+        version,
         figmaFileKey,
       });
     })

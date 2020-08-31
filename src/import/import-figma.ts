@@ -3,7 +3,7 @@ import setWith from 'lodash.setwith';
 import colorConvert from 'color-convert';
 import type { GetFileResult } from 'figma-api/lib/api-types';
 
-import { logError } from './utils';
+import { logError } from '../utils/log';
 import type {
   Dictionary,
   Breakpoints,
@@ -15,7 +15,7 @@ import type {
   Typography,
   TextVariant,
   Tokens,
-} from './types';
+} from '../utils/types';
 
 /**
  * Figma utility functions

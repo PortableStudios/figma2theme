@@ -3,9 +3,11 @@
     "target": "es5",
     "module": "commonjs",
     "strict": true,
+    "resolveJsonModule": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
-    "jsx": "react"
+    "jsx": "react",
+    "outDir": "lib"
   },
   "include": ["src/**/*", "theme/**/*", "stories/**/*"],
   "exclude": ["node_modules"]
