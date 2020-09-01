@@ -22,6 +22,15 @@ export type Typography = {
   letterSpacing: Dictionary<string>;
 };
 
+export type TextVariant = {
+  fontFamily: string | string[];
+  fontSize: string | string[];
+  fontStyle: string | string[];
+  fontWeight: string | string[];
+  letterSpacing: string | string[];
+  lineHeight: string | string[];
+};
+
 export type Tokens = {
   breakpoints: Breakpoints;
   colours: {
@@ -33,4 +42,6 @@ export type Tokens = {
   sizes: Sizes;
   spacing: Spacing;
   typography: Typography;
+  headingVariants: { [key: string]: TextVariant };
+  textVariants: { [key: string]: TextVariant };
 };

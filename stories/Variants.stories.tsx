@@ -18,22 +18,30 @@ export default {
 
 // Reusable component to display both heading and text variants
 // All breakpoints are displayed if the variant has responsive font sizing
-type FontSize = string | string[];
+type Variant = {
+  fontFamily: string | string[];
+  fontSize: string | string[];
+  fontStyle: string | string[];
+  fontWeight: string | string[];
+  letterSpacing: string | string[];
+  lineHeight: string | string[];
+};
 type VariantListProps = {
-  variants: { [key: string]: FontSize };
+  variants: { [key: string]: Variant };
   component: typeof Heading | typeof Text;
 };
-
 const VariantList: React.FC<VariantListProps> = ({
   variants,
   component: Component,
 }) => {
   const variantKeys = Object.keys(variants);
-  const renderExample = (variant: string, fontSize: string) => {
+  const renderExample = (variant: string, styles?: Variant) => {
     return (
       <Flex backgroundColor="gray.200" borderRadius="md" padding={4}>
-        <Component variant={variant} fontSize={fontSize} width="19ch">
-          The quick brown fox jumps over the lazy dog
+        <Component variant={variant} {...styles}>
+          The quick brown fox
+          <br />
+          jumps over the lazy dog
         </Component>
       </Flex>
     );
@@ -41,7 +49,9 @@ const VariantList: React.FC<VariantListProps> = ({
   return (
     <Stack spacing={8}>
       {variantKeys.map((key) => {
-        const fontSize = variants[key];
+        const v = variants[key];
+        // If the variant has any responsive values, render a text example for each breakpoint
+        const isResponsive = Object.values(v).some((a) => Array.isArray(a));
         return (
           <Stack key={key} spacing={2}>
             <Heading
@@ -51,26 +61,37 @@ const VariantList: React.FC<VariantListProps> = ({
             >
               {key}
             </Heading>
-            {Array.isArray(fontSize) ? (
+            {isResponsive ? (
               <List spacing={4}>
-                {fontSize.map((size, i) => {
-                  const breakpoint = parseInt(theme.breakpoints[i], 10) * 16;
-                  const heading = `Breakpoint ${i + 1} (${breakpoint}px)`;
+                {theme.breakpoints.map((breakpointRem, i) => {
+                  const breakpointPx = parseInt(breakpointRem, 10) * 16;
+                  const heading = `Breakpoint ${i + 1} (${breakpointPx}px)`;
+                  // Get the style values for the breakpoint we're rendering
+                  const getValue = (value: string | string[]) =>
+                    Array.isArray(value) ? value[i] : value;
+                  const values = {
+                    fontFamily: getValue(v.fontFamily),
+                    fontSize: getValue(v.fontSize),
+                    fontStyle: getValue(v.fontStyle),
+                    fontWeight: getValue(v.fontWeight),
+                    letterSpacing: getValue(v.letterSpacing),
+                    lineHeight: getValue(v.lineHeight),
+                  };
                   return (
-                    <ListItem key={size}>
+                    <ListItem key={breakpointRem}>
                       <Flex direction="column" marginBottom={2}>
                         <Heading fontSize="12px" fontWeight="bold">
                           {heading}
                         </Heading>
                         <Divider marginTop={2} />
                       </Flex>
-                      {renderExample(key, size)}
+                      {renderExample(key, values)}
                     </ListItem>
                   );
                 })}
               </List>
             ) : (
-              renderExample(key, fontSize)
+              renderExample(key)
             )}
           </Stack>
         );
@@ -79,20 +100,10 @@ const VariantList: React.FC<VariantListProps> = ({
   );
 };
 
-const getVariants = (variants: { [key: string]: { fontSize: FontSize } }) => {
-  return Object.keys(variants).reduce(
-    (obj, key) => ({
-      ...obj,
-      [key]: variants[key].fontSize,
-    }),
-    {}
-  );
-};
-
 export const HeadingStory: Story = () => {
   return (
     <VariantList
-      variants={getVariants(theme.components.Heading.variants)}
+      variants={theme.components.Heading.variants}
       component={Heading}
     />
   );
@@ -101,10 +112,7 @@ HeadingStory.storyName = 'Heading';
 
 export const TextStory: Story = () => {
   return (
-    <VariantList
-      variants={getVariants(theme.components.Text.variants)}
-      component={Text}
-    />
+    <VariantList variants={theme.components.Text.variants} component={Text} />
   );
 };
 TextStory.storyName = 'Text';

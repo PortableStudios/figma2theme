@@ -13,6 +13,7 @@ import type {
   Sizes,
   Spacing,
   Typography,
+  TextVariant,
   Tokens,
 } from './types';
 
@@ -110,6 +111,19 @@ const convertFigmaShadowToCss = (shadow: Figma.EffectShadow): string => {
   return `${type}${x} ${y} ${radius} 0 ${colour}`;
 };
 
+// The `styles` property is incorrect in the `figma-api` types
+// This utility function simply casts it to the correct type
+type StyleMap = {
+  effect?: string;
+  fill?: string;
+  text?: string;
+};
+const getStyleMap = (
+  node: Figma.Node<'TEXT'> | Figma.Node<'RECTANGLE'>
+): StyleMap | undefined => {
+  return node.styles as StyleMap;
+};
+
 /**
  * Design token extraction functions
  */
@@ -144,15 +158,9 @@ const getColours = (
     }
   });
 
-  const getFillKey = (r: Figma.Node<'RECTANGLE'>): string | undefined => {
-    // The `styles` property is incorrect in the `figma-api` types
-    const styleMap = r.styles as { fill?: string };
-    return styleMap.fill;
-  };
-
   // Get all the rectangles that are using one of the colour styles
   const rectangles = getAllRectangleNodes(canvas).filter((r) => {
-    const fillKey = getFillKey(r);
+    const fillKey = getStyleMap(r)?.fill;
     if (fillKey === undefined) {
       return false;
     }
@@ -163,7 +171,7 @@ const getColours = (
   const palette: Palette = {};
   rectangles.forEach((r) => {
     const colour = r.fills[0].color;
-    const fillKey = getFillKey(r);
+    const fillKey = getStyleMap(r)?.fill;
     if (fillKey === undefined || colour === undefined) {
       return;
     }
@@ -218,15 +226,9 @@ const getShadows = (
     }
   });
 
-  const getEffectKey = (r: Figma.Node<'RECTANGLE'>): string | undefined => {
-    // The `styles` property is incorrect in the `figma-api` types
-    const styleMap = r.styles as { effect?: string };
-    return styleMap.effect;
-  };
-
   // Get all the rectangles from the canvas that are using one of these effect styles
   const rectangles = getAllRectangleNodes(canvas).filter((r) => {
-    const effectKey = getEffectKey(r);
+    const effectKey = getStyleMap(r)?.effect;
     if (effectKey === undefined) {
       return false;
     }
@@ -237,7 +239,7 @@ const getShadows = (
   const shadows: Dictionary<string> = {};
   rectangles.forEach((r) => {
     const effects = r.effects;
-    const effectKey = getEffectKey(r);
+    const effectKey = getStyleMap(r)?.effect;
     if (effects === undefined || effectKey === undefined) {
       return;
     }
@@ -431,6 +433,108 @@ const getLetterSpacing = (
   );
 };
 
+// Get the style values from a text element (i.e. font family, font size, etc.)
+const getTextStyleValues = (t: Figma.Node<'TEXT'>): TextVariant => {
+  const fontFamily = t.style.fontFamily;
+  const fontSize = `${t.style.fontSize / 16}rem`;
+  const fontStyle = t.style.italic ? 'italic' : 'normal';
+  const fontWeight = `${t.style.fontWeight}`;
+  const letterSpacing = `${parseFloat(
+    (t.style.letterSpacing / t.style.fontSize).toFixed(3)
+  )}em`;
+  // `undefined` line height in Figma is equivalent to "normal" in CSS
+  const lineHeightPct = t.style.lineHeightPercentFontSize;
+  const lineHeight =
+    lineHeightPct !== undefined ? `${lineHeightPct / 100}` : 'normal';
+
+  return {
+    fontFamily,
+    fontSize,
+    fontStyle,
+    fontWeight,
+    letterSpacing,
+    lineHeight,
+  };
+};
+
+const getTextStyles = (
+  canvas: Figma.Node<'CANVAS'>,
+  styles: Dictionary<Figma.Style>,
+  prefix: string
+): { [key: string]: TextVariant } => {
+  // Get all the text styles with the provided prefix in their name
+  const textStyles: Dictionary<string> = {};
+  Object.keys(styles).forEach((key) => {
+    const style = styles[key];
+    if (style.name.startsWith(prefix)) {
+      textStyles[key] = style.name.replace(prefix, '');
+    }
+  });
+
+  // Get all the text elements that are using one of the styles
+  const textElements = getAllTextNodes(canvas).filter((t) => {
+    const styleKey = getStyleMap(t)?.text;
+    if (styleKey === undefined) {
+      return false;
+    }
+
+    return Object.keys(textStyles).includes(styleKey);
+  });
+
+  // Extract the styles from each text element
+  const variants: { [key: string]: TextVariant } = {};
+  textElements.forEach((t) => {
+    const styleKey = getStyleMap(t)?.text;
+    if (styleKey === undefined) {
+      return;
+    }
+
+    // Get the style values (i.e. font family, font size, etc.)
+    const values = getTextStyleValues(t);
+    // Get the style name and extract the breakpoint # if it exists (e.g. 2 from "body_breakpoint2")
+    let name = textStyles[styleKey];
+    const breakpoint = name.match(/_breakpoint(\d+)/)?.[1];
+
+    if (breakpoint) {
+      // If the style does correspond to a breakpoint, add the values to the correct array indexes
+      name = name.replace(`_breakpoint${breakpoint}`, '');
+      const idx = parseInt(breakpoint, 10) - 1;
+      setWith(variants, `${name}.fontFamily[${idx}]`, values.fontFamily);
+      setWith(variants, `${name}.fontSize[${idx}]`, values.fontSize);
+      setWith(variants, `${name}.fontStyle[${idx}]`, values.fontStyle);
+      setWith(variants, `${name}.fontWeight[${idx}]`, values.fontWeight);
+      setWith(variants, `${name}.letterSpacing[${idx}]`, values.letterSpacing);
+      setWith(variants, `${name}.lineHeight[${idx}]`, values.lineHeight);
+      return;
+    }
+
+    // Otherwise just assign the style object as normal
+    variants[name] = values;
+  });
+
+  // Iterate over the styles and flatten any unnecessary responsive values
+  // e.g. change `fontSize: ['1rem', '1rem', '1rem', '1rem']` to just `fontSize: '1rem'`
+  const flatten = (v: string | string[]) => {
+    if (Array.isArray(v) && v.every((a) => a === v[0])) {
+      return v[0];
+    }
+    return v;
+  };
+  Object.keys(variants).forEach((k) => {
+    const v = variants[k];
+    variants[k] = {
+      fontFamily: flatten(v.fontFamily),
+      fontSize: flatten(v.fontSize),
+      fontStyle: flatten(v.fontStyle),
+      fontWeight: flatten(v.fontWeight),
+      letterSpacing: flatten(v.letterSpacing),
+      lineHeight: flatten(v.lineHeight),
+    };
+  });
+
+  return variants;
+};
+
 /**
  * Script
  */
@@ -444,6 +548,7 @@ const pageNames = {
   sizes: 'Sizes',
   spacing: 'Spacing',
   typography: 'Typography',
+  textStyles: 'Text Styles',
 };
 
 export default async function importTokensFromFigma(
@@ -490,5 +595,11 @@ export default async function importTokensFromFigma(
       lineHeights: getLineHeights(canvases.typography),
       letterSpacing: getLetterSpacing(canvases.typography),
     },
+    textVariants: getTextStyles(canvases.textStyles, file.styles, 'text_'),
+    headingVariants: getTextStyles(
+      canvases.textStyles,
+      file.styles,
+      'heading_'
+    ),
   };
 }

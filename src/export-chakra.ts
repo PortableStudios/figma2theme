@@ -64,6 +64,8 @@ export default async function exportChakraFromTokens(
       lineHeights: tokens.typography.lineHeights,
       letterSpacing: tokens.typography.letterSpacing,
     },
+    headingVariants: tokens.headingVariants,
+    textVariants: tokens.textVariants,
   };
 
   // Specify which templates should be rendered and where they should be saved
