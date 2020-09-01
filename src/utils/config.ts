@@ -3,53 +3,44 @@ import path from 'path';
 
 import { logError } from './log';
 
-// Read the API key and file URL config options from the .figma2themerc file
-const getFileVariables = async (): Promise<{
-  apiKey: string;
-  fileUrl: string;
-}> => {
+// Specify the keys for each configuration option
+// i.e. the env variable name and the key for the .figma2themerc JSON
+type Keys = {
+  env: string;
+  file: string;
+};
+const configKeys = {
+  apiKey: {
+    env: 'FIGMA_API_KEY',
+    file: 'apiKey',
+  },
+  fileUrl: {
+    env: 'FIGMA_FILE_URL',
+    file: 'fileUrl',
+  },
+} as const;
+
+// Get the JSON from the .figma2themerc config file
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const getConfigFileJSON = async (): Promise<any> => {
   const filePath = path.resolve(process.cwd(), './.figma2themerc');
-  // Return nothing if the file doesn't exist
-  const fileExists = await fs.pathExists(filePath);
-  if (!fileExists) {
-    return { apiKey: '', fileUrl: '' };
-  }
-
-  // Otherwise read the file JSON and return the variables
-  const json = await fs.readJSON(filePath);
-  const apiKey = json.apiKey ?? '';
-  const fileUrl = json.fileUrl ?? '';
-  return { apiKey, fileUrl };
+  return (await fs.pathExists(filePath)) ? fs.readJSON(filePath) : {};
 };
 
-// Get the API key config option with the following priority:
+// Get a config value with the following priority:
 // CLI arguments > Environment variables > .figma2themerc file
-const getAPIKey = async (override?: string) => {
-  let apiKey = override ?? '';
-  // If it wasn't passed in through the CLI args, check the environment variables
-  if (apiKey === '') {
-    apiKey = process.env.FIGMA_API_KEY ?? '';
+const getValue = async (keys: Keys, override?: string): Promise<string> => {
+  let value = override ?? '';
+  // If the value wasn't passed through CLI arguments, check environment variables
+  if (value === '') {
+    value = process.env[keys.env] ?? '';
   }
-  // If the environment variable is empty, check the .figma2themerc file
-  if (apiKey === '') {
-    apiKey = (await getFileVariables()).apiKey;
+  // If the environment variable was empty, check the .figma2themerc file
+  if (value === '') {
+    const configFile = await getConfigFileJSON();
+    value = configFile[keys.file] ?? '';
   }
-  return apiKey;
-};
-
-// Get the file URL config option with the following priority:
-// CLI arguments > Environment variables > .figma2themerc file
-const getFileURL = async (override?: string) => {
-  let fileUrl = override ?? '';
-  // If it wasn't passed in through the CLI args, check the environment variables
-  if (fileUrl === '') {
-    fileUrl = process.env.FIGMA_FILE_URL ?? '';
-  }
-  // If the environment variable is empty, check the .figma2themerc file
-  if (fileUrl === '') {
-    fileUrl = (await getFileVariables()).fileUrl;
-  }
-  return fileUrl;
+  return value;
 };
 
 // Get the final config object
@@ -62,7 +53,7 @@ export default async function getConfig(
   fileUrlOverride?: string
 ): Promise<Config> {
   // Get the API key, throw an error if it's missing
-  const apiKey = await getAPIKey(apiKeyOverride);
+  const apiKey = await getValue(configKeys.apiKey, apiKeyOverride);
   if (apiKey === '') {
     logError('Please provide a value for the API key.', [
       '- An API key can be created in the "Personal Access Tokens" section of the Figma settings.',
@@ -72,7 +63,7 @@ export default async function getConfig(
   }
 
   // Get the file URL, throw an error if it's missing
-  const fileUrl = await getFileURL(fileUrlOverride);
+  const fileUrl = await getValue(configKeys.fileUrl, fileUrlOverride);
   if (fileUrl === '') {
     logError('Please provide a value for the Figma file URL.', [
       '- The URL of a Figma file can be copied by pressing "Share" and then "Copy link".',
