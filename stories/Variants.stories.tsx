@@ -1,6 +1,11 @@
 import React from 'react';
 import {
-  Divider,
+  Accordion,
+  AccordionButton,
+  AccordionIcon,
+  AccordionItem,
+  AccordionPanel,
+  Box,
   Flex,
   Heading,
   List,
@@ -37,13 +42,11 @@ const VariantList: React.FC<VariantListProps> = ({
   const variantKeys = Object.keys(variants);
   const renderExample = (variant: string, styles?: Variant) => {
     return (
-      <Flex backgroundColor="gray.200" borderRadius="md" padding={4}>
-        <Component variant={variant} {...styles}>
-          The quick brown fox
-          <br />
-          jumps over the lazy dog
-        </Component>
-      </Flex>
+      <Component variant={variant} {...styles}>
+        The quick brown fox
+        <br />
+        jumps over the lazy dog
+      </Component>
     );
   };
   return (
@@ -53,7 +56,7 @@ const VariantList: React.FC<VariantListProps> = ({
         // If the variant has any responsive values, render a text example for each breakpoint
         const isResponsive = Object.values(v).some((a) => Array.isArray(a));
         return (
-          <Stack key={key} spacing={2}>
+          <Flex key={key} direction="column">
             <Heading
               fontSize="24px"
               fontWeight="black"
@@ -61,39 +64,79 @@ const VariantList: React.FC<VariantListProps> = ({
             >
               {key}
             </Heading>
-            {isResponsive ? (
-              <List spacing={4}>
-                {theme.breakpoints.map((breakpointRem, i) => {
-                  const breakpointPx = parseInt(breakpointRem, 10) * 16;
-                  const heading = `Breakpoint ${i + 1} (${breakpointPx}px)`;
-                  // Get the style values for the breakpoint we're rendering
-                  const getValue = (value: string | string[]) =>
-                    Array.isArray(value) ? value[i] : value;
-                  const values = {
-                    fontFamily: getValue(v.fontFamily),
-                    fontSize: getValue(v.fontSize),
-                    fontStyle: getValue(v.fontStyle),
-                    fontWeight: getValue(v.fontWeight),
-                    letterSpacing: getValue(v.letterSpacing),
-                    lineHeight: getValue(v.lineHeight),
-                  };
-                  return (
-                    <ListItem key={breakpointRem}>
-                      <Flex direction="column" marginBottom={2}>
-                        <Heading fontSize="12px" fontWeight="bold">
-                          {heading}
-                        </Heading>
-                        <Divider marginTop={2} />
-                      </Flex>
-                      {renderExample(key, values)}
-                    </ListItem>
-                  );
-                })}
-              </List>
-            ) : (
-              renderExample(key)
+            <Box
+              border="2px solid"
+              borderColor="gray.100"
+              marginTop={4}
+              padding={8}
+            >
+              {renderExample(key)}
+            </Box>
+            {isResponsive && (
+              <Accordion
+                allowToggle
+                border="2px solid"
+                borderTop="none"
+                borderColor="gray.100"
+              >
+                <AccordionItem border="none">
+                  <AccordionButton
+                    backgroundColor="gray.100"
+                    paddingY={4}
+                    _hover={{ backgroundColor: 'gray.200' }}
+                  >
+                    <Box flex="1" fontWeight="bold" textAlign="left">
+                      Responsive Styling
+                    </Box>
+                    <AccordionIcon />
+                  </AccordionButton>
+                  <AccordionPanel padding={0}>
+                    <List>
+                      {['0rem', ...theme.breakpoints].map(
+                        (breakpointRem, i, breakpoints) => {
+                          const breakpointPx = parseInt(breakpointRem, 10) * 16;
+                          const next = parseInt(breakpoints[i + 1], 10) * 16;
+                          let heading;
+                          if (i === 0) {
+                            heading = `< ${next}px`;
+                          } else if (i < breakpoints.length - 1) {
+                            heading = ` ${breakpointPx}px - ${next - 1}px`;
+                          } else {
+                            heading = ` >= ${breakpointPx}px`;
+                          }
+                          // Get the style values for the breakpoint we're rendering
+                          const getValue = (value: string | string[]) =>
+                            Array.isArray(value) ? value[i] : value;
+                          const values = {
+                            fontFamily: getValue(v.fontFamily),
+                            fontSize: getValue(v.fontSize),
+                            fontStyle: getValue(v.fontStyle),
+                            fontWeight: getValue(v.fontWeight),
+                            letterSpacing: getValue(v.letterSpacing),
+                            lineHeight: getValue(v.lineHeight),
+                          };
+                          return (
+                            <ListItem
+                              key={breakpointRem}
+                              borderBottom="2px solid"
+                              borderColor="gray.100"
+                              padding={8}
+                              _last={{ border: 'none' }}
+                            >
+                              <Stack spacing={4}>
+                                <Heading fontSize="12px">{heading}</Heading>
+                                {renderExample(key, values)}
+                              </Stack>
+                            </ListItem>
+                          );
+                        }
+                      )}
+                    </List>
+                  </AccordionPanel>
+                </AccordionItem>
+              </Accordion>
             )}
-          </Stack>
+          </Flex>
         );
       })}
     </Stack>
