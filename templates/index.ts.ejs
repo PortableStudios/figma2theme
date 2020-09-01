@@ -12,8 +12,23 @@ import {
   typography,
 } from './foundations';
 
+import {
+  headingVariants,
+  textVariants,
+} from './components';
+
 const theme = {
   ...defaultTheme,
+  components: {
+    ...defaultTheme.components,
+    Heading: {
+      ...defaultTheme.components.Heading,
+      variants: headingVariants,
+    },
+    Text: {
+      variants: textVariants,
+    }
+  },
   breakpoints: breakpoints,
   colors: {
     ...defaultTheme.colors,

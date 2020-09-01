@@ -1,6 +1,9 @@
 # Script output
 theme
 
+# Storybook output
+storybook-static
+
 # Logs
 logs
 *.log

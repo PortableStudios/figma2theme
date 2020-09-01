@@ -73,6 +73,19 @@ export default async function exportChakraFromTokens(
       input: `${templateDir}/index.ts.ejs`,
       output: `${outputDir}/index.ts`,
     },
+    // Components
+    {
+      input: `${templateDir}/components/index.ts.ejs`,
+      output: `${outputDir}/components/index.ts`,
+    },
+    {
+      input: `${templateDir}/components/headingVariants.ts.ejs`,
+      output: `${outputDir}/components/headingVariants.ts`,
+    },
+    {
+      input: `${templateDir}/components/textVariants.ts.ejs`,
+      output: `${outputDir}/components/textVariants.ts`,
+    },
     // Foundations
     {
       input: `${templateDir}/foundations/index.ts.ejs`,
