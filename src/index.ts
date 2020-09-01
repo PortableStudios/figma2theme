@@ -57,7 +57,7 @@ async function main() {
   const outputDir = path.resolve(__dirname, '../theme');
   console.log('Exporting Chakra UI theme to "theme" folder...'.bold);
   rimraf.sync(outputDir);
-  await exportChakraFromTokens(tokens, outputDir);
+  await exportChakraFromTokens(tokens, outputDir, fileKey);
 }
 
 main().catch((e) => console.error(e));

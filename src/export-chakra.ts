@@ -30,7 +30,8 @@ const renderTemplate = async (
 
 export default async function exportChakraFromTokens(
   tokens: Tokens,
-  outputDir: string
+  outputDir: string,
+  figmaFileKey: string
 ) {
   // Create a config for the templates by combining the design tokens with default Chakra values
   const chakra = {
@@ -71,64 +72,25 @@ export default async function exportChakraFromTokens(
 
   // Specify which templates should be rendered and where they should be saved
   const templates = [
+    // Theme
+    {
+      input: `${templateDir}/_generated.ts.ejs`,
+      output: `${outputDir}/_generated.ts`,
+    },
     // Index
     {
       input: `${templateDir}/index.ts.ejs`,
       output: `${outputDir}/index.ts`,
-    },
-    // Components
-    {
-      input: `${templateDir}/components/index.ts.ejs`,
-      output: `${outputDir}/components/index.ts`,
-    },
-    {
-      input: `${templateDir}/components/headingVariants.ts.ejs`,
-      output: `${outputDir}/components/headingVariants.ts`,
-    },
-    {
-      input: `${templateDir}/components/textVariants.ts.ejs`,
-      output: `${outputDir}/components/textVariants.ts`,
-    },
-    // Foundations
-    {
-      input: `${templateDir}/foundations/index.ts.ejs`,
-      output: `${outputDir}/foundations/index.ts`,
-    },
-    {
-      input: `${templateDir}/foundations/breakpoints.ts.ejs`,
-      output: `${outputDir}/foundations/breakpoints.ts`,
-    },
-    {
-      input: `${templateDir}/foundations/colors.ts.ejs`,
-      output: `${outputDir}/foundations/colors.ts`,
-    },
-    {
-      input: `${templateDir}/foundations/radius.ts.ejs`,
-      output: `${outputDir}/foundations/radius.ts`,
-    },
-    // TODO: Export shadows when the shadow "spread" value is returned by the Figma API
-    // {
-    //   input: `${templateDir}/foundations/shadows.ts.ejs`,
-    //   output: `${outputDir}/foundations/shadows.ts`,
-    // },
-    {
-      input: `${templateDir}/foundations/sizes.ts.ejs`,
-      output: `${outputDir}/foundations/sizes.ts`,
-    },
-    {
-      input: `${templateDir}/foundations/spaces.ts.ejs`,
-      output: `${outputDir}/foundations/spaces.ts`,
-    },
-    {
-      input: `${templateDir}/foundations/typography.ts.ejs`,
-      output: `${outputDir}/foundations/typography.ts`,
     },
   ];
 
   // Render and save all the templates simultaneously
   await Promise.all(
     templates.map((template) => {
-      return renderTemplate(template.input, template.output, { chakra });
+      return renderTemplate(template.input, template.output, {
+        chakra,
+        figmaFileKey,
+      });
     })
   );
 }
