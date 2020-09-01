@@ -4,9 +4,8 @@ This is a Portable tool designed to allow us to extract
 design tokens (colour palettes, typography, spacing scales, etc.)
 from a Figma file and then use them to generate a theme.
 
-TODO: Support generation of a Chakra UI theme
-
-**Figma template:** https://www.figma.com/file/4LsW1r8CbSiM1xTwfu22mb/
+**Figma template:**
+https://www.figma.com/file/m1rARkfdPU6dB7n9ofBRHw/
 
 ## Getting Started
 

@@ -72,12 +72,6 @@ export default async function exportChakraFromTokens(
 
   // Specify which templates should be rendered and where they should be saved
   const templates = [
-    // Theme
-    {
-      input: `${templateDir}/_generated.ts.ejs`,
-      output: `${outputDir}/_generated.ts`,
-    },
-    // Index
     {
       input: `${templateDir}/index.ts.ejs`,
       output: `${outputDir}/index.ts`,

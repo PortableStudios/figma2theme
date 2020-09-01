@@ -1,6 +1,6 @@
 export type Dictionary<T> = { [key: string]: T };
 
-export type Breakpoints = string[];
+export type Breakpoints = { [name: string]: string };
 
 export type Palette = Dictionary<string | Dictionary<string>>;
 
@@ -33,10 +33,7 @@ export type TextVariant = {
 
 export type Tokens = {
   breakpoints: Breakpoints;
-  colours: {
-    portable: Palette;
-    brand: Palette;
-  };
+  colours: Palette;
   radii: Radii;
   shadows: Shadows;
   sizes: Sizes;
