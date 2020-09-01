@@ -1,5 +1,7 @@
 # Script output
+lib
 theme
+tokens.json
 
 # Storybook output
 storybook-static
