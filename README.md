@@ -9,13 +9,43 @@ https://www.figma.com/file/m1rARkfdPU6dB7n9ofBRHw/Portable-UI-Kit
 
 ## Usage
 
-### 1. Add `figma2theme` to your project
+### 1. Authenticate via NPM
+
+To ensure you can install private Portable packages, login to our GitHub repo via NPM:
+
+(This only has to be done once per computer, skip this step if you've already done this)
 
 ```bash
-yarn add --dev figma2theme
+npm login --registry=https://npm.pkg.github.com
 ```
 
-### 2. Define your variables
+When prompted for "Username", enter your GitHub username.
+
+When prompted for "Password", enter a "Personal Access Token".
+To generate a token follow these instructions:
+
+- In GitHub visit Settings > Developer settings > Personal access tokens
+- Press "Generate new token"
+- Name the new token "portable_npm_login" or something similar
+- Select the "repo", "write:packages" and "read:packages" permissions
+
+Finally, when prompted for "Email" enter your Portable email address.
+
+### 2. Add `figma2theme` to your project
+
+Create an `.npmrc` file in your project root with the following contents:
+
+```
+@portablestudios:registry=https://npm.pkg.github.com
+```
+
+Install `figma2theme` to your package.json:
+
+```bash
+yarn add --dev @portablestudios/figma2theme
+```
+
+### 3. Define your variables
 
 Create a `.figma2themerc` file in your project containing the
 Figma file URL, here's an example using the URL of our Figma template:
@@ -36,7 +66,7 @@ FIGMA_API_KEY=
 Both of these variables can be provided through either the `.figma2themerc` file, the
 environment variables or the CLI arguments. We recommend the above setup for most projects.
 
-### 3. Generate your theme
+### 4. Generate your theme
 
 Run the following command to generate your Chakra UI theme:
 
@@ -46,18 +76,20 @@ figma2theme generate-chakra
 
 By default the generated theme file(s) will be saved to `./theme`.
 
-### 4. Import the theme
+### 5. Import the theme
 
 Update your imports from `import theme from "@chakra-ui/theme"` to the generated theme location.
 
-### 5. Import the stories (Optional)
+### 6. Import the stories (Optional)
 
 `figma2theme` provides a variety of Storybook stories that allow you to view elements of your
 current Chakra UI theme, including foundational values (e.g. colour palettes, font sizes, etc.)
 and component styles (e.g. button variants, heading/text variants, etc.)
 
 To view these stories in the Storybook of your project, open `.storybook/main.js` and insert
-the following glob to the `stories` array: `../node_modules/figma2theme/lib/**/*.stories.js`
+the following glob to the `stories` array:
+
+`../node_modules/@portablestudios/figma2theme/lib/**/*.stories.js`
 
 ## Development
 

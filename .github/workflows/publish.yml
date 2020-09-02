@@ -1,0 +1,22 @@
+name: Publish to GitHub Packages
+on:
+  push:
+    branches: [master]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v1
+        with:
+          node-version: '12.x'
+          registry-url: https://npm.pkg.github.com/
+          scope: '@portablestudios'
+      - name: Build
+        run: |
+          yarn install --frozen-lockfile
+          yarn build
+      - name: Publish
+        run: yarn publish --non-interactive
+        env:
+          NODE_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}

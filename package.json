@@ -1,9 +1,8 @@
 {
-  "name": "figma2theme",
+  "name": "@portablestudios/figma2theme",
   "version": "0.1.0",
   "author": "Darcy Glennen <darcy@portable.com.au>",
   "license": "MIT",
-  "private": true,
   "main": "lib/src/index.js",
   "bin": {
     "figma2theme": "lib/src/index.js"
@@ -11,6 +10,13 @@
   "files": [
     "/lib"
   ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/PortableStudios/figma2theme"
+  },
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com/"
+  },
   "scripts": {
     "dev": "ts-node ./src/index.ts",
     "prebuild": "rimraf ./lib",
