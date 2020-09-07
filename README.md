@@ -84,7 +84,7 @@ Update your imports from `import theme from "@chakra-ui/theme"` to the generated
 
 `figma2theme` provides a variety of Storybook stories that allow you to view elements of your
 current Chakra UI theme, including foundational values (e.g. colour palettes, font sizes, etc.)
-and component styles (e.g. button variants, heading/text variants, etc.)
+and component styles (e.g. button variants, text styles, etc.)
 
 To view these stories in the Storybook of your project, open `.storybook/main.js` and insert
 the following glob to the `stories` array:

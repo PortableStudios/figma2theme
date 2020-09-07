@@ -39,6 +39,5 @@ export type Tokens = {
   sizes: Sizes;
   spacing: Spacing;
   typography: Typography;
-  headingVariants: { [key: string]: TextVariant };
-  textVariants: { [key: string]: TextVariant };
+  textStyles: { [key: string]: TextVariant };
 };

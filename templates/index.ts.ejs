@@ -59,14 +59,11 @@ const typography = {
 export type Typography = typeof typography;
 
 /**
- * Variants
+ * Text Styles
  */
 
-const textVariants = <%- JSON.stringify(chakra.textVariants) %>;
-export type TextVariants = typeof textVariants;
-
-const headingVariants = <%- JSON.stringify(chakra.headingVariants) %>;
-export type HeadingVariants = typeof headingVariants;
+const textStyles = <%- JSON.stringify(chakra.textStyles) %>;
+export type TextStyles = typeof textStyles;
 
  /**
  * Theme
@@ -74,20 +71,6 @@ export type HeadingVariants = typeof headingVariants;
 
 const theme = {
   ...defaultTheme,
-  components: {
-    ...defaultTheme.components,
-    Heading: {
-      ...defaultTheme.components.Heading,
-      variants: headingVariants,
-      defaultProps: {
-        ...defaultTheme.components.Heading.defaultProps,
-        size: undefined,
-      },
-    },
-    Text: {
-      variants: textVariants,
-    }
-  },
   breakpoints: breakpoints,
   colors: {
     ...defaultTheme.colors,
@@ -102,6 +85,7 @@ const theme = {
   fontWeights: typography.fontWeights,
   lineHeights: typography.lineHeights,
   letterSpacings: typography.letterSpacings,
+  textStyles: textStyles,
 };
 export type Theme = typeof theme;
 
