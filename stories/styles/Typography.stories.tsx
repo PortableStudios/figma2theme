@@ -20,42 +20,39 @@ export default {
   title: 'Theme/Styles/Typography',
 } as Meta;
 
-// Reusable component to display both heading and text variants
-// All breakpoints are displayed if the variant has responsive font sizing
-type Variant = {
-  fontFamily: string | { [breakpoint: string]: string };
-  fontSize: string | { [breakpoint: string]: string };
-  fontStyle: string | { [breakpoint: string]: string };
-  fontWeight: string | { [breakpoint: string]: string };
-  letterSpacing: string | { [breakpoint: string]: string };
-  lineHeight: string | { [breakpoint: string]: string };
+// Display the various "text styles" from the theme, including how they look at each breakpoint
+type TextStyleValue = string | { [breakpoint: string]: string };
+type TextStyle = {
+  fontFamily: TextStyleValue;
+  fontSize: TextStyleValue;
+  fontStyle: TextStyleValue;
+  fontWeight: TextStyleValue;
+  letterSpacing: TextStyleValue;
+  lineHeight: TextStyleValue;
 };
-type VariantListProps = {
-  variants: { [key: string]: Variant };
-  component: typeof Heading | typeof Text;
-};
-const VariantList: React.FC<VariantListProps> = ({
-  variants,
-  component: Component,
-}) => {
+export const TextStyles: Story = () => {
   const theme = useTheme();
-  const variantKeys = Object.keys(variants);
-  const renderExample = (variant: string, styles?: Variant) => {
+  const textStyles = theme.textStyles ?? {};
+  const textStyleKeys = Object.keys(textStyles);
+  const renderExample = (style: string, overrides?: TextStyle) => {
     return (
-      <Component variant={variant} {...styles}>
+      <Text
+        textStyle={overrides === undefined ? style : undefined}
+        {...overrides}
+      >
         The quick brown fox
         <br />
         jumps over the lazy dog
-      </Component>
+      </Text>
     );
   };
   return (
     <Stack spacing={8}>
-      {variantKeys.map((key) => {
-        const v = variants[key];
-        // If the variant has any responsive values, render a text example for each breakpoint
-        const isResponsive = Object.values(v).some(
-          (a) => typeof a === 'object'
+      {textStyleKeys.map((key) => {
+        const style = textStyles[key];
+        // If the style has any responsive values, render a text example for each breakpoint
+        const isResponsive = Object.values(style).some(
+          (v) => typeof v === 'object'
         );
         return (
           <Flex key={key} direction="column">
@@ -95,8 +92,8 @@ const VariantList: React.FC<VariantListProps> = ({
                   <AccordionPanel padding={0}>
                     <List>
                       {['base', ...Object.keys(theme.breakpoints)].map((bp) => {
-                        const changes = Object.values(v).some(
-                          (value) => typeof value === 'object' && bp in value
+                        const changes = Object.values(style).some(
+                          (v) => typeof v === 'object' && v !== null && bp in v
                         );
                         if (!changes) {
                           return null;
@@ -105,18 +102,16 @@ const VariantList: React.FC<VariantListProps> = ({
                         const breakpointPx =
                           parseInt(theme.breakpoints[bp], 10) * 16;
                         // Get the style values for the breakpoint we're rendering
-                        const getValue = (
-                          value: string | { [breakpoint: string]: string }
-                        ) => {
+                        const getValue = (value: TextStyleValue) => {
                           return typeof value === 'object' ? value[bp] : value;
                         };
                         const values = {
-                          fontFamily: getValue(v.fontFamily),
-                          fontSize: getValue(v.fontSize),
-                          fontStyle: getValue(v.fontStyle),
-                          fontWeight: getValue(v.fontWeight),
-                          letterSpacing: getValue(v.letterSpacing),
-                          lineHeight: getValue(v.lineHeight),
+                          fontFamily: getValue(style.fontFamily),
+                          fontSize: getValue(style.fontSize),
+                          fontStyle: getValue(style.fontStyle),
+                          fontWeight: getValue(style.fontWeight),
+                          letterSpacing: getValue(style.letterSpacing),
+                          lineHeight: getValue(style.lineHeight),
                         };
                         return (
                           <ListItem
@@ -145,25 +140,5 @@ const VariantList: React.FC<VariantListProps> = ({
         );
       })}
     </Stack>
-  );
-};
-
-export const HeadingVariants: Story = () => {
-  const theme = useTheme();
-  return (
-    <VariantList
-      variants={theme.components.Heading?.variants ?? {}}
-      component={Heading}
-    />
-  );
-};
-
-export const TextVariants: Story = () => {
-  const theme = useTheme();
-  return (
-    <VariantList
-      variants={theme.components.Text?.variants ?? {}}
-      component={Text}
-    />
   );
 };
