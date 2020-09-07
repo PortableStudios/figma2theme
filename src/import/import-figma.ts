@@ -494,11 +494,7 @@ const getTextStyles = (
     const style = styles[key];
     // `figma-api` defines incorrect `style_type` key for style type, get around this with type casting
     const styleType = ((style as unknown) as { styleType: string }).styleType;
-    // Only include project styles, excluding text styles that are part of the UI Kit template
-    // At the moment we do this by checking if it's lower-case
-    // TODO: Implement a better way to do this
-    const isProjectStyle = style.name === style.name.toLowerCase();
-    if (styleType === 'TEXT' && isProjectStyle) {
+    if (styleType === 'TEXT') {
       textStyles[key] = style.name;
     }
   });
