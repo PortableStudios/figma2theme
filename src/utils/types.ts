@@ -2,6 +2,16 @@ export type Dictionary<T> = { [key: string]: T };
 
 export type Breakpoints = { [name: string]: string };
 
+// From @types/svgo
+export type OptimisedSVG = {
+  data: string;
+  info: {
+    width: string;
+    height: string;
+  };
+};
+export type Icons = { [name: string]: OptimisedSVG };
+
 export type Palette = Dictionary<string | Dictionary<string>>;
 
 export type Radii = Dictionary<string>;
@@ -34,6 +44,7 @@ export type TextVariant = {
 export type Tokens = {
   breakpoints: Breakpoints;
   colours: Palette;
+  icons: Icons;
   radii: Radii;
   shadows: Shadows;
   sizes: Sizes;

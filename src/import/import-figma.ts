@@ -1,4 +1,6 @@
 import * as Figma from 'figma-api';
+import SVGO from 'svgo';
+import fetch from 'node-fetch';
 import setWith from 'lodash.setwith';
 import colorConvert from 'color-convert';
 import type { GetFileResult } from 'figma-api/lib/api-types';
@@ -7,6 +9,8 @@ import { logError } from '../utils/log';
 import type {
   Dictionary,
   Breakpoints,
+  Icons,
+  OptimisedSVG,
   Palette,
   Radii,
   Shadows,
@@ -21,11 +25,10 @@ import type {
  * Figma utility functions
  */
 
-// Fetch a Figma file using API and file keys
-const getFile = async (apiKey: string, fileKey: string) => {
+// Fetch a Figma file using file key
+const getFile = async (api: Figma.Api, fileKey: string) => {
   let file: GetFileResult;
   try {
-    const api = new Figma.Api({ personalAccessToken: apiKey });
     file = await api.getFile(fileKey);
   } catch (e) {
     logError(
@@ -561,6 +564,69 @@ const getTextStyles = (
   return variants;
 };
 
+// Extract SVG icons from a canvas
+const getIcons = async (
+  api: Figma.Api,
+  fileKey: string,
+  canvas: Figma.Node<'CANVAS'>
+): Promise<Icons> => {
+  const prefix = 'icon/custom/';
+  const icons = getAllComponentNodes(canvas)
+    // Get all the components with a name prefixed 'icon/custom/'
+    .filter((r) => r.name.startsWith(prefix))
+    // Get the name and node ID of the icon components
+    .map((r) => ({
+      name: r.name.replace(prefix, ''),
+      id: r.id,
+    }));
+
+  if (icons.length === 0) {
+    return {};
+  }
+
+  // Use the API to convert the icons to SVG images and get the image URLs back
+  const iconIds = icons.map((i) => i.id);
+  const response = await api.getImage(fileKey, {
+    ids: iconIds.join(','),
+    scale: 1,
+    format: 'svg',
+  });
+  const imageUrls = response.images;
+
+  // Take an image URL, fetch it and optimise it using SVGO
+  const svgo = new SVGO();
+  const processIcon = async (
+    id: string,
+    imageUrl: string
+  ): Promise<{ name: string; svg: OptimisedSVG }> => {
+    const image = await fetch(imageUrl);
+    const svg = await image.text();
+    const optimisedSvg = await svgo.optimize(svg);
+    const name = icons.find((i) => i.id === id)?.name ?? '';
+    return {
+      name: name,
+      svg: optimisedSvg,
+    };
+  };
+
+  // Process all the image URLs asynchronously using promises
+  const processedIcons = await Promise.all(
+    Object.keys(imageUrls).map(async (id) => {
+      const imageUrl = imageUrls[id] as string;
+      return processIcon(id, imageUrl);
+    })
+  );
+
+  // Convert the array to an object with the names as keys
+  return processedIcons.reduce(
+    (obj, r) => ({
+      ...obj,
+      [r.name]: r.svg,
+    }),
+    {}
+  );
+};
+
 /**
  * Script
  */
@@ -569,6 +635,7 @@ const getTextStyles = (
 const pageNames = {
   breakpoints: 'Breakpoints',
   colours: 'Colours',
+  icons: 'Icons',
   radii: 'Radii',
   shadows: 'Shadows',
   sizes: 'Sizes',
@@ -581,7 +648,8 @@ export default async function importTokensFromFigma(
   fileKey: string
 ): Promise<Tokens> {
   // Fetch the Figma file based on the API and file keys
-  const file = await getFile(apiKey, fileKey);
+  const api = new Figma.Api({ personalAccessToken: apiKey });
+  const file = await getFile(api, fileKey);
 
   // Find all the page canvases we need to extract tokens from, log an error and exit if any are missing
   let missingPage = false;
@@ -607,6 +675,7 @@ export default async function importTokensFromFigma(
   return {
     breakpoints: getBreakpoints(canvases.breakpoints),
     colours: getColours(canvases.colours, file.styles, 'custom/'),
+    icons: await getIcons(api, fileKey, canvases.icons),
     radii: getRadii(canvases.radii),
     shadows: getShadows(canvases.shadows, file.styles),
     sizes: getSizes(canvases.sizes),
