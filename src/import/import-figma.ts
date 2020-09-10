@@ -463,6 +463,32 @@ const getLetterSpacing = (
   );
 };
 
+const getTextDecorationValue = (t: Figma.Node<'TEXT'>): string => {
+  switch (t.style.textDecoration) {
+    case 'UNDERLINE':
+      return 'underline';
+    case 'STRIKETHROUGH':
+      return 'line-through';
+    case 'NONE':
+    default:
+      return 'none';
+  }
+};
+
+const getTextTransformValue = (t: Figma.Node<'TEXT'>): string => {
+  switch (t.style.textCase) {
+    case 'UPPER':
+      return 'uppercase';
+    case 'LOWER':
+      return 'lowercase';
+    case 'TITLE':
+      return 'capitalize';
+    case 'ORIGINAL':
+    default:
+      return 'none';
+  }
+};
+
 // Get the style values from a text element (i.e. font family, font size, etc.)
 const getTextStyleValues = (t: Figma.Node<'TEXT'>): TextVariant => {
   const fontFamily = t.style.fontFamily;
@@ -473,6 +499,8 @@ const getTextStyleValues = (t: Figma.Node<'TEXT'>): TextVariant => {
     (t.style.letterSpacing / t.style.fontSize).toFixed(3)
   )}em`;
   const lineHeight = getLineHeightValue(t);
+  const textDecorationLine = getTextDecorationValue(t);
+  const textTransform = getTextTransformValue(t);
 
   return {
     fontFamily,
@@ -481,6 +509,8 @@ const getTextStyleValues = (t: Figma.Node<'TEXT'>): TextVariant => {
     fontWeight,
     letterSpacing,
     lineHeight,
+    textDecorationLine,
+    textTransform,
   };
 };
 
@@ -532,6 +562,12 @@ const getTextStyles = (
       setWith(variants, `${name}.fontWeight.${bp}]`, values.fontWeight);
       setWith(variants, `${name}.letterSpacing.${bp}]`, values.letterSpacing);
       setWith(variants, `${name}.lineHeight.${bp}]`, values.lineHeight);
+      setWith(
+        variants,
+        `${name}.textDecorationLine.${bp}]`,
+        values.textDecorationLine
+      );
+      setWith(variants, `${name}.textTransform.${bp}]`, values.textTransform);
       return;
     }
 
@@ -555,6 +591,8 @@ const getTextStyles = (
       fontWeight: flatten(v.fontWeight),
       letterSpacing: flatten(v.letterSpacing),
       lineHeight: flatten(v.lineHeight),
+      textDecorationLine: flatten(v.textDecorationLine),
+      textTransform: flatten(v.textTransform),
     };
   });
 
