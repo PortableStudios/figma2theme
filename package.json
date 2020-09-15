@@ -70,7 +70,7 @@
     "@storybook/react": "^6.0.21",
     "@storybook/theming": "^6.0.21",
     "@typescript-eslint/eslint-plugin": "^4.1.1",
-    "@typescript-eslint/parser": "^4.0.1",
+    "@typescript-eslint/parser": "^4.1.1",
     "babel-loader": "^8.1.0",
     "copyfiles": "^2.3.0",
     "eslint": "^7.9.0",
