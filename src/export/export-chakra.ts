@@ -2,10 +2,12 @@ import fs from 'fs-extra';
 import ejs from 'ejs';
 import path from 'path';
 import prettier from 'prettier';
+import svgToJSX from 'svg-to-jsx';
+import * as svgson from 'svgson';
 import type { Data } from 'ejs';
 
 import { version } from '../../package.json';
-import type { Tokens } from '../utils/types';
+import type { OptimisedSVG, Icons, Tokens } from '../utils/types';
 
 const prettierConfigFile = path.resolve(__dirname, '../../.prettierrc');
 const templateDir = path.resolve(__dirname, '../../templates');
@@ -29,6 +31,72 @@ const renderTemplate = async (
   return fs.outputFile(outputPath, contents);
 };
 
+type ChakraIcon = {
+  name: string;
+  viewBox: string;
+  path: string;
+};
+const processIcons = async (icons: Icons): Promise<ChakraIcon[]> => {
+  // Take an SVGO object and modify it to use with Chakra UI
+  const processIcon = async (
+    key: string,
+    icon: OptimisedSVG
+  ): Promise<ChakraIcon> => {
+    // Convert the name from kebab-case to title-case (i.e. down-arrow to DownArrow)
+    const name = key
+      .split('-')
+      .map((str) => `${str[0].toUpperCase()}${str.substring(1)}`)
+      .join('');
+
+    // Calculate the viewBox using the width and height
+    const viewBox = `0 0 ${icon.info.width} ${icon.info.height}`;
+
+    // Convert the SVG string to an object so we can modify it
+    const svgObject = await svgson.parse(icon.data);
+    // Remove all attributes from the <svg> tag to make it easier to remove later
+    svgObject.attributes = {};
+    // Modify all <path>, <rect> and <ellipse> tags in the SVG so we can change the SVG colour
+    svgObject.children = svgObject.children.map((child) => {
+      const newChild = { ...child };
+      if (['path', 'rect', 'ellipse'].includes(newChild.name)) {
+        // If it has "stroke" value change it to "currentColor"
+        if ('stroke' in child.attributes) {
+          newChild.attributes.stroke = 'currentColor';
+        }
+        // If it has a "fill" value change it to "currentColor", otherwise set it to "none" or it will default to black
+        if ('fill' in child.attributes) {
+          newChild.attributes.fill = 'currentColor';
+        } else {
+          newChild.attributes.fill = 'none';
+        }
+      }
+      return newChild;
+    });
+
+    // Convert the modified SVG object back to an SVG string
+    const svgString = await svgson.stringify(svgObject);
+    // Convert the SVG string to a JSX string (for React) and remove the <svg> wrapper
+    const jsxString = (await svgToJSX(svgString))
+      .replace('<svg>', '')
+      .replace('</svg>', '');
+
+    return {
+      name: `${name}Icon`,
+      viewBox: viewBox,
+      path: jsxString,
+    };
+  };
+
+  // Process all the icons asynchronously using promises
+  const processedIcons: ChakraIcon[] = await Promise.all(
+    Object.keys(icons).map(async (key) => {
+      const icon = icons[key];
+      return processIcon(key, icon);
+    })
+  );
+  return processedIcons;
+};
+
 export default async function exportChakraFromTokens(
   tokens: Tokens,
   outputDir: string,
@@ -38,6 +106,7 @@ export default async function exportChakraFromTokens(
   const chakra = {
     breakpoints: tokens.breakpoints,
     colours: tokens.colours,
+    icons: await processIcons(tokens.icons),
     radii: {
       none: '0',
       ...tokens.radii,
@@ -75,6 +144,10 @@ export default async function exportChakraFromTokens(
     {
       input: `${templateDir}/index.ts.ejs`,
       output: `${outputDir}/index.ts`,
+    },
+    {
+      input: `${templateDir}/icons.tsx.ejs`,
+      output: `${outputDir}/icons.tsx`,
     },
   ];
 
