@@ -389,6 +389,22 @@ const getFontSizes = (
   );
 };
 
+const getLineHeightValue = (t: Figma.Node<'TEXT'>): string => {
+  switch (t.style.lineHeightUnit) {
+    case 'PIXELS':
+      // If the line height is defined in pixels, convert to rem
+      return `${t.style.lineHeightPx / 16}rem`;
+    case 'FONT_SIZE_%':
+      // If the line height is defined in percentage, convert to a decimal
+      return `${(t.style.lineHeightPercentFontSize ?? 0) / 100}`;
+    case 'INTRINSIC_%':
+      // Otherwise the line height is equivalent to "normal" in CSS
+      return 'normal';
+    default:
+      return '';
+  }
+};
+
 // Extract 'line heights' design tokens from a canvas
 const getLineHeights = (
   canvas: Figma.Node<'CANVAS'>
@@ -397,26 +413,10 @@ const getLineHeights = (
   const lineHeights = getAllTextNodes(canvas)
     // Get all the text elements with a name prefixed 'lineHeight-'
     .filter((e) => e.name.startsWith(prefix))
-    // Get the name and font size of the elements
+    // Get the name and line height of the elements (removing the name prefix)
     .map((e) => ({
-      name: e.name,
-      lineHeight: e.style.lineHeightPercentFontSize,
-    }))
-    // Sort them in ascending order of line height (undefined means 'auto' value)
-    .sort((a, b) => {
-      if (a.lineHeight === undefined) {
-        return -1;
-      }
-      if (b.lineHeight === undefined) {
-        return 1;
-      }
-      return a.lineHeight - b.lineHeight;
-    })
-    // Remove prefix from name and convert from % to decimal
-    .map((s) => ({
-      name: s.name.replace(prefix, ''),
-      lineHeight:
-        s.lineHeight !== undefined ? `${s.lineHeight / 100}` : 'normal',
+      name: e.name.replace(prefix, ''),
+      lineHeight: getLineHeightValue(e),
     }));
 
   // Convert array to object
@@ -472,10 +472,7 @@ const getTextStyleValues = (t: Figma.Node<'TEXT'>): TextVariant => {
   const letterSpacing = `${parseFloat(
     (t.style.letterSpacing / t.style.fontSize).toFixed(3)
   )}em`;
-  // `undefined` line height in Figma is equivalent to "normal" in CSS
-  const lineHeightPct = t.style.lineHeightPercentFontSize;
-  const lineHeight =
-    lineHeightPct !== undefined ? `${lineHeightPct / 100}` : 'normal';
+  const lineHeight = getLineHeightValue(t);
 
   return {
     fontFamily,
