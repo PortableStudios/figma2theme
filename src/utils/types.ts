@@ -39,6 +39,8 @@ export type TextVariant = {
   fontWeight: string | string[];
   letterSpacing: string | string[];
   lineHeight: string | string[];
+  textDecorationLine: string | string[];
+  textTransform: string | string[];
 };
 
 export type Tokens = {
