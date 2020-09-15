@@ -564,6 +564,11 @@ const getTextStyles = (
   return variants;
 };
 
+type ProcessedIcon = {
+  name: string;
+  svg: OptimisedSVG;
+};
+
 // Extract SVG icons from a canvas
 const getIcons = async (
   api: Figma.Api,
@@ -595,36 +600,41 @@ const getIcons = async (
 
   // Take an image URL, fetch it and optimise it using SVGO
   const svgo = new SVGO();
-  const processIcon = async (
-    id: string,
-    imageUrl: string
-  ): Promise<{ name: string; svg: OptimisedSVG }> => {
+  const processIcon = async (imageUrl: string): Promise<OptimisedSVG> => {
     const image = await fetch(imageUrl);
     const svg = await image.text();
-    const optimisedSvg = await svgo.optimize(svg);
-    const name = icons.find((i) => i.id === id)?.name ?? '';
-    return {
-      name: name,
-      svg: optimisedSvg,
-    };
+    return svgo.optimize(svg);
   };
 
   // Process all the image URLs asynchronously using promises
-  const processedIcons = await Promise.all(
+  const processedIcons: (ProcessedIcon | undefined)[] = await Promise.all(
     Object.keys(imageUrls).map(async (id) => {
       const imageUrl = imageUrls[id] as string;
-      return processIcon(id, imageUrl);
+      const name = icons.find((i) => i.id === id)?.name?.trim() ?? '';
+      if (name === '') {
+        logError(
+          'Found a custom icon with an invalid name, skipping...',
+          `- Please find any components in the Figma file named "${prefix}" and give them a proper name (e.g. "${prefix}close-button")`
+        );
+        return undefined;
+      }
+      return {
+        name: name,
+        svg: await processIcon(imageUrl),
+      };
     })
   );
 
-  // Convert the array to an object with the names as keys
-  return processedIcons.reduce(
-    (obj, r) => ({
-      ...obj,
-      [r.name]: r.svg,
-    }),
-    {}
-  );
+  // Filter out the skipped icons then convert the array to an object with the names as keys
+  return processedIcons
+    .filter((x): x is ProcessedIcon => x !== undefined)
+    .reduce(
+      (obj, r) => ({
+        ...obj,
+        [r.name]: r.svg,
+      }),
+      {}
+    );
 };
 
 /**
