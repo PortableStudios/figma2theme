@@ -1,0 +1,24 @@
+diff --git a/node_modules/figma-api/lib/ast-types.d.ts b/node_modules/figma-api/lib/ast-types.d.ts
+index c605c90..5211099 100644
+--- a/node_modules/figma-api/lib/ast-types.d.ts
++++ b/node_modules/figma-api/lib/ast-types.d.ts
+@@ -65,7 +65,9 @@ export declare enum LineHeightUnit {
+  * A mapping of a StyleType to style ID (see Style) of styles present on this node. The style ID can be used to look up more information about the style in the top-level styles field.
+ */
+ export declare type StylesMap = {
+-    [styleType in StyleType]: string;
++    effect?: string;
++    fill?: string;
++    text?: string;
+ };
+ /** Format and size to export an asset at */
+ export declare type ExportSetting = {
+@@ -462,7 +464,7 @@ export interface Style {
+     /** The name of the style */
+     name: string;
+     /** The type of style */
+-    style_type: StyleType;
++    styleType: StyleType;
+ }
+ /** The root node */
+ export interface DOCUMENT {
