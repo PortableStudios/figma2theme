@@ -103,7 +103,7 @@ const getAllComponentNodes = (from: Figma.Node<'CANVAS'>) =>
 // Convert a Figma shadow "effect style" to a CSS box-shadow value
 const convertFigmaShadowToCss = (shadow: Figma.EffectShadow): string => {
   // Use 'inset' for inner shadows
-  const type = shadow.type === 'INNER_SHADOW' ? 'inset ' : '';
+  const type = shadow.type === Figma.EffectType.INNER_SHADOW ? 'inset ' : '';
 
   // Convert shadow colour to CSS value
   const r = Math.round(shadow.color.r * 255);
@@ -396,13 +396,13 @@ export const getFontSizes = (
 
 const getLineHeightValue = (t: Figma.Node<'TEXT'>): string => {
   switch (t.style.lineHeightUnit) {
-    case 'PIXELS':
+    case Figma.LineHeightUnit.PIXELS:
       // If the line height is defined in pixels, convert to rem
       return rem(t.style.lineHeightPx);
-    case 'FONT_SIZE_%':
+    case Figma.LineHeightUnit['FONT_SIZE_%']:
       // If the line height is defined in percentage, convert to a decimal
       return `${(t.style.lineHeightPercentFontSize ?? 0) / 100}`;
-    case 'INTRINSIC_%':
+    case Figma.LineHeightUnit['INTRINSIC_%']:
       // Otherwise the line height is equivalent to "normal" in CSS
       return 'normal';
     default:
@@ -470,11 +470,11 @@ export const getLetterSpacing = (
 
 const getTextDecorationValue = (t: Figma.Node<'TEXT'>): string => {
   switch (t.style.textDecoration) {
-    case 'UNDERLINE':
+    case Figma.TextDecoration.UNDERLINE:
       return 'underline';
-    case 'STRIKETHROUGH':
+    case Figma.TextDecoration.STRIKETHROUGH:
       return 'line-through';
-    case 'NONE':
+    case Figma.TextDecoration.NONE:
     default:
       return 'none';
   }
@@ -482,13 +482,13 @@ const getTextDecorationValue = (t: Figma.Node<'TEXT'>): string => {
 
 const getTextTransformValue = (t: Figma.Node<'TEXT'>): string => {
   switch (t.style.textCase) {
-    case 'UPPER':
+    case Figma.TextCase.UPPER:
       return 'uppercase';
-    case 'LOWER':
+    case Figma.TextCase.LOWER:
       return 'lowercase';
-    case 'TITLE':
+    case Figma.TextCase.TITLE:
       return 'capitalize';
-    case 'ORIGINAL':
+    case Figma.TextCase.ORIGINAL:
     default:
       return 'none';
   }
