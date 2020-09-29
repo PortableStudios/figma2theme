@@ -127,9 +127,11 @@ export default async function exportChakraFromTokens(
     },
     typography: {
       fonts: {
-        ...tokens.typography.fonts,
-        heading: `"${tokens.typography.fonts.heading}", sans-serif`,
-        body: `"${tokens.typography.fonts.body}", sans-serif`,
+        // TODO: Support importing font stacks (e.g. "Roboto, Arial, sans-serif")
+        ...Object.keys(tokens.typography.fonts).reduce((obj, name) => {
+          const font = tokens.typography.fonts[name];
+          return { ...obj, [name]: `"${font}", sans-serif` };
+        }, {}),
         mono: '"Courier New", Courier, monospace',
       },
       fontSizes: tokens.typography.fontSizes,
