@@ -1,6 +1,7 @@
 import * as Figma from 'figma-api';
 import SVGO from 'svgo';
 import fetch from 'node-fetch';
+import { em, rem } from 'polished';
 import setWith from 'lodash.setwith';
 import colorConvert from 'color-convert';
 import type { GetFileResult } from 'figma-api/lib/api-types';
@@ -24,10 +25,6 @@ import type {
 /**
  * Figma utility functions
  */
-
-export const rem = (px: string | number) => {
-  return `${parseInt(`${px}`, 10) / 16}rem`;
-};
 
 // Fetch a Figma file using file key
 const getFile = async (api: Figma.Api, fileKey: string) => {
@@ -141,7 +138,7 @@ export const getBreakpoints = (canvas: Figma.Node<'CANVAS'>): Breakpoints => {
     // Convert pixels to rem
     .map((r) => ({
       name: r.name,
-      width: rem(r.width),
+      width: em(r.width),
     }));
 
   // Convert array to object
