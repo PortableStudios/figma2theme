@@ -207,12 +207,12 @@ describe('Importing tokens from Figma', () => {
   describe('Spacing', () => {
     const getName = (n: string) => `space-${n}`;
 
-    it('generates a list of spaces from the widths of properly named components on a canvas', () => {
+    it('generates a list of spaces from the heights of properly named components on a canvas', () => {
       // Create components to represent the "1", "2", "3" and "4" spacing values
-      const s1 = createComponent({ name: getName('1'), width: 4 });
-      const s2 = createComponent({ name: getName('2'), width: 8 });
-      const s3 = createComponent({ name: getName('3'), width: 12 });
-      const s4 = createComponent({ name: getName('4'), width: 16 });
+      const s1 = createComponent({ name: getName('1'), height: 4 });
+      const s2 = createComponent({ name: getName('2'), height: 8 });
+      const s3 = createComponent({ name: getName('3'), height: 12 });
+      const s4 = createComponent({ name: getName('4'), height: 16 });
       // Create a rectangle with an invalid name to ensure it's skipped
       const fake = createRectangle({ name: 'spacing-5', width: 20 });
 
