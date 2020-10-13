@@ -150,16 +150,19 @@ describe('Importing tokens from Figma', () => {
           color: [0, 0, 0, 0.1],
           offset: [0, 1],
           radius: 2,
+          spread: 0,
         }),
         createShadow(getName('md'), {
           color: [0.1, 0.1, 0.1, 0.2],
           offset: [1, 2],
           radius: 3,
+          spread: 1,
         }),
         createShadow(getName('lg'), {
           color: [0.1, 0.2, 0.3, 0.3],
           offset: [2, 3],
           radius: 4,
+          spread: 3,
         }),
       ];
 
@@ -171,8 +174,8 @@ describe('Importing tokens from Figma', () => {
       // Expect the CSS shadows to have the correct values
       expect(shadows).toEqual({
         sm: '0 1px 2px 0 rgba(0, 0, 0, 0.1)',
-        md: '1px 2px 3px 0 rgba(26, 26, 26, 0.2)',
-        lg: '2px 3px 4px 0 rgba(26, 51, 77, 0.3)',
+        md: '1px 2px 3px 1px rgba(26, 26, 26, 0.2)',
+        lg: '2px 3px 4px 3px rgba(26, 51, 77, 0.3)',
       });
     });
   });

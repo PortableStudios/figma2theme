@@ -174,9 +174,10 @@ export const createShadow = (
     color: [r: number, g: number, b: number, a: number];
     offset: [x: number, y: number];
     radius: number;
+    spread?: number;
   }
 ) => {
-  const { color, offset, radius } = options;
+  const { color, offset, radius, spread } = options;
   const [r, g, b, a] = color;
   const [x, y] = offset;
 
@@ -192,6 +193,7 @@ export const createShadow = (
         color: { r, g, b, a },
         offset: { x, y },
         radius: radius,
+        spread: spread,
       },
     ],
   });
