@@ -39,7 +39,7 @@
   },
   "dependencies": {
     "@types/color-convert": "^1.9.0",
-    "@types/ejs": "^3.0.4",
+    "@types/ejs": "^3.0.5",
     "@types/fs-extra": "^9.0.2",
     "@types/lodash.setwith": "^4.3.6",
     "@types/prettier": "^2.1.5",
