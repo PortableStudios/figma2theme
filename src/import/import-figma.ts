@@ -25,6 +25,10 @@ import type {
  * Figma utility functions
  */
 
+export const rem = (px: string | number) => {
+  return `${parseInt(`${px}`, 10) / 16}rem`;
+};
+
 // Fetch a Figma file using file key
 const getFile = async (api: Figma.Api, fileKey: string) => {
   let file: GetFileResult;
@@ -122,7 +126,7 @@ const convertFigmaShadowToCss = (shadow: Figma.EffectShadow): string => {
  */
 
 // Extract 'breakpoint' design tokens from a canvas
-const getBreakpoints = (canvas: Figma.Node<'CANVAS'>): Breakpoints => {
+export const getBreakpoints = (canvas: Figma.Node<'CANVAS'>): Breakpoints => {
   const prefix = 'breakpoint-';
   const breakpoints = getAllRectangleNodes(canvas)
     // Get all the rectangles with a name prefixed 'breakpoint-'
@@ -137,7 +141,7 @@ const getBreakpoints = (canvas: Figma.Node<'CANVAS'>): Breakpoints => {
     // Convert pixels to rem
     .map((r) => ({
       name: r.name,
-      width: `${r.width / 16}rem`,
+      width: rem(r.width),
     }));
 
   // Convert array to object
@@ -151,12 +155,12 @@ const getBreakpoints = (canvas: Figma.Node<'CANVAS'>): Breakpoints => {
 };
 
 // Extract 'colour' design tokens from colour styles and a canvas, using name prefix
-const getColours = (
+export const getColours = (
   canvas: Figma.Node<'CANVAS'>,
-  styles: Dictionary<Figma.Style>,
-  prefix: string
+  styles: Dictionary<Figma.Style>
 ): Palette => {
   // Get all the colour styles with the provided prefix in their name
+  const prefix = 'custom/';
   const colourStyles: Dictionary<string> = {};
   Object.keys(styles).forEach((key) => {
     const effect = styles[key];
@@ -196,7 +200,7 @@ const getColours = (
 };
 
 // Extract 'border radius' design tokens from a canvas
-const getRadii = (canvas: Figma.Node<'CANVAS'>): Radii => {
+export const getRadii = (canvas: Figma.Node<'CANVAS'>): Radii => {
   const prefix = 'radii-';
   const radii = getAllRectangleNodes(canvas)
     // Get all the rectangles with a name prefixed 'radii-'
@@ -208,7 +212,7 @@ const getRadii = (canvas: Figma.Node<'CANVAS'>): Radii => {
     // Remove prefix from name and convert radius from px to rem
     .map((r) => ({
       name: r.name.replace(prefix, ''),
-      cornerRadius: r.cornerRadius ? `${r.cornerRadius / 16}rem` : '0',
+      cornerRadius: r.cornerRadius ? rem(r.cornerRadius) : '0',
     }));
 
   // Convert array to object
@@ -222,7 +226,7 @@ const getRadii = (canvas: Figma.Node<'CANVAS'>): Radii => {
 };
 
 // Extract 'box shadow' design tokens from a canvas
-const getShadows = (
+export const getShadows = (
   canvas: Figma.Node<'CANVAS'>,
   styles: Dictionary<Figma.Style>
 ): Shadows => {
@@ -265,7 +269,7 @@ const getShadows = (
 };
 
 // Extract 'sizes' design tokens from a canvas
-const getSizes = (canvas: Figma.Node<'CANVAS'>): Sizes => {
+export const getSizes = (canvas: Figma.Node<'CANVAS'>): Sizes => {
   const prefix = 'size-';
   const sizes = getAllRectangleNodes(canvas)
     // Get all the rectangles with a name prefixed 'size-'
@@ -277,7 +281,7 @@ const getSizes = (canvas: Figma.Node<'CANVAS'>): Sizes => {
     // Remove prefix from name and convert size from px to rem
     .map((r) => ({
       name: r.name.replace(prefix, ''),
-      size: r.size > 1 ? `${r.size / 16}rem` : `${r.size}px`,
+      size: r.size > 1 ? rem(r.size) : `${r.size}px`,
     }));
 
   // Convert array to object
@@ -291,7 +295,7 @@ const getSizes = (canvas: Figma.Node<'CANVAS'>): Sizes => {
 };
 
 // Extract 'spacing' design tokens from a canvas
-const getSpacing = (canvas: Figma.Node<'CANVAS'>): Spacing => {
+export const getSpacing = (canvas: Figma.Node<'CANVAS'>): Spacing => {
   const prefix = 'space-';
   const spacing = getAllComponentNodes(canvas)
     // Get all the components with a name prefixed 'space-'
@@ -303,7 +307,7 @@ const getSpacing = (canvas: Figma.Node<'CANVAS'>): Spacing => {
     // Remove prefix from name and convert size from px to rem
     .map((r) => ({
       name: r.name.replace(prefix, ''),
-      size: r.size > 1 ? `${r.size / 16}rem` : `${r.size}px`,
+      size: r.size > 1 ? rem(r.size) : `${r.size}px`,
     }));
 
   // Convert array to object
@@ -317,7 +321,10 @@ const getSpacing = (canvas: Figma.Node<'CANVAS'>): Spacing => {
 };
 
 // Extract 'font families' design tokens from a canvas
-const getFontFamilies = (canvas: Figma.Node<'CANVAS'>): Typography['fonts'] => {
+// TODO: Extract all font families, not just "heading" and "body"
+export const getFontFamilies = (
+  canvas: Figma.Node<'CANVAS'>
+): Typography['fonts'] => {
   const textElements = getAllTextNodes(canvas);
 
   // Get the text element named "font-heading", log an error and exit if it's missing
@@ -328,7 +335,7 @@ const getFontFamilies = (canvas: Figma.Node<'CANVAS'>): Typography['fonts'] => {
       'Heading font not found in "Typography" page',
       `- Please add a text element named "${headingFontName}".`
     );
-    process.exit(1);
+    throw new Error();
   }
 
   // Get the text element named "font-body", log an error and exit if it's missing
@@ -339,7 +346,7 @@ const getFontFamilies = (canvas: Figma.Node<'CANVAS'>): Typography['fonts'] => {
       'Body font not found in "Typography" page',
       `- Please add a text element named "${bodyFontName}".`
     );
-    process.exit(1);
+    throw new Error();
   }
 
   return {
@@ -349,7 +356,7 @@ const getFontFamilies = (canvas: Figma.Node<'CANVAS'>): Typography['fonts'] => {
 };
 
 // Extract 'font sizes' design tokens from a canvas
-const getFontSizes = (
+export const getFontSizes = (
   canvas: Figma.Node<'CANVAS'>
 ): Typography['fontSizes'] => {
   const prefix = 'fontSize-';
@@ -363,7 +370,7 @@ const getFontSizes = (
     // Remove prefix from name and convert font size from px to rem
     .map((s) => ({
       name: s.name.replace(prefix, ''),
-      size: `${s.size / 16}rem`,
+      size: rem(s.size),
     }));
 
   // Convert array to object
@@ -380,7 +387,7 @@ const getLineHeightValue = (t: Figma.Node<'TEXT'>): string => {
   switch (t.style.lineHeightUnit) {
     case 'PIXELS':
       // If the line height is defined in pixels, convert to rem
-      return `${t.style.lineHeightPx / 16}rem`;
+      return rem(t.style.lineHeightPx);
     case 'FONT_SIZE_%':
       // If the line height is defined in percentage, convert to a decimal
       return `${(t.style.lineHeightPercentFontSize ?? 0) / 100}`;
@@ -393,7 +400,7 @@ const getLineHeightValue = (t: Figma.Node<'TEXT'>): string => {
 };
 
 // Extract 'line heights' design tokens from a canvas
-const getLineHeights = (
+export const getLineHeights = (
   canvas: Figma.Node<'CANVAS'>
 ): Typography['lineHeights'] => {
   const prefix = 'lineHeight-';
@@ -417,7 +424,7 @@ const getLineHeights = (
 };
 
 // Extract 'letter spacing' design tokens from a canvas
-const getLetterSpacing = (
+export const getLetterSpacing = (
   canvas: Figma.Node<'CANVAS'>
 ): Typography['letterSpacing'] => {
   const prefix = 'letterSpacing-';
@@ -479,7 +486,7 @@ const getTextTransformValue = (t: Figma.Node<'TEXT'>): string => {
 // Get the style values from a text element (i.e. font family, font size, etc.)
 const getTextStyleValues = (t: Figma.Node<'TEXT'>): TextVariant => {
   const fontFamily = t.style.fontFamily;
-  const fontSize = `${t.style.fontSize / 16}rem`;
+  const fontSize = rem(t.style.fontSize);
   const fontStyle = t.style.italic ? 'italic' : 'normal';
   const fontWeight = `${t.style.fontWeight}`;
   const letterSpacing = `${parseFloat(
@@ -501,7 +508,7 @@ const getTextStyleValues = (t: Figma.Node<'TEXT'>): TextVariant => {
   };
 };
 
-const getTextStyles = (
+export const getTextStyles = (
   canvas: Figma.Node<'CANVAS'>,
   styles: Dictionary<Figma.Style>
 ): { [key: string]: TextVariant } => {
@@ -704,7 +711,7 @@ export default async function importTokensFromFigma(
   // Extract the design tokens from the file and return them in a Tokens object
   return {
     breakpoints: getBreakpoints(canvases.breakpoints),
-    colours: getColours(canvases.colours, file.styles, 'custom/'),
+    colours: getColours(canvases.colours, file.styles),
     icons: await getIcons(api, fileKey, canvases.icons),
     radii: getRadii(canvases.radii),
     shadows: getShadows(canvases.shadows, file.styles),

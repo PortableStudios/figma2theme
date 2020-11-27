@@ -1,5 +1,7 @@
 export type Dictionary<T> = { [key: string]: T };
 
+export type DeepPartial<T> = { [K in keyof T]?: DeepPartial<T[K]> };
+
 export type Breakpoints = { [name: string]: string };
 
 // From @types/svgo

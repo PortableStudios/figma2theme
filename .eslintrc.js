@@ -36,8 +36,13 @@ module.exports = {
       },
       overrides: [
         {
-          // Allow importing dev dependencies in stories and the generated theme
-          files: ['**/theme/**/*.{ts,tsx}', '**/*.stories.tsx'],
+          // Allow importing dev dependencies in stories, tests and the generated theme
+          files: [
+            '**/theme/**/*.{ts,tsx}',
+            '**/*.test.{ts,tsx}',
+            '**/src/utils/testing/**/*.{ts,tsx}',
+            '**/*.stories.tsx',
+          ],
           rules: {
             'import/no-extraneous-dependencies': 'off',
           },

@@ -28,6 +28,7 @@ jobs:
             ./theme
       - name: Lint and typecheck the project
         run: yarn lint & yarn typecheck
-      # TODO: Run tests when available
+      - name: Run Jest tests
+        run: yarn test
       - name: Build Storybook
         run: yarn build-storybook

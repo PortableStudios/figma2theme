@@ -23,6 +23,10 @@
     "prebuild": "rimraf ./lib",
     "build": "tsc -p .",
     "postbuild": "rimraf ./lib/theme && copyfiles ./templates/** ./lib",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage",
+    "test:coverage:open": "jest --coverage && open ./coverage/lcov-report/index.html",
     "lint": "eslint . --fix --ext .ts,.tsx",
     "typecheck": "tsc --noEmit",
     "storybook": "start-storybook -p 6006",
@@ -32,7 +36,7 @@
   },
   "husky": {
     "hooks": {
-      "pre-commit": "yarn typecheck & lint-staged"
+      "pre-commit": "yarn test & yarn typecheck & lint-staged"
     }
   },
   "lint-staged": {
@@ -63,6 +67,8 @@
   },
   "devDependencies": {
     "@babel/core": "^7.12.3",
+    "@babel/preset-env": "^7.11.5",
+    "@babel/preset-typescript": "^7.10.4",
     "@chakra-ui/core": "^1.0.0-rc.3",
     "@chakra-ui/theme": "^1.0.0-rc.3",
     "@storybook/addon-actions": "^6.0.26",
@@ -70,8 +76,11 @@
     "@storybook/addon-links": "^6.0.27",
     "@storybook/react": "^6.0.26",
     "@storybook/theming": "^6.0.27",
+    "@types/jest": "^26.0.14",
+    "@types/uuid": "^8.3.0",
     "@typescript-eslint/eslint-plugin": "^4.5.0",
     "@typescript-eslint/parser": "^4.5.0",
+    "babel-jest": "^26.3.0",
     "babel-loader": "^8.1.0",
     "copyfiles": "^2.4.0",
     "eslint": "^7.12.0",
@@ -83,13 +92,16 @@
     "eslint-plugin-react": "^7.21.5",
     "eslint-plugin-react-hooks": "^4.2.0",
     "husky": "^4.3.0",
+    "jest": "^26.4.2",
     "lint-staged": "^10.4.2",
+    "lodash.merge": "^4.6.2",
     "patch-package": "^6.2.2",
     "postinstall-postinstall": "^2.1.0",
     "react": "^16.14.0",
     "react-dom": "^16.14.0",
     "react-is": "^16.13.1",
     "ts-node": "^9.0.0",
-    "typescript": "^4.0.3"
+    "typescript": "^4.0.3",
+    "uuid": "^8.3.0"
   }
 }
