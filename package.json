@@ -18,6 +18,7 @@
     "registry": "https://npm.pkg.github.com/"
   },
   "scripts": {
+    "postinstall": "patch-package",
     "dev": "ts-node ./src/index.ts",
     "prebuild": "rimraf ./lib",
     "build": "tsc -p .",
@@ -83,6 +84,8 @@
     "eslint-plugin-react-hooks": "^4.2.0",
     "husky": "^4.3.0",
     "lint-staged": "^10.4.2",
+    "patch-package": "^6.2.2",
+    "postinstall-postinstall": "^2.1.0",
     "react": "^16.14.0",
     "react-dom": "^16.14.0",
     "react-is": "^16.13.1",

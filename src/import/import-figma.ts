@@ -117,19 +117,6 @@ const convertFigmaShadowToCss = (shadow: Figma.EffectShadow): string => {
   return `${type}${x} ${y} ${radius} 0 ${colour}`;
 };
 
-// The `styles` property is incorrect in the `figma-api` types
-// This utility function simply casts it to the correct type
-type StyleMap = {
-  effect?: string;
-  fill?: string;
-  text?: string;
-};
-const getStyleMap = (
-  node: Figma.Node<'TEXT'> | Figma.Node<'RECTANGLE'>
-): StyleMap | undefined => {
-  return node.styles as StyleMap;
-};
-
 /**
  * Design token extraction functions
  */
@@ -180,7 +167,7 @@ const getColours = (
 
   // Get all the rectangles that are using one of the colour styles
   const rectangles = getAllRectangleNodes(canvas).filter((r) => {
-    const fillKey = getStyleMap(r)?.fill;
+    const fillKey = r.styles?.fill;
     if (fillKey === undefined) {
       return false;
     }
@@ -191,7 +178,7 @@ const getColours = (
   const palette: Palette = {};
   rectangles.forEach((r) => {
     const colour = r.fills[0].color;
-    const fillKey = getStyleMap(r)?.fill;
+    const fillKey = r.styles?.fill;
     if (fillKey === undefined || colour === undefined) {
       return;
     }
@@ -251,7 +238,7 @@ const getShadows = (
 
   // Get all the rectangles from the canvas that are using one of these effect styles
   const rectangles = getAllRectangleNodes(canvas).filter((r) => {
-    const effectKey = getStyleMap(r)?.effect;
+    const effectKey = r.styles?.effect;
     if (effectKey === undefined) {
       return false;
     }
@@ -262,7 +249,7 @@ const getShadows = (
   const shadows: Dictionary<string> = {};
   rectangles.forEach((r) => {
     const effects = r.effects;
-    const effectKey = getStyleMap(r)?.effect;
+    const effectKey = r.styles?.effect;
     if (effects === undefined || effectKey === undefined) {
       return;
     }
@@ -522,16 +509,14 @@ const getTextStyles = (
   const textStyles: Dictionary<string> = {};
   Object.keys(styles).forEach((key) => {
     const style = styles[key];
-    // `figma-api` defines incorrect `style_type` key for style type, get around this with type casting
-    const styleType = ((style as unknown) as { styleType: string }).styleType;
-    if (styleType === 'TEXT') {
+    if (style.styleType === 'TEXT') {
       textStyles[key] = style.name;
     }
   });
 
   // Get all the text elements that are using one of the styles
   const textElements = getAllTextNodes(canvas).filter((t) => {
-    const styleKey = getStyleMap(t)?.text;
+    const styleKey = t.styles?.text;
     if (styleKey === undefined) {
       return false;
     }
@@ -542,7 +527,7 @@ const getTextStyles = (
   // Extract the styles from each text element
   const variants: { [key: string]: TextVariant } = {};
   textElements.forEach((t) => {
-    const styleKey = getStyleMap(t)?.text;
+    const styleKey = t.styles?.text;
     if (styleKey === undefined) {
       return;
     }
