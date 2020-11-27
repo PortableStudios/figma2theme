@@ -1,5 +1,5 @@
 import React from 'react';
-import { ChakraProvider, CSSReset } from '@chakra-ui/core';
+import { ChakraProvider } from '@chakra-ui/react';
 import type { StoryWrapper } from '@storybook/addons';
 
 import theme from '../theme';
@@ -7,7 +7,6 @@ import theme from '../theme';
 const withThemeProvider: StoryWrapper = (Story, context) => {
   return (
     <ChakraProvider theme={theme}>
-      <CSSReset />
       <Story {...context} />
     </ChakraProvider>
   );

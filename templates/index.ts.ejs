@@ -2,17 +2,14 @@
 // Generated from Figma file https://www.figma.com/file/<%- figmaFileKey %>
 // <%- new Date().toString() %>
 
-import defaultTheme from '@chakra-ui/theme';
+import { theme as defaultTheme } from '@chakra-ui/react';
+import { createBreakpoints } from '@chakra-ui/theme-tools';
 
 /**
  * Foundations
  */
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const breakpoints: any = <%- JSON.stringify(Object.values(chakra.breakpoints)) %>;
-<% for(let i = 0; i < Object.keys(chakra.breakpoints).length; i++) { -%>
-breakpoints['<%- Object.keys(chakra.breakpoints)[i] %>'] = breakpoints[<%- i %>];
-<% } %>
+const breakpoints = createBreakpoints(<%- JSON.stringify(chakra.breakpoints) %>);
 
 const colors = <%- JSON.stringify(chakra.colours) %>;
 export type Colors = typeof colors;

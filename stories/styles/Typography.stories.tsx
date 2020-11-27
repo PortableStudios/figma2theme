@@ -13,7 +13,7 @@ import {
   Stack,
   Text,
   useTheme,
-} from '@chakra-ui/core';
+} from '@chakra-ui/react';
 import type { Story, Meta } from '@storybook/react';
 
 export default {
