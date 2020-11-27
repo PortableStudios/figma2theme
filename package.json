@@ -75,7 +75,7 @@
     "@storybook/addon-actions": "^6.0.26",
     "@storybook/addon-essentials": "^6.0.27",
     "@storybook/addon-links": "^6.0.27",
-    "@storybook/react": "^6.0.26",
+    "@storybook/react": "^6.1.7",
     "@storybook/theming": "^6.0.27",
     "@types/jest": "^26.0.14",
     "@types/uuid": "^8.3.0",
