@@ -321,38 +321,49 @@ export const getSpacing = (canvas: Figma.Node<'CANVAS'>): Spacing => {
 };
 
 // Extract 'font families' design tokens from a canvas
-// TODO: Extract all font families, not just "heading" and "body"
 export const getFontFamilies = (
   canvas: Figma.Node<'CANVAS'>
 ): Typography['fonts'] => {
-  const textElements = getAllTextNodes(canvas);
+  // TODO: Support importing font stacks (e.g. "Roboto, Arial, sans-serif")
+  const prefix = 'font-';
+  const fonts = getAllTextNodes(canvas)
+    // Get all the text elements with a name prefixed 'font-'
+    .filter((e) => e.name.startsWith(prefix))
+    // Get the name and font family of the elements
+    .map((e) => ({
+      name: e.name.replace(prefix, ''),
+      fontFamily: e.style.fontFamily,
+    }));
 
-  // Get the text element named "font-heading", log an error and exit if it's missing
-  const headingFontName = 'font-heading';
-  const headingFont = textElements.find((e) => e.name === headingFontName);
-  if (headingFont === undefined) {
-    logError(
-      'Heading font not found in "Typography" page',
-      `- Please add a text element named "${headingFontName}".`
-    );
-    throw new Error();
-  }
+  // Convert array to object
+  const fontMap = fonts.reduce(
+    (obj, s) => ({
+      ...obj,
+      [s.name]: s.fontFamily,
+    }),
+    {}
+  );
 
-  // Get the text element named "font-body", log an error and exit if it's missing
-  const bodyFontName = 'font-body';
-  const bodyFont = textElements.find((e) => e.name === bodyFontName);
-  if (bodyFont === undefined) {
+  // If "heading" or "body" fonts are missing, log error(s) and exit
+  const missingBody = 'body' in fontMap === false;
+  const missingHeading = 'heading' in fontMap === false;
+  if (missingBody) {
     logError(
       'Body font not found in "Typography" page',
-      `- Please add a text element named "${bodyFontName}".`
+      `- Please add a text element named "${prefix}body".`
     );
+  }
+  if (missingHeading) {
+    logError(
+      'Heading font not found in "Typography" page',
+      `- Please add a text element named "${prefix}heading".`
+    );
+  }
+  if (missingBody || missingHeading) {
     throw new Error();
   }
 
-  return {
-    heading: headingFont.style.fontFamily,
-    body: bodyFont.style.fontFamily,
-  };
+  return fontMap;
 };
 
 // Extract 'font sizes' design tokens from a canvas

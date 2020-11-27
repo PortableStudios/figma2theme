@@ -25,10 +25,7 @@ export type Sizes = Dictionary<string>;
 export type Spacing = Dictionary<string>;
 
 export type Typography = {
-  fonts: {
-    heading: string;
-    body: string;
-  };
+  fonts: Dictionary<string>;
   fontSizes: Dictionary<string>;
   lineHeights: Dictionary<string>;
   letterSpacing: Dictionary<string>;

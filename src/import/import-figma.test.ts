@@ -231,7 +231,6 @@ describe('Importing tokens from Figma', () => {
     describe('Fonts', () => {
       const getName = (n: string) => `font-${n}`;
 
-      // TODO: Add more fonts than just "heading" and "body" when the function supports it
       it('generates a list of font families from properly named text nodes on a canvas', () => {
         // Create text nodes to represent "heading" and "body" fonts
         const heading = createText({
@@ -242,15 +241,20 @@ describe('Importing tokens from Figma', () => {
           name: getName('body'),
           style: { fontFamily: 'Helvetica' },
         });
+        const logo = createText({
+          name: getName('logo'),
+          style: { fontFamily: 'Montserrat' },
+        });
 
         // Add the text nodes to a canvas and pass it to the font family function
-        const canvas = createCanvas({ children: [heading, body] });
+        const canvas = createCanvas({ children: [heading, body, logo] });
         const fonts = getFontFamilies(canvas);
 
         // Expect the fonts to be extracted correctly
         expect(fonts).toEqual({
           heading: 'Georgia',
           body: 'Helvetica',
+          logo: 'Montserrat',
         });
       });
 
