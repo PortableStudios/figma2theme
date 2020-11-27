@@ -12,7 +12,7 @@ jobs:
         run: |
           yarn install --frozen-lockfile
           yarn global:install
-          echo "::add-path::$(yarn global bin)"
+          echo "$(yarn global bin)" >> $GITHUB_PATH
       - name: Generate the theme
         run: |
           figma2theme generate-json
