@@ -25,11 +25,15 @@ const List: React.FC<ListProps> = ({ property, values, defaultValue }) => {
       {values.map((value) => (
         <Stack key={value} alignItems="flex-start" spacing={2}>
           <Flex direction="column">
-            <Heading fontSize="14px" fontWeight="bold">
+            <Heading fontFamily="sans-serif" fontSize="14px" fontWeight="bold">
               {value}
             </Heading>
             {value === defaultValue && (
-              <Heading fontSize="12px" fontWeight="semibold">
+              <Heading
+                fontFamily="sans-serif"
+                fontSize="12px"
+                fontWeight="semibold"
+              >
                 default
               </Heading>
             )}

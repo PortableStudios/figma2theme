@@ -17,10 +17,18 @@ const Section: React.FC<SectionProps> = ({ property, values }) => {
         return (
           <Stack key={key} spacing={2}>
             <Flex direction="column">
-              <Heading fontSize="14px" fontWeight="bold">
+              <Heading
+                fontFamily="sans-serif"
+                fontSize="14px"
+                fontWeight="bold"
+              >
                 {key}
               </Heading>
-              <Heading fontSize="12px" fontWeight="semibold">
+              <Heading
+                fontFamily="sans-serif"
+                fontSize="12px"
+                fontWeight="semibold"
+              >
                 {values[key as keyof typeof values]}
               </Heading>
             </Flex>

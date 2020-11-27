@@ -26,11 +26,19 @@ const Section: React.FC<SectionProps> = ({ colours }) => {
         return (
           <Stack key={key} spacing={2}>
             <Flex direction="column">
-              <Heading fontSize="14px" fontWeight="bold">
+              <Heading
+                fontFamily="sans-serif"
+                fontSize="14px"
+                fontWeight="bold"
+              >
                 {key}
               </Heading>
               {typeof value !== 'object' && (
-                <Heading fontSize="12px" fontWeight="semibold">
+                <Heading
+                  fontFamily="sans-serif"
+                  fontSize="12px"
+                  fontWeight="semibold"
+                >
                   {colours[key as keyof typeof colours]}
                 </Heading>
               )}
@@ -43,6 +51,7 @@ const Section: React.FC<SectionProps> = ({ colours }) => {
                   return (
                     <Stack key={key2} spacing={2}>
                       <Heading
+                        fontFamily="sans-serif"
                         fontSize="12px"
                         fontWeight="semibold"
                         textAlign="center"
@@ -60,7 +69,11 @@ const Section: React.FC<SectionProps> = ({ colours }) => {
                         justifyContent="center"
                         width="64px"
                       >
-                        <Text color="white" textShadow="0 0 2px black">
+                        <Text
+                          color="white"
+                          fontFamily="sans-serif"
+                          textShadow="0 0 2px black"
+                        >
                           {key2}
                         </Text>
                       </Flex>

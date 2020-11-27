@@ -57,6 +57,7 @@ export const TextStyles: Story = () => {
         return (
           <Flex key={key} direction="column">
             <Heading
+              fontFamily="sans-serif"
               fontSize="24px"
               fontWeight="black"
               textTransform="capitalize"
@@ -122,7 +123,7 @@ export const TextStyles: Story = () => {
                             _last={{ border: 'none' }}
                           >
                             <Stack spacing={4}>
-                              <Heading fontSize="12px">
+                              <Heading fontFamily="sans-serif" fontSize="12px">
                                 {bp}
                                 {bp !== 'base' && ` (${breakpointPx}px+)`}
                               </Heading>

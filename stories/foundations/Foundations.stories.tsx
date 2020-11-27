@@ -52,10 +52,18 @@ export const Radii: Story = () => {
         return (
           <Stack key={key} spacing={2}>
             <Flex direction="column">
-              <Heading fontSize="14px" fontWeight="bold">
+              <Heading
+                fontFamily="sans-serif"
+                fontSize="14px"
+                fontWeight="bold"
+              >
                 {key}
               </Heading>
-              <Heading fontSize="12px" fontWeight="semibold">
+              <Heading
+                fontFamily="sans-serif"
+                fontSize="12px"
+                fontWeight="semibold"
+              >
                 {radii[key as keyof typeof radii]}
               </Heading>
               <Divider marginTop={2} />
@@ -82,10 +90,18 @@ export const Shadows: Story = () => {
         return (
           <Stack key={key} spacing={2}>
             <Flex direction="column">
-              <Heading fontSize="14px" fontWeight="bold">
+              <Heading
+                fontFamily="sans-serif"
+                fontSize="14px"
+                fontWeight="bold"
+              >
                 {key}
               </Heading>
-              <Heading fontSize="12px" fontWeight="semibold">
+              <Heading
+                fontFamily="sans-serif"
+                fontSize="12px"
+                fontWeight="semibold"
+              >
                 {shadows[key as keyof typeof shadows]}
               </Heading>
               <Divider marginTop={2} />
@@ -141,7 +157,7 @@ export const Sizes: Story = () => {
 
   return (
     <Stack spacing={4}>
-      <Heading fontSize="16px" fontWeight="bold">
+      <Heading fontFamily="sans-serif" fontSize="16px" fontWeight="bold">
         Spacing values are also available for sizing
       </Heading>
       <Box
