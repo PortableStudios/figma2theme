@@ -8,7 +8,7 @@ import {
   Stack,
   Text,
   useTheme,
-} from '@chakra-ui/core';
+} from '@chakra-ui/react';
 
 export default {
   title: 'Theme/Foundations/Colours',

@@ -1,6 +1,6 @@
 import React from 'react';
 import { Story, Meta } from '@storybook/react';
-import { Box, Flex, Heading, Stack, Text, useTheme } from '@chakra-ui/core';
+import { Box, Flex, Heading, Stack, Text, useTheme } from '@chakra-ui/react';
 
 export default {
   title: 'Theme/Foundations/Typography',
