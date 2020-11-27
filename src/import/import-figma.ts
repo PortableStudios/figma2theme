@@ -298,7 +298,7 @@ export const getSpacing = (canvas: Figma.Node<'CANVAS'>): Spacing => {
     // Get all the components with a name prefixed 'space-'
     .filter((r) => r.name.startsWith(prefix))
     // Get the name and pixel size of the rectangles
-    .map((r) => ({ name: r.name, size: r.absoluteBoundingBox.width }))
+    .map((r) => ({ name: r.name, size: r.absoluteBoundingBox.height }))
     // Sort them in ascending order of size
     .sort((a, b) => a.size - b.size)
     // Remove prefix from name and convert size from px to rem
