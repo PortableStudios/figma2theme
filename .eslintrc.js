@@ -28,6 +28,7 @@ module.exports = {
           'warn',
           { argsIgnorePattern: '^_' },
         ],
+        '@typescript-eslint/comma-dangle': 0,
         'object-shorthand': 0,
         'prefer-destructuring': 0,
         'import/prefer-default-export': 0,
