@@ -59,6 +59,7 @@
     "fs-extra": "^9.0.1",
     "lodash.setwith": "^4.3.2",
     "node-fetch": "^2.6.1",
+    "polished": "^3.6.7",
     "prettier": "^2.1.2",
     "rimraf": "^3.0.2",
     "svg-to-jsx": "^1.0.2",

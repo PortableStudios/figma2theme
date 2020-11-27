@@ -1,7 +1,7 @@
+import { em, rem } from 'polished';
 import { TextCase, TextDecoration, LineHeightUnit } from 'figma-api';
 
 import {
-  rem,
   getBreakpoints,
   getColours,
   getFontFamilies,
@@ -44,10 +44,10 @@ describe('Importing tokens from Figma', () => {
 
       // Expect the breakpoints to be rem-based and use the correct names
       expect(breakpoints).toEqual({
-        sm: rem('480px'),
-        md: rem('640px'),
-        lg: rem('992px'),
-        xl: rem('1280px'),
+        sm: em('480px'),
+        md: em('640px'),
+        lg: em('992px'),
+        xl: em('1280px'),
       });
     });
   });
