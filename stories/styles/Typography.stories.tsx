@@ -32,6 +32,11 @@ type TextStyle = {
 };
 export const TextStyles: Story = () => {
   const theme = useTheme();
+  const breakpointKeys = Object.keys(theme.breakpoints).filter((k) => {
+    // Exclude integer keys
+    return !/^\+?\d+$/.test(k);
+  });
+
   const textStyles = theme.textStyles ?? {};
   const textStyleKeys = Object.keys(textStyles);
   const renderExample = (style: string, overrides?: TextStyle) => {
@@ -92,7 +97,7 @@ export const TextStyles: Story = () => {
                   </AccordionButton>
                   <AccordionPanel padding={0}>
                     <List>
-                      {['base', ...Object.keys(theme.breakpoints)].map((bp) => {
+                      {breakpointKeys.map((bp) => {
                         const changes = Object.values(style).some(
                           (v) => typeof v === 'object' && v !== null && bp in v
                         );
