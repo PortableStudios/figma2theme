@@ -106,6 +106,7 @@ export default async function exportChakraFromTokens(
   const chakra = {
     breakpoints: tokens.breakpoints,
     colours: tokens.colours,
+    gridStyles: tokens.gridStyles,
     icons: await processIcons(tokens.icons),
     radii: {
       none: '0',
@@ -150,6 +151,10 @@ export default async function exportChakraFromTokens(
     {
       input: `${templateDir}/icons.tsx.ejs`,
       output: `${outputDir}/icons.tsx`,
+    },
+    {
+      input: `${templateDir}/grids.tsx.ejs`,
+      output: `${outputDir}/grids.tsx`,
     },
   ];
 

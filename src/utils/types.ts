@@ -4,6 +4,12 @@ export type DeepPartial<T> = { [K in keyof T]?: DeepPartial<T[K]> };
 
 export type Breakpoints = { [name: string]: string };
 
+export type GridVariant = {
+  columns: number | number[];
+  gutter: string | string[];
+  margin: string | string[];
+};
+
 // From @types/svgo
 export type OptimisedSVG = {
   data: string;
@@ -45,6 +51,7 @@ export type TextVariant = {
 export type Tokens = {
   breakpoints: Breakpoints;
   colours: Palette;
+  gridStyles: { [key: string]: GridVariant };
   icons: Icons;
   radii: Radii;
   shadows: Shadows;

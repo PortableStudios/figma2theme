@@ -6,6 +6,7 @@ import {
   getColours,
   getFontFamilies,
   getFontSizes,
+  getGridStyles,
   getLetterSpacing,
   getLineHeights,
   getRadii,
@@ -19,6 +20,7 @@ import {
   createColour,
   createComponent,
   createFileStyles,
+  createGridStyle,
   createRectangle,
   createShadow,
   createText,
@@ -108,6 +110,42 @@ describe('Importing tokens from Figma', () => {
           '700': '#363231',
           '800': '#2C2727',
           '900': '#262121',
+        },
+      });
+    });
+  });
+
+  describe('Grid', () => {
+    it('generates grid config objects from properly named grid styles and rectangles on a canvas', () => {
+      // Create "page/base", "page/md" and "page/lg" grid styles
+      const base = createGridStyle('page/base', {
+        columns: 4,
+        gutter: 8,
+        margin: 16,
+      });
+      const md = createGridStyle('page/md', {
+        columns: 8,
+        gutter: 16,
+        margin: 32,
+      });
+      const lg = createGridStyle('page/lg', {
+        columns: 12,
+        gutter: 24,
+        margin: 96,
+      });
+      const styles = [base, md, lg];
+
+      // Add the frame nodes to a canvas, pass the canvas and the file styles to the grid styles function
+      const canvas = createCanvas({ children: styles.map((s) => s.node) });
+      const fileStyles = createFileStyles(styles);
+      const gridStyles = getGridStyles(canvas, fileStyles);
+
+      // Expect the generated grid config to have the correct values
+      expect(gridStyles).toEqual({
+        page: {
+          columns: { base: 4, md: 8, lg: 12 },
+          gutter: { base: rem('8px'), md: rem('16px'), lg: rem('24px') },
+          margin: { base: rem('16px'), md: rem('32px'), lg: rem('96px') },
         },
       });
     });

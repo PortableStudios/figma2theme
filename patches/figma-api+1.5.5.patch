@@ -1,8 +1,8 @@
 diff --git a/node_modules/figma-api/lib/ast-types.d.ts b/node_modules/figma-api/lib/ast-types.d.ts
-index c605c90..cc35d7c 100644
+index c605c90..c9c7fa3 100644
 --- a/node_modules/figma-api/lib/ast-types.d.ts
 +++ b/node_modules/figma-api/lib/ast-types.d.ts
-@@ -65,7 +65,9 @@ export declare enum LineHeightUnit {
+@@ -65,7 +65,10 @@ export declare enum LineHeightUnit {
   * A mapping of a StyleType to style ID (see Style) of styles present on this node. The style ID can be used to look up more information about the style in the top-level styles field.
  */
  export declare type StylesMap = {
@@ -10,10 +10,11 @@ index c605c90..cc35d7c 100644
 +    effect?: string;
 +    fill?: string;
 +    text?: string;
++    grid?: string;
  };
  /** Format and size to export an asset at */
  export declare type ExportSetting = {
-@@ -276,6 +278,7 @@ declare type EffectShadow_ = {
+@@ -276,6 +279,7 @@ declare type EffectShadow_ = {
      blendMode: BlendMode;
      /** How far the shadow is projected in the x and y directions */
      offset: Vector;
@@ -21,7 +22,7 @@ index c605c90..cc35d7c 100644
  };
  export declare type EffectShadow = {
      type: EffectType.DROP_SHADOW | EffectType.INNER_SHADOW;
-@@ -462,7 +465,7 @@ export interface Style {
+@@ -462,7 +466,7 @@ export interface Style {
      /** The name of the style */
      name: string;
      /** The type of style */
@@ -30,3 +31,11 @@ index c605c90..cc35d7c 100644
  }
  /** The root node */
  export interface DOCUMENT {
+@@ -522,6 +526,7 @@ export interface FRAME {
+     isMask: boolean;
+     /** default: false Does this mask ignore fill style (like gradients) and effects? */
+     isMaskOutline: boolean;
++    styles?: StylesMap;
+ }
+ /** A logical grouping of nodes */
+ export declare type GROUP = FRAME;

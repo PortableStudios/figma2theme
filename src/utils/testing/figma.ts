@@ -3,6 +3,8 @@ import {
   EffectType,
   LayoutConstraintHorizontal,
   LayoutConstraintVertical,
+  LayoutGridAligment,
+  LayoutGridPattern,
   LineHeightUnit,
   PaintType,
   StrokeAlign,
@@ -16,6 +18,7 @@ import type { DeepPartial } from '../types';
 
 type CanvasNode = Node<'CANVAS'>;
 type ComponentNode = Node<'COMPONENT'>;
+type FrameNode = Node<'FRAME'>;
 type RectangleNode = Node<'RECTANGLE'>;
 type TextNode = Node<'TEXT'>;
 
@@ -57,6 +60,33 @@ const defaultComponent: ComponentNode = {
     vertical: LayoutConstraintVertical.TOP,
   },
   exportSettings: [],
+};
+
+const defaultFrame: FrameNode = {
+  id: '',
+  name: '',
+  type: 'FRAME',
+  visible: true,
+  effects: [],
+  children: [],
+  background: [],
+  exportSettings: [],
+  blendMode: BlendMode.NORMAL,
+  opacity: 1,
+  isMask: false,
+  isMaskOutline: false,
+  preserveRatio: false,
+  clipsContent: false,
+  absoluteBoundingBox: {
+    x: 0,
+    y: 0,
+    width: 0,
+    height: 0,
+  },
+  constraints: {
+    horizontal: LayoutConstraintHorizontal.LEFT,
+    vertical: LayoutConstraintVertical.TOP,
+  },
 };
 
 const defaultRectangle: RectangleNode = {
@@ -131,6 +161,10 @@ export const createCanvas = (props: DeepPartial<CanvasNode>): CanvasNode => {
   return merge({}, defaultCanvas, props);
 };
 
+export const createFrame = (props: DeepPartial<FrameNode>): FrameNode => {
+  return merge({}, defaultFrame, props);
+};
+
 export const createText = (props: DeepPartial<TextNode>): TextNode => {
   return merge({}, defaultText, props);
 };
@@ -153,6 +187,33 @@ export const createComponent = (
   const { x, y, width, height, ...baseProps } = props;
   const boxProps = { absoluteBoundingBox: { x, y, width, height } };
   return merge({}, defaultComponent, baseProps, boxProps);
+};
+
+// Utility function to create a grid style and a frame node with it attached
+export const createGridStyle = (
+  name: string,
+  gridConfig: { columns: number; margin: number; gutter: number }
+) => {
+  const id = uuidv4();
+  const style = { name: name, styleType: 'GRID' };
+  const node = createFrame({
+    styles: { grid: id },
+    layoutGrids: [
+      {
+        pattern: LayoutGridPattern.COLUMNS,
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        alignment: 'STRETCH' as any,
+        sectionSize: 0,
+        visible: true,
+        color: { r: 1, g: 1, b: 1, a: 1 },
+        count: gridConfig.columns,
+        offset: gridConfig.margin,
+        gutterSize: gridConfig.gutter,
+      },
+    ],
+  });
+
+  return { id, style, node };
 };
 
 // Utility function to create a text style and a text node with it attached

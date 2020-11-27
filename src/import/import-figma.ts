@@ -10,6 +10,7 @@ import { logError } from '../utils/log';
 import type {
   Dictionary,
   Breakpoints,
+  GridVariant,
   Icons,
   OptimisedSVG,
   Palette,
@@ -69,9 +70,12 @@ const getAllNodesByType = <T extends FindableNode>(
   for (let i = 0; i < from.children.length; i += 1) {
     const child = from.children[i];
     switch (child.type) {
-      // If a node matchs the given type, scoop it up
+      // If a node matchs the given type, scoop it up and recursively search it's children
       case type:
         nodes.push(child as Figma.Node<T>);
+        if ('children' in child) {
+          nodes.push(...getAllNodesByType(type, child as Figma.Node<'CANVAS'>));
+        }
         break;
       case 'INSTANCE':
         // Skip component instances as they may have overridden values
@@ -87,6 +91,9 @@ const getAllNodesByType = <T extends FindableNode>(
 
   return nodes;
 };
+// Helper function to get all frame nodes from a page
+const getAllFrameNodes = (from: Figma.Node<'CANVAS'>) =>
+  getAllNodesByType('FRAME', from);
 // Helper function to get all rectangle nodes from a page
 const getAllRectangleNodes = (from: Figma.Node<'CANVAS'>) =>
   getAllNodesByType('RECTANGLE', from);
@@ -391,6 +398,73 @@ export const getFontSizes = (
   );
 };
 
+export const getGridStyles = (
+  canvas: Figma.Node<'CANVAS'>,
+  styles: Dictionary<Figma.Style>
+): { [key: string]: GridVariant } => {
+  // Get all the grid styles
+  const gridStyles: Dictionary<string> = {};
+  Object.keys(styles).forEach((key) => {
+    const style = styles[key];
+    if (style.styleType === 'GRID') {
+      gridStyles[key] = style.name;
+    }
+  });
+  // Get all the frame elements that are using one of the styles
+  const frameElements = getAllFrameNodes(canvas).filter((t) => {
+    const styleKey = t.styles?.grid;
+    if (styleKey === undefined) {
+      return false;
+    }
+    return Object.keys(gridStyles).includes(styleKey);
+  });
+  // Extract the styles from each frame element
+  const variants: { [key: string]: GridVariant } = {};
+  frameElements.forEach((t) => {
+    const styleKey = t.styles?.grid;
+    if (styleKey === undefined) {
+      return;
+    }
+
+    // Find the first applied grid that uses columns and is a "stretch" type
+    // (This is the only kind we support)
+    const layoutGrid = t.layoutGrids?.find((g) => {
+      return (
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        g.alignment === ('STRETCH' as any) &&
+        g.pattern === Figma.LayoutGridPattern.COLUMNS
+      );
+    });
+    if (!layoutGrid) {
+      return;
+    }
+
+    // Get the grid values
+    const values = {
+      columns: layoutGrid.count,
+      gutter: rem(`${layoutGrid.gutterSize}px`),
+      margin: rem(`${layoutGrid.offset}px`),
+    };
+
+    // Get the style name and extract the breakpoint name if it exists (e.g. "sm" from "page/sm")
+    let name = gridStyles[styleKey];
+    const bp = name.split('/')?.[1];
+    if (bp) {
+      // If the style does correspond to a breakpoint, add the values under that key
+      name = name.replace(`/${bp}`, '');
+      setWith(variants, `${name}.columns.${bp}`, values.columns);
+      setWith(variants, `${name}.gutter.${bp}]`, values.gutter);
+      setWith(variants, `${name}.margin.${bp}]`, values.margin);
+      return;
+    }
+
+    // Otherwise just assign the style object as normal
+    variants[name] = values;
+  });
+
+  return variants;
+};
+
 const getLineHeightValue = (t: Figma.Node<'TEXT'>): string => {
   switch (t.style.lineHeightUnit) {
     case Figma.LineHeightUnit.PIXELS:
@@ -680,6 +754,7 @@ const getIcons = async (
 const pageNames = {
   breakpoints: 'Breakpoints',
   colours: 'Colours',
+  grids: 'Grids',
   icons: 'Icons',
   radii: 'Radii',
   shadows: 'Shadows',
@@ -720,6 +795,7 @@ export default async function importTokensFromFigma(
   return {
     breakpoints: getBreakpoints(canvases.breakpoints),
     colours: getColours(canvases.colours, file.styles),
+    gridStyles: getGridStyles(canvases.grids, file.styles),
     icons: await getIcons(api, fileKey, canvases.icons),
     radii: getRadii(canvases.radii),
     shadows: getShadows(canvases.shadows, file.styles),
