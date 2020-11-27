@@ -110,12 +110,12 @@ const convertFigmaShadowToCss = (shadow: Figma.EffectShadow): string => {
   const colour = `rgba(${r}, ${g}, ${b}, ${a})`;
 
   // Convert shadow offset and radius to px
-  // TODO: Add shadow spread when value is exposed by API
   const x = shadow.offset.x === 0 ? '0' : `${shadow.offset.x}px`;
   const y = shadow.offset.y === 0 ? '0' : `${shadow.offset.y}px`;
   const radius = shadow.radius === 0 ? '0' : `${shadow.radius}px`;
+  const spread = shadow.spread ? `${shadow.spread}px` : '0';
 
-  return `${type}${x} ${y} ${radius} 0 ${colour}`;
+  return `${type}${x} ${y} ${radius} ${spread} ${colour}`;
 };
 
 /**
