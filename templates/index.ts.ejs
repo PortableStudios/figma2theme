@@ -10,10 +10,9 @@ import defaultTheme from '@chakra-ui/theme';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const breakpoints: any = <%- JSON.stringify(Object.values(chakra.breakpoints)) %>;
-breakpoints.sm = breakpoints[0];
-breakpoints.md = breakpoints[1];
-breakpoints.lg = breakpoints[2];
-breakpoints.xl = breakpoints[3];
+<% for(let i = 0; i < Object.keys(chakra.breakpoints).length; i++) { -%>
+breakpoints['<%- Object.keys(chakra.breakpoints)[i] %>'] = breakpoints[<%- i %>];
+<% } %>
 
 const colors = <%- JSON.stringify(chakra.colours) %>;
 export type Colors = typeof colors;
