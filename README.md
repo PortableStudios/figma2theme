@@ -78,7 +78,7 @@ By default the generated theme file(s) will be saved to `./theme`.
 
 ### 5. Import the theme
 
-Update your imports from `import theme from "@chakra-ui/theme"` to the generated theme location.
+Update your imports from `import { theme } from '@chakra-ui/react'` to the generated theme location.
 
 ### 6. Import the stories (Optional)
 
