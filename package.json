@@ -78,7 +78,7 @@
     "@storybook/addon-essentials": "^6.1.7",
     "@storybook/addon-links": "^6.1.9",
     "@storybook/react": "^6.1.7",
-    "@storybook/theming": "^6.1.7",
+    "@storybook/theming": "^6.1.9",
     "@types/jest": "^26.0.15",
     "@types/lodash.merge": "^4.6.6",
     "@types/uuid": "^8.3.0",
