@@ -16,6 +16,7 @@ jobs:
         run: |
           yarn install --frozen-lockfile
           yarn build
+          npx clean-package --remove 'scripts.postinstall'
       - name: Publish
         run: yarn publish --non-interactive
         env:
