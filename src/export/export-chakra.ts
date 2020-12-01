@@ -153,8 +153,8 @@ export default async function exportChakraFromTokens(
       output: `${outputDir}/icons.tsx`,
     },
     {
-      input: `${templateDir}/grids.tsx.ejs`,
-      output: `${outputDir}/grids.tsx`,
+      input: `${templateDir}/grids.ts.ejs`,
+      output: `${outputDir}/grids.ts`,
     },
   ];
 
