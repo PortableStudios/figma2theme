@@ -43,7 +43,7 @@
     "*.{js,ts,tsx}": "eslint --fix"
   },
   "dependencies": {
-    "@types/color-convert": "^1.9.0",
+    "@types/color-convert": "^2.0.0",
     "@types/ejs": "^3.0.5",
     "@types/fs-extra": "^9.0.4",
     "@types/lodash.setwith": "^4.3.6",
