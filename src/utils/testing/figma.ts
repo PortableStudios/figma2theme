@@ -3,7 +3,6 @@ import {
   EffectType,
   LayoutConstraintHorizontal,
   LayoutConstraintVertical,
-  LayoutGridAligment,
   LayoutGridPattern,
   LineHeightUnit,
   PaintType,
