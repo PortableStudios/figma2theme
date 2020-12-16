@@ -43,7 +43,7 @@ const getFile = async (api: Figma.Api, fileKey: string) => {
 };
 
 // Fetch a canvas from a Figma document by the page name
-const getPageCanvasByName = (
+export const getPageCanvasByName = (
   document: Figma.Node<'DOCUMENT'>,
   pageName: string
 ): Figma.Node<'CANVAS'> | undefined => {
@@ -53,7 +53,9 @@ const getPageCanvasByName = (
       .filter((c): c is Figma.Node<'CANVAS'> => Figma.isNodeType(c, 'CANVAS'))
       // Return the first one that has a matching name
       .find((canvas) => {
-        return canvas.name.toLowerCase() === pageName.toLowerCase();
+        // Strip non-alphanumeric characters (e.g. emojis) from canvas name before comparing
+        const canvasName = canvas.name.toLowerCase().replace(/[^0-9a-z]/g, '');
+        return canvasName === pageName.toLowerCase();
       })
   );
 };

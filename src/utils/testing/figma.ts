@@ -15,6 +15,7 @@ import type { Node } from 'figma-api';
 
 import type { DeepPartial } from '../types';
 
+type DocumentNode = Node<'DOCUMENT'>;
 type CanvasNode = Node<'CANVAS'>;
 type ComponentNode = Node<'COMPONENT'>;
 type FrameNode = Node<'FRAME'>;
@@ -23,6 +24,14 @@ type TextNode = Node<'TEXT'>;
 
 // Default properties for the Figma nodes we need to mock
 // These can be overridden when we create a node
+
+const defaultDocument: DocumentNode = {
+  id: '',
+  name: '',
+  type: 'DOCUMENT',
+  children: [],
+  visible: true,
+};
 
 const defaultCanvas: CanvasNode = {
   id: '',
@@ -155,6 +164,12 @@ const defaultText: TextNode = {
 
 // Utility functions to mock Figma nodes
 // Combine the given props with our default props above
+
+export const createDocument = (
+  props: DeepPartial<DocumentNode>
+): DocumentNode => {
+  return merge({}, defaultDocument, props);
+};
 
 export const createCanvas = (props: DeepPartial<CanvasNode>): CanvasNode => {
   return merge({}, defaultCanvas, props);

@@ -9,6 +9,7 @@ import {
   getGridStyles,
   getLetterSpacing,
   getLineHeights,
+  getPageCanvasByName,
   getRadii,
   getShadows,
   getSizes,
@@ -19,6 +20,7 @@ import {
   createCanvas,
   createColour,
   createComponent,
+  createDocument,
   createFileStyles,
   createGridStyle,
   createRectangle,
@@ -26,6 +28,49 @@ import {
   createText,
   createTextStyle,
 } from '../utils/testing/figma';
+
+describe('Figma utility functions', () => {
+  describe('getPageCanvasByName', () => {
+    const test = (opts: {
+      name: string;
+      search: string;
+      shouldMatch: boolean;
+    }) => {
+      const canvas = createCanvas({ name: opts.name });
+      const document = createDocument({ children: [canvas] });
+      const match = getPageCanvasByName(document, opts.search);
+      if (opts.shouldMatch) {
+        expect(match).toEqual(canvas);
+      } else {
+        expect(match).not.toEqual(canvas);
+      }
+    };
+
+    it('returns a page with the exact matching name', () => {
+      test({ name: 'Breakpoints', search: 'Breakpoints', shouldMatch: true });
+    });
+
+    it('returns a page with the matching name even if the case is different', () => {
+      test({ name: 'BREAKPOINTS', search: 'Breakpoints', shouldMatch: true });
+    });
+
+    it('returns a page with the matching name even if the name contains emojis', () => {
+      test({
+        name: '📐📐📐 Breakpoints 📐📐📐',
+        search: 'Breakpoints',
+        shouldMatch: true,
+      });
+    });
+
+    it("doesn't return a duplicate of the page (e.g Breakpoints 2)", () => {
+      test({
+        name: 'Breakpoints 2',
+        search: 'Breakpoints',
+        shouldMatch: false,
+      });
+    });
+  });
+});
 
 describe('Importing tokens from Figma', () => {
   describe('Breakpoints', () => {
