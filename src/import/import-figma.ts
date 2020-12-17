@@ -134,8 +134,11 @@ const convertFigmaShadowToCss = (shadow: Figma.EffectShadow): string => {
 // Extract 'breakpoint' design tokens from a canvas
 export const getBreakpoints = (canvas: Figma.Node<'CANVAS'>): Breakpoints => {
   const prefix = 'breakpoint-';
-  const breakpoints = getAllRectangleNodes(canvas)
-    // Get all the rectangles with a name prefixed 'breakpoint-'
+  const breakpoints = [
+    ...getAllRectangleNodes(canvas),
+    ...getAllFrameNodes(canvas),
+  ]
+    // Get all the rectangles and frames with a name prefixed 'breakpoint-'
     .filter((r) => r.name.startsWith(prefix))
     // Get the name and pixel width of the rectangles
     .map((r) => ({
@@ -175,8 +178,11 @@ export const getColours = (
     }
   });
 
-  // Get all the rectangles that are using one of the colour styles
-  const rectangles = getAllRectangleNodes(canvas).filter((r) => {
+  // Get all the rectangles and frames that are using one of the colour styles
+  const rectangles = [
+    ...getAllRectangleNodes(canvas),
+    ...getAllFrameNodes(canvas),
+  ].filter((r) => {
     const fillKey = r.styles?.fill;
     if (fillKey === undefined) {
       return false;
@@ -187,7 +193,8 @@ export const getColours = (
 
   const palette: Palette = {};
   rectangles.forEach((r) => {
-    const colour = r.fills[0].color;
+    // Figma typings claim that a canvas has no fills property, this is a lie
+    const colour = (r as Figma.Node<'RECTANGLE'>).fills[0].color;
     const fillKey = r.styles?.fill;
     if (fillKey === undefined || colour === undefined) {
       return;
@@ -208,11 +215,15 @@ export const getColours = (
 // Extract 'border radius' design tokens from a canvas
 export const getRadii = (canvas: Figma.Node<'CANVAS'>): Radii => {
   const prefix = 'radii-';
-  const radii = getAllRectangleNodes(canvas)
-    // Get all the rectangles with a name prefixed 'radii-'
+  const radii = [...getAllRectangleNodes(canvas), ...getAllFrameNodes(canvas)]
+    // Get all the rectangles and frames with a name prefixed 'radii-'
     .filter((r) => r.name.startsWith(prefix))
     // Get the name and border radius of the rectangles
-    .map((r) => ({ name: r.name, cornerRadius: r.cornerRadius }))
+    .map((r) => ({
+      name: r.name,
+      // Figma typings claim that a canvas has no cornerRadius property, this is a lie
+      cornerRadius: (r as Figma.Node<'RECTANGLE'>).cornerRadius,
+    }))
     // Sort them in ascending order of radius
     .sort((a, b) => a.cornerRadius - b.cornerRadius)
     // Remove prefix from name and convert radius from px to rem
@@ -246,8 +257,11 @@ export const getShadows = (
     }
   });
 
-  // Get all the rectangles from the canvas that are using one of these effect styles
-  const rectangles = getAllRectangleNodes(canvas).filter((r) => {
+  // Get all the rectangles and frames from the canvas that are using one of these effect styles
+  const rectangles = [
+    ...getAllRectangleNodes(canvas),
+    ...getAllFrameNodes(canvas),
+  ].filter((r) => {
     const effectKey = r.styles?.effect;
     if (effectKey === undefined) {
       return false;
@@ -277,8 +291,8 @@ export const getShadows = (
 // Extract 'sizes' design tokens from a canvas
 export const getSizes = (canvas: Figma.Node<'CANVAS'>): Sizes => {
   const prefix = 'size-';
-  const sizes = getAllRectangleNodes(canvas)
-    // Get all the rectangles with a name prefixed 'size-'
+  const sizes = [...getAllRectangleNodes(canvas), ...getAllFrameNodes(canvas)]
+    // Get all the rectangles and frames with a name prefixed 'size-'
     .filter((r) => r.name.startsWith(prefix))
     // Get the name and pixel size of the rectangles
     .map((r) => ({ name: r.name, size: r.absoluteBoundingBox.width }))
