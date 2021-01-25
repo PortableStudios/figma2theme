@@ -15,6 +15,7 @@ program
 program
   .command('generate-chakra')
   .description('output a Chakra UI theme')
+  .storeOptionsAsProperties(true)
   .option('-o, --output <dir>', 'specify the output directory', './theme')
   .option('--api-key <key>', 'specify the Figma API key')
   .option('--file-url <url>', 'specify the URL of the Figma file')
@@ -29,6 +30,7 @@ program
 program
   .command('generate-json')
   .description('output a JSON file')
+  .storeOptionsAsProperties(true)
   .option('-o, --output <dir>', 'specify the output directory', './')
   .option('--api-key <key>', 'specify the Figma API key')
   .option('--file-url <url>', 'specify the URL of the Figma file')
