@@ -54,7 +54,7 @@
     "colors": "^1.4.0",
     "commander": "^7.0.0",
     "dotenv": "^8.2.0",
-    "ejs": "^3.1.5",
+    "ejs": "^3.1.6",
     "figma-api": "^1.5.5",
     "fs-extra": "^9.1.0",
     "lodash.setwith": "^4.3.2",
