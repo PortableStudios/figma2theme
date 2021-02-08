@@ -72,7 +72,7 @@
     "@babel/preset-typescript": "^7.12.13",
     "@chakra-ui/react": "^1.2.1",
     "@chakra-ui/theme-tools": "^1.0.3",
-    "@emotion/react": "^11.1.4",
+    "@emotion/react": "^11.1.5",
     "@emotion/styled": "^11.0.0",
     "@storybook/addon-actions": "^6.1.17",
     "@storybook/addon-essentials": "^6.1.17",
