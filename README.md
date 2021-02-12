@@ -7,6 +7,9 @@ from a Figma file and then use them to generate a theme.
 **Figma template:**
 https://www.figma.com/file/m1rARkfdPU6dB7n9ofBRHw/Portable-UI-Kit
 
+**Example Storybook generated from the Figma template:**
+https://figma2theme.netlify.app/
+
 ## Usage
 
 ### 1. Authenticate via NPM
