@@ -7,7 +7,7 @@ jobs:
       - uses: actions/checkout@v2
       - uses: actions/setup-node@v1
         with:
-          node-version: '12.x'
+          node-version: '14.x'
       - name: Build and install the CLI
         run: |
           yarn install --frozen-lockfile
@@ -26,9 +26,7 @@ jobs:
           path: |
             ./tokens.json
             ./theme
-      - name: Lint and typecheck the project
-        run: yarn lint & yarn typecheck
-      - name: Run Jest tests
-        run: yarn test
+      - name: Test, lint and typecheck the project
+        run: yarn verify
       - name: Build Storybook
         run: yarn build-storybook
