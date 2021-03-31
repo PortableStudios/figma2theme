@@ -43,6 +43,40 @@ export const Breakpoints: Story = () => {
   );
 };
 
+export const Icons: Story = () => {
+  const theme = useTheme();
+  const customIcons = theme.customIcons;
+  const hasCustomIcons = customIcons && Object.keys(customIcons).length > 0;
+  return (
+    <Stack spacing={4}>
+      {hasCustomIcons ? (
+        Object.keys(customIcons).map((key) => {
+          const IconComponent = customIcons[key as keyof typeof customIcons];
+          return (
+            <Stack key={key} spacing={2}>
+              <Flex direction="column">
+                <Heading
+                  fontFamily="sans-serif"
+                  fontSize="14px"
+                  fontWeight="bold"
+                >
+                  {key}
+                </Heading>
+                <Divider marginTop={2} />
+              </Flex>
+              <IconComponent fontSize="64px" />
+            </Stack>
+          );
+        })
+      ) : (
+        <Heading fontFamily="sans-serif" fontSize="16px" fontWeight="bold">
+          No custom icons found in the theme
+        </Heading>
+      )}
+    </Stack>
+  );
+};
+
 export const Radii: Story = () => {
   const theme = useTheme();
   const radii = theme.radii;

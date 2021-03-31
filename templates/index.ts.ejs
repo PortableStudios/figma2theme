@@ -5,6 +5,8 @@
 import { theme as defaultTheme } from '@chakra-ui/react';
 import { createBreakpoints } from '@chakra-ui/theme-tools';
 
+import * as customIcons from './icons';
+
 /**
  * Foundations
  */
@@ -82,6 +84,7 @@ const theme = {
   lineHeights: typography.lineHeights,
   letterSpacings: typography.letterSpacings,
   textStyles: textStyles,
+  customIcons: customIcons, // this is here purely to be read by `Foundation.stories.tsx`
 };
 export type Theme = typeof theme;
 
