@@ -1,6 +1,6 @@
 {
   "name": "@portablestudios/figma2theme",
-  "version": "0.4.7",
+  "version": "0.5.0",
   "author": "Darcy Glennen <darcy@portable.com.au>",
   "license": "MIT",
   "main": "lib/src/index.js",
