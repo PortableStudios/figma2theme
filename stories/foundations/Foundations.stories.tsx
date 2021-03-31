@@ -25,11 +25,11 @@ export const Breakpoints: Story = () => {
         </Box>
       </Box>
       <Box as="tbody">
-        {(breakpoints as string[]).map((rem, i) => {
+        {Object.entries<string>(breakpoints).map(([name, rem]) => {
           const px = `${parseFloat(rem) * 16}px`;
           return (
             <Box key={rem} as="tr" borderTop="1px solid" borderColor="gray.200">
-              <Box as="td">{i + 1}</Box>
+              <Box as="td">{name}</Box>
               <Box as="td">{rem}</Box>
               <Box as="td">{px}</Box>
               <Box as="td">
