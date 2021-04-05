@@ -63,7 +63,7 @@
     "rimraf": "^3.0.2",
     "svg-to-jsx": "^1.0.3",
     "svgo": "^2.3.0",
-    "svgson": "^4.1.0"
+    "svgson": "^5.2.1"
   },
   "devDependencies": {
     "@babel/core": "^7.13.14",
