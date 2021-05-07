@@ -12,11 +12,14 @@ jobs:
           node-version: '14.x'
           registry-url: https://npm.pkg.github.com/
           scope: '@portablestudios'
-      - name: Build
-        run: |
-          yarn install --frozen-lockfile
-          yarn build
-      - name: Publish
+
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
+
+      - name: Build the project
+        run: yarn build
+
+      - name: Publish the project
         run: yarn publish --non-interactive
         env:
           NODE_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}

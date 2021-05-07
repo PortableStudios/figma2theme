@@ -1,2 +1,1 @@
-yarn concurrently "yarn:test" "yarn:typecheck"
-yarn lint-staged
+yarn concurrently "yarn:test" "yarn:typecheck" "yarn:lint-staged"

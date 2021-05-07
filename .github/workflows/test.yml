@@ -1,5 +1,10 @@
 name: Run tests
-on: [push, pull_request]
+on:
+  pull_request:
+  push:
+    branches:
+      - develop
+      - main
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -8,17 +13,19 @@ jobs:
       - uses: actions/setup-node@v1
         with:
           node-version: '14.x'
+
       - name: Build and install the CLI
         run: |
           yarn install --frozen-lockfile
           yarn global:install
           echo "$(yarn global bin)" >> $GITHUB_PATH
+
       - name: Generate the theme
         run: |
-          figma2theme generate-json
-          figma2theme generate-chakra
+          yarn concurrently "figma2theme generate-json" "figma2theme generate-chakra"
         env:
           FIGMA_API_KEY: ${{secrets.FIGMA_API_KEY}}
+
       - name: Archive the theme
         uses: actions/upload-artifact@v2
         with:
@@ -26,7 +33,6 @@ jobs:
           path: |
             ./tokens.json
             ./theme
-      - name: Test, lint and typecheck the project
-        run: yarn verify
-      - name: Build Storybook
-        run: yarn build-storybook
+
+      - name: Test, lint and typecheck the project and build Storybook
+        run: yarn concurrently "yarn:test" "yarn:lint" "yarn:typecheck" "yarn:build-storybook"
