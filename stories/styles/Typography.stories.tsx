@@ -14,10 +14,20 @@ import {
   Text,
   useTheme,
 } from '@chakra-ui/react';
+import { withDesign } from 'storybook-addon-designs';
 import type { Story, Meta } from '@storybook/react';
+
+import { ifFigmaDesignsForThemeEnabled } from '../utils';
 
 export default {
   title: 'Theme/Styles/Typography',
+  decorators: [withDesign],
+  parameters: {
+    design: ifFigmaDesignsForThemeEnabled({
+      type: 'figma',
+      url: 'https://www.figma.com/file/m1rARkfdPU6dB7n9ofBRHw/Portable-UI-Kit?node-id=621%3A763',
+    }),
+  },
 } as Meta;
 
 // Display the various "text styles" from the theme, including how they look at each breakpoint

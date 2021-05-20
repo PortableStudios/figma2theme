@@ -1,5 +1,6 @@
 import React from 'react';
 import { Story, Meta } from '@storybook/react';
+import { withDesign } from 'storybook-addon-designs';
 import {
   Box,
   Divider,
@@ -10,8 +11,11 @@ import {
   useTheme,
 } from '@chakra-ui/react';
 
+import { ifFigmaDesignsForThemeEnabled } from '../utils';
+
 export default {
   title: 'Theme/Foundations/Colours',
+  decorators: [withDesign],
 } as Meta;
 
 type SectionProps = {
@@ -107,8 +111,20 @@ export const Default: Story = () => {
   delete colours.custom;
   return <Section colours={colours} />;
 };
+Default.parameters = {
+  design: ifFigmaDesignsForThemeEnabled({
+    type: 'figma',
+    url: 'https://www.figma.com/file/m1rARkfdPU6dB7n9ofBRHw/Portable-UI-Kit?node-id=1053%3A326',
+  }),
+};
 
 export const Custom: Story = () => {
   const theme = useTheme();
   return <Section colours={theme.colors.custom ?? {}} />;
+};
+Custom.parameters = {
+  design: ifFigmaDesignsForThemeEnabled({
+    type: 'figma',
+    url: 'https://www.figma.com/file/m1rARkfdPU6dB7n9ofBRHw/Portable-UI-Kit?node-id=1053%3A326',
+  }),
 };

@@ -1,9 +1,19 @@
 import React from 'react';
 import { Story, Meta } from '@storybook/react';
+import { withDesign } from 'storybook-addon-designs';
 import { Box, Flex, Heading, Stack, Text, useTheme } from '@chakra-ui/react';
+
+import { ifFigmaDesignsForThemeEnabled } from '../utils';
 
 export default {
   title: 'Theme/Foundations/Typography',
+  decorators: [withDesign],
+  parameters: {
+    design: ifFigmaDesignsForThemeEnabled({
+      type: 'figma',
+      url: 'https://www.figma.com/file/m1rARkfdPU6dB7n9ofBRHw/Portable-UI-Kit?node-id=621%3A763',
+    }),
+  },
 } as Meta;
 
 type SectionProps = {
