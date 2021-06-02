@@ -28,10 +28,10 @@ import type {
  */
 
 // Fetch a Figma file using file key
-const getFile = async (api: Figma.Api, fileKey: string) => {
+const getFile = async (api: Figma.Api, fileKey: string, version?: string) => {
   let file: GetFileResult;
   try {
-    file = await api.getFile(fileKey);
+    file = await api.getFile(fileKey, { version });
   } catch (e) {
     logError(
       'There was an error loading the Figma file.',
@@ -780,11 +780,12 @@ const pageNames = {
 
 export default async function importTokensFromFigma(
   apiKey: string,
-  fileKey: string
+  fileKey: string,
+  version?: string
 ): Promise<Tokens> {
   // Fetch the Figma file based on the API and file keys
   const api = new Figma.Api({ personalAccessToken: apiKey });
-  const file = await getFile(api, fileKey);
+  const file = await getFile(api, fileKey, version);
 
   // Find all the page canvases we need to extract tokens from, log an error and exit if any are missing
   let missingPage = false;
