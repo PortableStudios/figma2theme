@@ -37,8 +37,13 @@ const generateChoiceTitle = ({
   created_at: string;
 }) => (label ? `"${label}" - ${created_at}` : `Autosave - ${created_at}`);
 
+type VersionReturnType = { description: string; id: string | undefined };
+
 // Use 'prompts' to decide what version figma file you want to use
-const chooseVersion = async (apiKey: string, fileKey: string) => {
+const chooseVersion = async (
+  apiKey: string,
+  fileKey: string
+): Promise<VersionReturnType> => {
   const api = new Figma.Api({ personalAccessToken: apiKey });
   const versions = await getVersions(api, fileKey);
   const latest = await getFile(api, fileKey);
@@ -95,17 +100,17 @@ const generator = async (
   // Fetch the config variables
   const { apiKey, fileKey } = await getConfig(apiKeyOverride, fileUrlOverride);
 
-  let versionId: string | undefined;
+  let version: VersionReturnType | undefined;
 
   // If --lastest-change flag
   if (latestChanges) {
     console.log('fetching latest figma file...'.bold);
   } else {
     console.log('fetching versions of figma file...'.bold);
-    versionId = await chooseVersion(apiKey, fileKey);
+    version = await chooseVersion(apiKey, fileKey);
   }
 
-  const tokens = await importTokensFromFigma(apiKey, fileKey, versionId);
+  const tokens = await importTokensFromFigma(apiKey, fileKey, version?.id);
 
   // Run the passed exporter function with the extracted tokens
   await exporter(tokens, fileKey);
