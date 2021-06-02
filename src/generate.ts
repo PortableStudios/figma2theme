@@ -8,6 +8,7 @@ import type { GetVersionsResult, GetFileResult } from 'figma-api/lib/api-types';
 
 import getConfig from './utils/config';
 import importTokensFromFigma from './import/import-figma';
+
 import { exportChakra, exportJson } from './export';
 import type { Tokens } from './utils/types';
 import { logError } from './utils/log';
@@ -44,7 +45,7 @@ const getVersions = async (api: Figma.Api, fileKey: string) => {
 
 // Generate choice title from figma data
 // Note: If no label, presume its a autosave
-const genrateChoiceTitle = ({
+const generateChoiceTitle = ({
   label,
   created_at,
 }: {
@@ -68,7 +69,7 @@ const chooseVersion = async (apiKey: string, fileKey: string) => {
     ...(latestNamedVersion
       ? [
           {
-            title: `Latest named version of the file (${genrateChoiceTitle(
+            title: `Latest named version of the file (${generateChoiceTitle(
               latestNamedVersion
             )})`,
             value: {
@@ -80,7 +81,7 @@ const chooseVersion = async (apiKey: string, fileKey: string) => {
       : []),
     { title: '------------------------------', value: '', disabled: true },
     ...versions.map((version) => ({
-      title: genrateChoiceTitle(version),
+      title: generateChoiceTitle(version),
       value: { description: 'autosave', id: version.id },
     })),
   ];
