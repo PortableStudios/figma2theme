@@ -28,7 +28,11 @@ import type {
  */
 
 // Fetch a Figma file using file key
-const getFile = async (api: Figma.Api, fileKey: string, version?: string) => {
+export const getFile = async (
+  api: Figma.Api,
+  fileKey: string,
+  version?: string
+) => {
   let file: GetFileResult;
   try {
     file = await api.getFile(fileKey, { version });

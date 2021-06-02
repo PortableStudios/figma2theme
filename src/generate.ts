@@ -4,29 +4,13 @@ import 'colors';
 import path from 'path';
 import rimraf from 'rimraf';
 import prompts from 'prompts';
-import type { GetVersionsResult, GetFileResult } from 'figma-api/lib/api-types';
+import type { GetVersionsResult } from 'figma-api/lib/api-types';
+import importTokensFromFigma, { getFile } from './import/import-figma';
 
 import getConfig from './utils/config';
-import importTokensFromFigma from './import/import-figma';
-
 import { exportChakra, exportJson } from './export';
 import type { Tokens } from './utils/types';
 import { logError } from './utils/log';
-
-// Fetch a Figma file using file key
-const getFile = async (api: Figma.Api, fileKey: string) => {
-  let file: GetFileResult;
-  try {
-    file = await api.getFile(fileKey);
-  } catch (e) {
-    logError(
-      'There was an error loading the Figma file.',
-      '- Please double check the values of your FIGMA_API_KEY and FIGMA_FILE_URL environment variables.'
-    );
-    process.exit(1);
-  }
-  return file;
-};
 
 // Fetch figma versions suing file key
 const getVersions = async (api: Figma.Api, fileKey: string) => {
