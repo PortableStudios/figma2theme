@@ -19,10 +19,11 @@ program
   .option('-o, --output <dir>', 'specify the output directory', './theme')
   .option('--api-key <key>', 'specify the Figma API key')
   .option('--file-url <url>', 'specify the URL of the Figma file')
+  .option('--latest-changes', 'specify the URL of the Figma file')
   .action(async (cmd) => {
-    const { output, apiKey, fileUrl } = cmd.opts();
+    const { output, apiKey, fileUrl, latestChanges } = cmd.opts();
     const outputDir = path.resolve(process.cwd(), output);
-    await generateChakra(outputDir, apiKey, fileUrl).catch((e) =>
+    await generateChakra(outputDir, apiKey, fileUrl, latestChanges).catch((e) =>
       console.error(e)
     );
   });
