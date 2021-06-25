@@ -96,6 +96,15 @@ the following glob to the `stories` array:
 
 ## Development
 
+First set up your environment variables by duplicating the template:
+
+```bash
+cp .env.dist .env
+```
+
+Then generate a Figma API key and use it for the `FIGMA_API_KEY` environment variable.
+A key can be generated under the 'Personal Access Tokens' section of the Figma settings.
+
 ### Running the CLI
 
 While developing the CLI you can use it by running:

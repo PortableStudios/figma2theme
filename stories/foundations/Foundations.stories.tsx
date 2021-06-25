@@ -1,9 +1,13 @@
 import React from 'react';
 import { Story, Meta } from '@storybook/react';
+import { withDesign } from 'storybook-addon-designs';
 import { Box, Divider, Flex, Heading, Stack, useTheme } from '@chakra-ui/react';
+
+import { ifFigmaDesignsForThemeEnabled } from '../utils';
 
 export default {
   title: 'Theme/Foundations',
+  decorators: [withDesign],
 } as Meta;
 
 export const Breakpoints: Story = () => {
@@ -42,10 +46,17 @@ export const Breakpoints: Story = () => {
     </Box>
   );
 };
+Breakpoints.parameters = {
+  design: ifFigmaDesignsForThemeEnabled({
+    type: 'figma',
+    url: 'https://www.figma.com/file/m1rARkfdPU6dB7n9ofBRHw/Portable-UI-Kit?node-id=851%3A221',
+  }),
+};
 
-export const Icons: Story = () => {
+export const CustomIcons: Story = () => {
   const theme = useTheme();
   const customIcons = theme.customIcons;
+  console.log({ customIcons });
   const hasCustomIcons = customIcons && Object.keys(customIcons).length > 0;
   return (
     <Stack spacing={4}>
@@ -75,6 +86,12 @@ export const Icons: Story = () => {
       )}
     </Stack>
   );
+};
+CustomIcons.parameters = {
+  design: ifFigmaDesignsForThemeEnabled({
+    type: 'figma',
+    url: 'https://www.figma.com/file/m1rARkfdPU6dB7n9ofBRHw/Portable-UI-Kit?node-id=697%3A0',
+  }),
 };
 
 export const Radii: Story = () => {
@@ -114,6 +131,12 @@ export const Radii: Story = () => {
     </Stack>
   );
 };
+Radii.parameters = {
+  design: ifFigmaDesignsForThemeEnabled({
+    type: 'figma',
+    url: 'https://www.figma.com/file/m1rARkfdPU6dB7n9ofBRHw/Portable-UI-Kit?node-id=855%3A48',
+  }),
+};
 
 export const Shadows: Story = () => {
   const theme = useTheme();
@@ -151,6 +174,12 @@ export const Shadows: Story = () => {
       })}
     </Stack>
   );
+};
+Shadows.parameters = {
+  design: ifFigmaDesignsForThemeEnabled({
+    type: 'figma',
+    url: 'https://www.figma.com/file/m1rARkfdPU6dB7n9ofBRHw/Portable-UI-Kit?node-id=860%3A0',
+  }),
 };
 
 export const Sizes: Story = () => {
@@ -235,6 +264,12 @@ export const Sizes: Story = () => {
     </Stack>
   );
 };
+Sizes.parameters = {
+  design: ifFigmaDesignsForThemeEnabled({
+    type: 'figma',
+    url: 'https://www.figma.com/file/m1rARkfdPU6dB7n9ofBRHw/Portable-UI-Kit?node-id=1022%3A4',
+  }),
+};
 
 export const Spacing: Story = () => {
   const theme = useTheme();
@@ -296,4 +331,10 @@ export const Spacing: Story = () => {
       </Box>
     </Box>
   );
+};
+Spacing.parameters = {
+  design: ifFigmaDesignsForThemeEnabled({
+    type: 'figma',
+    url: 'https://www.figma.com/file/m1rARkfdPU6dB7n9ofBRHw/Portable-UI-Kit?node-id=860%3A112',
+  }),
 };
