@@ -4,8 +4,8 @@ import fetch from 'node-fetch';
 import { em, rem } from 'polished';
 import setWith from 'lodash.setwith';
 import colorConvert from 'color-convert';
-import type { GetFileResult } from 'figma-api/lib/api-types';
 
+import { getFile } from '../api';
 import { logError } from '../utils/log';
 import type {
   Dictionary,
@@ -26,25 +26,6 @@ import type {
 /**
  * Figma utility functions
  */
-
-// Fetch a Figma file using file key
-export const getFile = async (
-  api: Figma.Api,
-  fileKey: string,
-  version?: string
-) => {
-  let file: GetFileResult;
-  try {
-    file = await api.getFile(fileKey, { version });
-  } catch (e) {
-    logError(
-      'There was an error loading the Figma file.',
-      '- Please double check the values of your FIGMA_API_KEY and FIGMA_FILE_URL environment variables.'
-    );
-    process.exit(1);
-  }
-  return file;
-};
 
 // Fetch a canvas from a Figma document by the page name
 export const getPageCanvasByName = (

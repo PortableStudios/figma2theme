@@ -4,28 +4,13 @@ import 'colors';
 import path from 'path';
 import rimraf from 'rimraf';
 import prompts from 'prompts';
-import type { GetVersionsResult } from 'figma-api/lib/api-types';
-import importTokensFromFigma, { getFile } from './import/import-figma';
+import importTokensFromFigma from './import/import-figma';
 
 import getConfig from './utils/config';
+import { getFile, getVersions } from './api';
 import { exportChakra, exportJson } from './export';
-import type { Tokens } from './utils/types';
-import { logError } from './utils/log';
 
-// Fetch figma versions suing file key
-const getVersions = async (api: Figma.Api, fileKey: string) => {
-  let versions: GetVersionsResult;
-  try {
-    versions = await api.getVersions(fileKey);
-  } catch (e) {
-    logError(
-      'There was an error loading the Figma file.',
-      '- Please double check the values of your FIGMA_API_KEY and FIGMA_FILE_URL environment variables.'
-    );
-    process.exit(1);
-  }
-  return versions.versions;
-};
+import type { Tokens } from './utils/types';
 
 // Generate choice title from figma data
 // Note: If no label, presume its a autosave
@@ -83,9 +68,6 @@ const chooseVersion = async (
     initial: 0,
   });
 
-  // Load the Figma file and extract our design tokens
-  console.log('Importing design tokens from the Figma file...'.bold);
-
   return response.version;
 };
 
@@ -109,6 +91,9 @@ const generator = async (
     console.log('fetching versions of figma file...'.bold);
     version = await chooseVersion(apiKey, fileKey);
   }
+
+  // Load the Figma file and extract our design tokens
+  console.log('Importing design tokens from the Figma file...'.bold);
 
   const tokens = await importTokensFromFigma(apiKey, fileKey, version?.id);
 
