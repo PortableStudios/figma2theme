@@ -52,6 +52,7 @@
     "color-convert": "^2.0.1",
     "colors": "^1.4.0",
     "commander": "^7.2.0",
+    "date-fns": "^2.22.1",
     "dotenv": "^9.0.2",
     "ejs": "^3.1.6",
     "figma-api": "^1.5.5",

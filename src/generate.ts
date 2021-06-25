@@ -4,23 +4,33 @@ import 'colors';
 import path from 'path';
 import rimraf from 'rimraf';
 import prompts from 'prompts';
-import importTokensFromFigma from './import/import-figma';
-import type { Version } from 'figma-api/lib/api-types';
+import { format, parseISO } from 'date-fns';
+import type {
+  GetFileResult,
+  GetVersionsResult,
+  Version,
+} from 'figma-api/lib/api-types';
 
 import getConfig from './utils/config';
 import { getFile, getVersions } from './api';
 import { exportChakra, exportJson } from './export';
+import importTokensFromFigma from './import/import-figma';
 
 import type { Tokens } from './utils/types';
 
-// Generate a title for a Figma file version
-const generateChoiceTitle = (version: Version) => {
-  // If the version has no label then it's an "autosave"
-  if (!version.label) {
-    return `Autosave - ${version.created_at}`;
-  }
+// Get a formatted date for a Figma file version
+const getChoiceDate = (iso8601: string) => {
+  return format(parseISO(iso8601), 'yyyy-MM-dd @ k:mm');
+};
 
-  return `"${version.label}" - ${version.created_at}`;
+// Get a title for a Figma file version
+const getChoiceTitle = (version: Version) => {
+  // Format the ISO8601 date string
+  const date = getChoiceDate(version.created_at);
+  // If the version has no label then it's an "autosave"
+  const label = version.label ? `"${version.label}"` : 'Autosave';
+
+  return `${label}, created: ${date}`;
 };
 
 type VersionOption = {
@@ -29,25 +39,25 @@ type VersionOption = {
   disabled?: boolean;
 };
 
-// Fetch and display the list of Figma file versions to the user to choose from
-const chooseVersion = async (apiKey: string, fileKey: string) => {
-  const api = new Figma.Api({ personalAccessToken: apiKey });
-  const versions = await getVersions(api, fileKey);
-  const latest = await getFile(api, fileKey);
-  const latestNamedVersion = versions.find((version) => version.label !== null);
-
+// Display the list of Figma file versions for the user to choose from
+const chooseVersion = async (
+  file: GetFileResult,
+  versions: GetVersionsResult['versions']
+) => {
   // Create the list of options
   const options: VersionOption[] = [];
 
   // First add the option to use the latest, most up-to-date version of the file
+  const lastUpdated = getChoiceDate(file.lastModified);
   options.push({
-    title: `Latest changes to the file (${latest.lastModified})`,
+    title: `Latest changes to the file (last updated: ${lastUpdated})`,
     value: { description: 'latest', id: undefined },
   });
 
   // If the file has named versions, allow the user to use the latest one
+  const latestNamedVersion = versions.find((version) => version.label !== null);
   if (latestNamedVersion) {
-    const title = generateChoiceTitle(latestNamedVersion);
+    const title = getChoiceTitle(latestNamedVersion);
     options.push({
       title: `Latest named version of the file (${title})`,
       value: { description: 'latest-named', id: latestNamedVersion.id },
@@ -64,7 +74,7 @@ const chooseVersion = async (apiKey: string, fileKey: string) => {
   // Add the list of specific versions
   versions.forEach((v) => {
     options.push({
-      title: generateChoiceTitle(v),
+      title: getChoiceTitle(v),
       value: { description: 'autosave', id: v.id },
     });
   });
@@ -78,11 +88,17 @@ const chooseVersion = async (apiKey: string, fileKey: string) => {
     initial: 0,
   });
 
-  return response.version as VersionOption['value'];
+  return options.find((option) => {
+    return option.value.id === response.version.id;
+  });
 };
 
 // Generic function to import tokens from Figma and pass them to an 'exporter' callback
-type Exporter = (tokens: Tokens, fileKey: string) => Promise<void>;
+type Exporter = (
+  tokens: Tokens,
+  fileKey: string,
+  versionDescription: string
+) => Promise<void>;
 const generator = async (
   exporter: Exporter,
   apiKeyOverride: string | undefined,
@@ -92,19 +108,29 @@ const generator = async (
   // Fetch the config variables
   const { apiKey, fileKey } = await getConfig(apiKeyOverride, fileUrlOverride);
 
+  // Fetch the Figma file
+  const api = new Figma.Api({ personalAccessToken: apiKey });
+  const file = await getFile(api, fileKey);
+
   // If we aren't using the latest version, display a version selection menu
-  let version;
-  if (!latestChanges) {
+  let selectedVersion: VersionOption | undefined;
+  if (latestChanges) {
+    const lastUpdated = getChoiceDate(file.lastModified);
+    const title = `Latest changes to the file (last updated: ${lastUpdated})`;
+    selectedVersion = { title: title, value: { description: 'latest' } };
+  } else {
     console.log('Fetching the list of Figma file versions...'.bold);
-    version = await chooseVersion(apiKey, fileKey);
+    const versions = await getVersions(api, fileKey);
+    selectedVersion = await chooseVersion(file, versions);
   }
 
   // Load the Figma file and extract our design tokens
   console.log('Importing design tokens from the Figma file...'.bold);
-  const tokens = await importTokensFromFigma(apiKey, fileKey, version?.id);
+  const version = selectedVersion?.value.id ?? undefined;
+  const tokens = await importTokensFromFigma(apiKey, fileKey, version);
 
   // Run the passed exporter function with the extracted tokens
-  await exporter(tokens, fileKey);
+  await exporter(tokens, fileKey, selectedVersion?.title ?? '');
 };
 
 export const generateChakra = async (
@@ -114,11 +140,11 @@ export const generateChakra = async (
   latestChanges?: boolean
 ) => {
   // Generate a Chakra UI theme using the tokens
-  const exporter: Exporter = async (tokens, fileKey) => {
+  const exporter: Exporter = async (tokens, fileKey, versionDescription) => {
     const relativeDir = path.relative(process.cwd(), outputDir);
     console.log(`Exporting Chakra UI theme to "${relativeDir}" folder...`.bold);
     rimraf.sync(outputDir);
-    await exportChakra(tokens, outputDir, fileKey);
+    await exportChakra(tokens, outputDir, fileKey, versionDescription);
   };
 
   return generator(exporter, apiKeyOverride, fileUrlOverride, latestChanges);

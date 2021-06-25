@@ -100,7 +100,8 @@ const processIcons = async (icons: Icons): Promise<ChakraIcon[]> => {
 export default async function exportChakraFromTokens(
   tokens: Tokens,
   outputDir: string,
-  figmaFileKey: string
+  figmaFileKey: string,
+  versionDescription: string
 ) {
   // Create a config for the templates by combining the design tokens with default Chakra values
   const chakra = {
@@ -165,6 +166,7 @@ export default async function exportChakraFromTokens(
         chakra,
         version,
         figmaFileKey,
+        versionDescription,
       });
     })
   );
