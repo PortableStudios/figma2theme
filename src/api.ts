@@ -1,11 +1,14 @@
 import * as Figma from 'figma-api';
+import type { GetFileResult, GetVersionsResult } from 'figma-api/lib/api-types';
 
 import { logError } from './utils/log';
 
-import type { GetFileResult, GetVersionsResult } from 'figma-api/lib/api-types';
-
-// Fetch a Figma file using file key
-const getFile = async (api: Figma.Api, fileKey: string, version?: string) => {
+// Fetch a Figma file using the file key and an optional version ID
+export const getFile = async (
+  api: Figma.Api,
+  fileKey: string,
+  version?: string
+) => {
   let file: GetFileResult;
   try {
     file = await api.getFile(fileKey, { version });
@@ -16,11 +19,12 @@ const getFile = async (api: Figma.Api, fileKey: string, version?: string) => {
     );
     process.exit(1);
   }
+
   return file;
 };
 
-// Fetch figma versions suing file key
-const getVersions = async (api: Figma.Api, fileKey: string) => {
+// Fetch the list of Figma file versions using the file key
+export const getVersions = async (api: Figma.Api, fileKey: string) => {
   let versions: GetVersionsResult;
   try {
     versions = await api.getVersions(fileKey);
@@ -31,7 +35,6 @@ const getVersions = async (api: Figma.Api, fileKey: string) => {
     );
     process.exit(1);
   }
+
   return versions.versions;
 };
-
-export { getFile, getVersions };
