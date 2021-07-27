@@ -1,9 +1,11 @@
 #!/usr/bin/env node
-import program from 'commander';
+import { Command } from 'commander';
 import path from 'path';
 
 import { generateChakra, generateJson } from './generate';
 import { version } from '../package.json';
+
+const program = new Command();
 
 program
   .name('figma2theme')
