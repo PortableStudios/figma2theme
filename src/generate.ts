@@ -2,7 +2,6 @@ import * as Figma from 'figma-api';
 import 'dotenv/config';
 import 'colors';
 import path from 'path';
-import rimraf from 'rimraf';
 import prompts from 'prompts';
 import { format, parseISO } from 'date-fns';
 import type {
@@ -143,7 +142,6 @@ export const generateChakra = async (
   const exporter: Exporter = async (tokens, fileKey, versionDescription) => {
     const relativeDir = path.relative(process.cwd(), outputDir);
     console.log(`Exporting Chakra UI theme to "${relativeDir}" folder...`.bold);
-    rimraf.sync(outputDir);
     await exportChakra(tokens, outputDir, fileKey, versionDescription);
   };
 
