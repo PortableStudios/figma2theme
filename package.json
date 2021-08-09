@@ -70,7 +70,7 @@
   },
   "devDependencies": {
     "@babel/core": "^7.14.8",
-    "@babel/preset-env": "^7.14.8",
+    "@babel/preset-env": "^7.15.0",
     "@babel/preset-typescript": "^7.14.5",
     "@chakra-ui/react": "^1.6.5",
     "@chakra-ui/theme-tools": "^1.1.8",
