@@ -1,5 +1,5 @@
 diff --git a/node_modules/figma-api/lib/ast-types.d.ts b/node_modules/figma-api/lib/ast-types.d.ts
-index 2acbe64..8e2ad1d 100644
+index b7c0cfa..4006171 100644
 --- a/node_modules/figma-api/lib/ast-types.d.ts
 +++ b/node_modules/figma-api/lib/ast-types.d.ts
 @@ -65,7 +65,10 @@ export declare enum LineHeightUnit {
@@ -14,7 +14,7 @@ index 2acbe64..8e2ad1d 100644
  };
  /** Format and size to export an asset at */
  export declare type ExportSetting = {
-@@ -464,7 +467,7 @@ export interface Style {
+@@ -476,7 +479,7 @@ export interface Style {
      /** The name of the style */
      name: string;
      /** The type of style */
@@ -23,7 +23,7 @@ index 2acbe64..8e2ad1d 100644
  }
  /** The root node */
  export interface DOCUMENT {
-@@ -524,6 +527,7 @@ export interface FRAME {
+@@ -536,6 +539,7 @@ export interface FRAME {
      isMask: boolean;
      /** default: false Does this mask ignore fill style (like gradients) and effects? */
      isMaskOutline: boolean;
