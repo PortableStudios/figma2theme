@@ -47,7 +47,7 @@
   "dependencies": {
     "@types/color-convert": "^2.0.0",
     "@types/ejs": "^3.1.0",
-    "@types/fs-extra": "^9.0.12",
+    "@types/fs-extra": "^9.0.13",
     "@types/lodash.setwith": "^4.3.6",
     "@types/prettier": "^2.3.2",
     "@types/svgo": "^2.4.2",
