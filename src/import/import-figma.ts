@@ -712,7 +712,11 @@ const getIcons = async (
   const processIcon = async (imageUrl: string): Promise<OptimisedSVG> => {
     const image = await fetch(imageUrl);
     const svg = await image.text();
-    return SVGO.optimize(svg);
+    const result = SVGO.optimize(svg);
+    if (!('data' in result)) {
+      throw new Error(`Error optimising SVG: ${result.error}`);
+    }
+    return result;
   };
 
   // Process all the image URLs asynchronously using promises
