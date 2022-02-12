@@ -12,7 +12,7 @@ import type {
 
 import getConfig from './utils/config';
 import { getFile, getVersions } from './api';
-import { exportChakra, exportJson } from './export';
+import { exportChakra, exportJson, exportTailwind } from './export';
 import importTokensFromFigma from './import/import-figma';
 
 import type { Tokens } from './utils/types';
@@ -159,6 +159,25 @@ export const generateJson = async (
     const relativeDir = path.relative(process.cwd(), outputDir);
     console.log(`Exporting JSON file to "${relativeDir}/tokens.json"...`.bold);
     await exportJson(tokens, outputDir);
+  };
+
+  return generator(exporter, apiKeyOverride, fileUrlOverride, latestChanges);
+};
+
+export const generateTailwind = async (
+  outputDir: string,
+  apiKeyOverride?: string,
+  fileUrlOverride?: string,
+  latestChanges?: boolean
+) => {
+  // Generate a Tailwind config JS file using the tokens
+  const exporter: Exporter = async (tokens, fileKey, versionDescription) => {
+    const relativeDir = path.relative(process.cwd(), outputDir);
+    console.log(
+      `Exporting Tailwind config file to "${relativeDir}/tailwind.config.js"...`
+        .bold
+    );
+    await exportTailwind(tokens, outputDir, fileKey, versionDescription);
   };
 
   return generator(exporter, apiKeyOverride, fileUrlOverride, latestChanges);

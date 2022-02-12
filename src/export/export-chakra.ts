@@ -1,13 +1,12 @@
-import fs from 'fs-extra';
-import ejs from 'ejs';
 import path from 'path';
 import prettier from 'prettier';
 import svgToJSX from 'svg-to-jsx';
 import * as svgson from 'svgson';
-import type { Data } from 'ejs';
 
 import { version } from '../../package.json';
 import type { OptimisedSVG, Icons, Tokens } from '../utils/types';
+
+import { renderTemplate } from './templating';
 
 const prettierConfigFile = path.resolve(__dirname, '../../.prettierrc');
 const templateDir = path.resolve(__dirname, '../../templates');
@@ -17,18 +16,6 @@ const formatFileContents = async (contents: string) => {
   return prettier.resolveConfig(prettierConfigFile).then((options) => {
     return prettier.format(contents, { ...options, parser: 'typescript' });
   });
-};
-
-// Render an EJS template with the given data, format it with Prettier and write the result to the output path
-const renderTemplate = async (
-  templatePath: string,
-  outputPath: string,
-  data: Data
-) => {
-  const contents = await ejs
-    .renderFile(templatePath, data)
-    .then((str) => formatFileContents(str));
-  return fs.outputFile(outputPath, contents);
 };
 
 type ChakraIcon = {
@@ -162,12 +149,17 @@ export default async function exportChakraFromTokens(
   // Render and save all the templates simultaneously
   await Promise.all(
     templates.map((template) => {
-      return renderTemplate(template.input, template.output, {
-        chakra,
-        version,
-        figmaFileKey,
-        versionDescription,
-      });
+      return renderTemplate(
+        template.input,
+        template.output,
+        {
+          chakra,
+          version,
+          figmaFileKey,
+          versionDescription,
+        },
+        formatFileContents
+      );
     })
   );
 }
