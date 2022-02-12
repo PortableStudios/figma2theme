@@ -60,3 +60,19 @@ export type Tokens = {
   typography: Typography;
   textStyles: { [key: string]: TextVariant };
 };
+
+export type TailwindConfig = {
+  content: string[];
+  theme: {
+    spacing: Spacing;
+    screens: Breakpoints;
+    colors: Palette;
+    borderRadius: Radii;
+    dropShadow: Shadows;
+    fontFamily: Dictionary<string[]>;
+    fontSize: Dictionary<string>;
+    lineHeight: Dictionary<string>;
+    letterSpacing: Dictionary<string>;
+  };
+  componentDefinitions: Dictionary<Dictionary<string>>;
+};
