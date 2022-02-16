@@ -9,8 +9,16 @@ module.exports = {
     '@storybook/addon-essentials',
   ],
   webpackFinal: async (config) => {
+    // Fix `framer-motion` build error
+    // https://github.com/framer/motion/issues/1307#issuecomment-966827629
+    config.module.rules.push({
+      type: 'javascript/auto',
+      test: /\.mjs$/,
+      include: /node_modules/,
+    });
+
     // Copied from Chakra UI repo to make Chakra work correctly in Storybook
-    // https://github.com/chakra-ui/chakra-ui/blob/e2a6237170a7c6b308235d81ebbf66786d01616d/.storybook/main.js#L11
+    // https://github.com/chakra-ui/chakra-ui/blob/main/.storybook/main.js
     return {
       ...config,
       resolve: {
