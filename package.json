@@ -57,7 +57,7 @@
     "date-fns": "^2.28.0",
     "dotenv": "^16.0.0",
     "ejs": "^3.1.6",
-    "figma-api": "1.7.0",
+    "figma-api": "1.9.2",
     "fs-extra": "^10.0.1",
     "lodash.setwith": "^4.3.2",
     "node-fetch": "^2.6.7",
