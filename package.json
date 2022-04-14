@@ -60,7 +60,7 @@
     "figma-api": "1.7.0",
     "fs-extra": "^10.0.1",
     "lodash.setwith": "^4.3.2",
-    "node-fetch": "^2.6.7",
+    "node-fetch": "^3.2.3",
     "polished": "^4.2.2",
     "prettier": "^2.6.2",
     "prompts": "^2.4.2",
