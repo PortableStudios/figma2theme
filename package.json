@@ -53,7 +53,7 @@
     "@types/svgo": "^2.6.3",
     "color-convert": "^2.0.1",
     "colors": "^1.4.0",
-    "commander": "^9.1.0",
+    "commander": "^9.2.0",
     "date-fns": "^2.28.0",
     "dotenv": "^16.0.0",
     "ejs": "^3.1.6",
