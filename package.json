@@ -58,7 +58,7 @@
     "dotenv": "^16.0.0",
     "ejs": "^3.1.6",
     "figma-api": "1.7.0",
-    "fs-extra": "^10.0.1",
+    "fs-extra": "^10.1.0",
     "lodash.setwith": "^4.3.2",
     "node-fetch": "^2.6.7",
     "polished": "^4.2.2",
