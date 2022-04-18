@@ -104,7 +104,7 @@
     "framer-motion": "^6.2.10",
     "husky": "^7.0.4",
     "jest": "^27.5.1",
-    "lint-staged": "^12.3.7",
+    "lint-staged": "^12.3.8",
     "lodash.merge": "^4.6.2",
     "patch-package": "^6.4.7",
     "pinst": "^3.0.0",
