@@ -1,7 +1,16 @@
 import React from 'react';
+import flatten from 'flat';
 import { Story, Meta } from '@storybook/react';
 import { withDesign } from 'storybook-addon-designs';
-import { Box, Divider, Flex, Heading, Stack, useTheme } from '@chakra-ui/react';
+import {
+  Box,
+  Divider,
+  Flex,
+  Heading,
+  Stack,
+  Text,
+  useTheme,
+} from '@chakra-ui/react';
 
 import { ifFigmaDesignsForThemeEnabled } from '../utils';
 
@@ -50,6 +59,122 @@ Breakpoints.parameters = {
   design: ifFigmaDesignsForThemeEnabled({
     type: 'figma',
     url: 'https://www.figma.com/file/m1rARkfdPU6dB7n9ofBRHw/Portable-UI-Kit?node-id=851%3A221',
+  }),
+};
+
+export const Colours: Story = () => {
+  const theme = useTheme();
+  const colours = { ...theme.colors };
+  delete colours.transparent;
+  delete colours.current;
+  delete colours.whiteAlpha;
+  delete colours.blackAlpha;
+
+  // Completely flatten the colours object
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const flatColours = flatten(colours) as any;
+
+  // Build the colours object back up to have a single layer
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const newColours: any = {};
+  Object.keys(flatColours).forEach((key) => {
+    const value = flatColours[key];
+    const parts = key.split('.');
+
+    if (parts.length === 1) {
+      newColours[key] = value;
+    } else {
+      const group = parts.shift() as string;
+      const rest = parts.join('.');
+      if (!newColours[group]) newColours[group] = {};
+      newColours[group][rest] = value;
+    }
+  });
+
+  return (
+    <Stack spacing={4}>
+      {Object.keys(newColours).map((key) => {
+        const value = newColours[key as keyof typeof newColours];
+        return (
+          <Stack key={key} spacing={2}>
+            <Flex direction="column">
+              <Heading
+                fontFamily="sans-serif"
+                fontSize="14px"
+                fontWeight="bold"
+              >
+                {key}
+              </Heading>
+              {typeof value !== 'object' && (
+                <Heading
+                  fontFamily="sans-serif"
+                  fontSize="12px"
+                  fontWeight="semibold"
+                >
+                  {newColours[key as keyof typeof newColours]}
+                </Heading>
+              )}
+              <Divider marginTop={2} />
+            </Flex>
+            {typeof value === 'object' ? (
+              <Stack isInline spacing={2}>
+                {Object.keys(value).map((key2) => {
+                  const value2 = value[key2];
+                  return (
+                    <Stack key={key2} spacing={2}>
+                      <Heading
+                        fontFamily="sans-serif"
+                        fontSize="12px"
+                        fontWeight="semibold"
+                        textAlign="center"
+                      >
+                        {value2}
+                      </Heading>
+                      <Flex
+                        alignItems="center"
+                        backgroundColor={value2}
+                        borderRadius="md"
+                        boxShadow="lg"
+                        flexShrink={0}
+                        fontSize="13px"
+                        fontWeight="bold"
+                        height="80px"
+                        justifyContent="center"
+                        textAlign="center"
+                        width="80px"
+                      >
+                        <Text
+                          color="white"
+                          fontFamily="sans-serif"
+                          fontWeight="bold"
+                          textShadow="0 0 1px black, 0 0 2px black"
+                        >
+                          {key2.split('.').join('.ㅤ')}
+                        </Text>
+                      </Flex>
+                    </Stack>
+                  );
+                })}
+              </Stack>
+            ) : (
+              <Box
+                backgroundColor={value}
+                borderRadius="md"
+                boxShadow="lg"
+                height="80px"
+                width="80px"
+              />
+            )}
+          </Stack>
+        );
+      })}
+    </Stack>
+  );
+};
+Colours.parameters = {
+  design: ifFigmaDesignsForThemeEnabled({
+    type: 'figma',
+    url: 'https://www.figma.com/file/m1rARkfdPU6dB7n9ofBRHw/Portable-UI-Kit?node-id=1053%3A326',
   }),
 };
 

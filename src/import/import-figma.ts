@@ -84,6 +84,9 @@ const getAllFrameNodes = (from: Figma.Node<'CANVAS'>) =>
 // Helper function to get all rectangle nodes from a page
 const getAllRectangleNodes = (from: Figma.Node<'CANVAS'>) =>
   getAllNodesByType('RECTANGLE', from);
+// Helper function to get all ellipse nodes from a page
+const getAllEllipseNodes = (from: Figma.Node<'CANVAS'>) =>
+  getAllNodesByType('ELLIPSE', from);
 // Helper function to get all text nodes from a page
 const getAllTextNodes = (from: Figma.Node<'CANVAS'>) =>
   getAllNodesByType('TEXT', from);
@@ -153,19 +156,21 @@ export const getColours = (
   canvas: Figma.Node<'CANVAS'>,
   styles: Dictionary<Figma.Style>
 ): Palette => {
-  // Get all the colour styles with the provided prefix in their name
-  const prefix = 'custom/';
+  // Get all the colour styles
   const colourStyles: Dictionary<string> = {};
   Object.keys(styles).forEach((key) => {
     const effect = styles[key];
-    if (effect.name.startsWith(prefix)) {
-      colourStyles[key] = effect.name.replace(prefix, '');
-    }
+
+    // Ignore colour styles that start with a `_`
+    if (effect.name.startsWith('_')) return;
+
+    colourStyles[key] = effect.name.toLowerCase();
   });
 
-  // Get all the rectangles and frames that are using one of the colour styles
+  // Get all the rectangles, ellipses and frames that are using one of the colour styles
   const rectangles = [
     ...getAllRectangleNodes(canvas),
+    ...getAllEllipseNodes(canvas),
     ...getAllFrameNodes(canvas),
   ].filter((r) => {
     const fillKey = r.styles?.fill;
