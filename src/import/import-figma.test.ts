@@ -116,9 +116,11 @@ describe('Importing tokens from Figma', () => {
 
       // Expect the colours to be extracted correctly
       expect(colours).toEqual({
-        black: '#000000',
-        white: '#FFFFFF',
-        red: '#E53E3E',
+        custom: {
+          black: '#000000',
+          white: '#FFFFFF',
+          red: '#E53E3E',
+        },
       });
     });
 
@@ -144,17 +146,19 @@ describe('Importing tokens from Figma', () => {
 
       // Expect the colours to be nested correctly
       expect(colours).toEqual({
-        grey: {
-          '50': '#FFFAFA',
-          '100': '#EAE5E5',
-          '200': '#D5D0D0',
-          '300': '#A8A3A3',
-          '400': '#7F7A7A',
-          '500': '#5E5959',
-          '600': '#464241',
-          '700': '#363231',
-          '800': '#2C2727',
-          '900': '#262121',
+        custom: {
+          grey: {
+            '50': '#FFFAFA',
+            '100': '#EAE5E5',
+            '200': '#D5D0D0',
+            '300': '#A8A3A3',
+            '400': '#7F7A7A',
+            '500': '#5E5959',
+            '600': '#464241',
+            '700': '#363231',
+            '800': '#2C2727',
+            '900': '#262121',
+          },
         },
       });
     });
