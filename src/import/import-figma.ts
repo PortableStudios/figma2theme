@@ -599,9 +599,12 @@ export const getTextStyles = (
   const textStyles: Dictionary<string> = {};
   Object.keys(styles).forEach((key) => {
     const style = styles[key];
-    if (style.styleType === 'TEXT') {
-      textStyles[key] = style.name;
-    }
+    if (style.styleType !== 'TEXT') return;
+
+    // Ignore text styles that start with a `_`
+    if (style.name.startsWith('_')) return;
+
+    textStyles[key] = style.name;
   });
 
   // Get all the text elements that are using one of the styles
