@@ -97,6 +97,39 @@ const processIcons = async (icons: Icons): Promise<ChakraIcon[]> => {
   return processedIcons;
 };
 
+// Process text styles to replace hardcoded font families with tokens
+// e.g. replace `Noto Sans` with `body`
+const processTextStyles = (
+  textStyles: Tokens['textStyles'],
+  fontFamilies: Tokens['typography']['fonts']
+): Tokens['textStyles'] => {
+  const updatedTextStyles = { ...textStyles };
+
+  // Find the token for a given font family (e.g. get `body` from `Arial`)
+  const getFontFamilyToken = (fontFamily: string) => {
+    const keys = Object.keys(fontFamilies);
+    for (let i = 0; i < keys.length; i++) {
+      if (fontFamily === fontFamilies[keys[i]]) {
+        return keys[i];
+      }
+    }
+  };
+
+  // Replace the font family in each text style with the corresponding token
+  Object.keys(updatedTextStyles).forEach((key) => {
+    const value = updatedTextStyles[key];
+    const fontFamily = value.fontFamily;
+    if (typeof fontFamily === 'string') {
+      const token = getFontFamilyToken(fontFamily);
+      if (token) {
+        value.fontFamily = token;
+      }
+    }
+  });
+
+  return updatedTextStyles;
+};
+
 export default async function exportChakraFromTokens(
   tokens: Tokens,
   outputDir: string,
@@ -140,7 +173,7 @@ export default async function exportChakraFromTokens(
       lineHeights: tokens.typography.lineHeights,
       letterSpacing: tokens.typography.letterSpacing,
     },
-    textStyles: tokens.textStyles,
+    textStyles: processTextStyles(tokens.textStyles, tokens.typography.fonts),
   };
 
   // Specify which templates should be rendered and where they should be saved
