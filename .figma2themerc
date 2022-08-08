@@ -1,3 +1,7 @@
 {
-  "fileUrl": "https://www.figma.com/file/m1rARkfdPU6dB7n9ofBRHw/Portable-UI-Kit"
+  "fileUrl": "https://www.figma.com/file/m1rARkfdPU6dB7n9ofBRHw/Portable-UI-Kit",
+  "fontFallbacks": {
+    "body": "\"Arial\", sans-serif",
+    "heading": "\"Verdana\", sans-serif"
+  }
 }

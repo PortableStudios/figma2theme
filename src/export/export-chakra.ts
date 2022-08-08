@@ -134,7 +134,8 @@ export default async function exportChakraFromTokens(
   tokens: Tokens,
   outputDir: string,
   figmaFileKey: string,
-  versionDescription: string
+  versionDescription: string,
+  fontFallbacks?: { [token: string]: string }
 ) {
   // Create a config for the templates by combining the design tokens with default Chakra values
   const chakra = {
@@ -162,10 +163,10 @@ export default async function exportChakraFromTokens(
     },
     typography: {
       fonts: {
-        // TODO: Support importing font stacks (e.g. "Roboto, Arial, sans-serif")
         ...Object.keys(tokens.typography.fonts).reduce((obj, name) => {
           const font = tokens.typography.fonts[name];
-          return { ...obj, [name]: `"${font}", sans-serif` };
+          const fallback = fontFallbacks?.[name] ?? 'sans-serif';
+          return { ...obj, [name]: `"${font}", ${fallback}` };
         }, {}),
         mono: '"Courier New", Courier, monospace',
       },

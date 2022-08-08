@@ -96,7 +96,8 @@ const chooseVersion = async (
 type Exporter = (
   tokens: Tokens,
   fileKey: string,
-  versionDescription: string
+  versionDescription: string,
+  fontFallbacks?: { [token: string]: string }
 ) => Promise<void>;
 const generator = async (
   exporter: Exporter,
@@ -105,7 +106,10 @@ const generator = async (
   latestChanges: boolean | undefined
 ) => {
   // Fetch the config variables
-  const { apiKey, fileKey } = await getConfig(apiKeyOverride, fileUrlOverride);
+  const { apiKey, fileKey, fontFallbacks } = await getConfig(
+    apiKeyOverride,
+    fileUrlOverride
+  );
 
   // Fetch the Figma file
   const api = new Figma.Api({ personalAccessToken: apiKey });
@@ -129,7 +133,7 @@ const generator = async (
   const tokens = await importTokensFromFigma(apiKey, fileKey, version);
 
   // Run the passed exporter function with the extracted tokens
-  await exporter(tokens, fileKey, selectedVersion?.title ?? '');
+  await exporter(tokens, fileKey, selectedVersion?.title ?? '', fontFallbacks);
 };
 
 export const generateChakra = async (
@@ -139,10 +143,21 @@ export const generateChakra = async (
   latestChanges?: boolean
 ) => {
   // Generate a Chakra UI theme using the tokens
-  const exporter: Exporter = async (tokens, fileKey, versionDescription) => {
+  const exporter: Exporter = async (
+    tokens,
+    fileKey,
+    versionDescription,
+    fontFallbacks
+  ) => {
     const relativeDir = path.relative(process.cwd(), outputDir);
     console.log(`Exporting Chakra UI theme to "${relativeDir}" folder...`.bold);
-    await exportChakra(tokens, outputDir, fileKey, versionDescription);
+    await exportChakra(
+      tokens,
+      outputDir,
+      fileKey,
+      versionDescription,
+      fontFallbacks
+    );
   };
 
   return generator(exporter, apiKeyOverride, fileUrlOverride, latestChanges);

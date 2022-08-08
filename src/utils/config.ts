@@ -47,6 +47,7 @@ const getValue = async (keys: Keys, override?: string): Promise<string> => {
 type Config = {
   apiKey: string;
   fileKey: string;
+  fontFallbacks?: { [token: string]: string };
 };
 export default async function getConfig(
   apiKeyOverride?: string,
@@ -83,5 +84,9 @@ export default async function getConfig(
     process.exit(1);
   }
 
-  return { apiKey, fileKey };
+  // Get the "fontFallbacks" object from the config file
+  const configFileJson = await getConfigFileJSON();
+  const fontFallbacks = configFileJson.fontFallbacks;
+
+  return { apiKey, fileKey, fontFallbacks };
 }
