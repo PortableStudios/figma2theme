@@ -91,10 +91,19 @@ describe('Importing tokens from Figma', () => {
 
       // Expect the breakpoints to be rem-based and use the correct names
       expect(breakpoints).toEqual({
-        sm: em('480px'),
-        md: em('640px'),
-        lg: em('992px'),
-        xl: em('1280px'),
+        $type: 'dimension',
+        sm: {
+          $value: em('480px'),
+        },
+        md: {
+          $value: em('640px'),
+        },
+        lg: {
+          $value: em('992px'),
+        },
+        xl: {
+          $value: em('1280px'),
+        },
       });
     });
   });
@@ -105,8 +114,8 @@ describe('Importing tokens from Figma', () => {
     it('generates a list of colours from properly named colour styles and filled rectangles on a canvas', () => {
       // Create some colour styles (with a coloured rectangle for each one)
       const black = createColour(getName('black'), '#000000');
-      const white = createColour(getName('white'), '#FFFFFF');
-      const red = createColour(getName('red'), '#E53E3E');
+      const white = createColour(getName('white'), '#ffffff');
+      const red = createColour(getName('red'), '#e53e3e');
       const styles = [black, white, red];
 
       // Add the rectangles to a canvas, pass the canvas and the file styles to the colour function
@@ -116,10 +125,17 @@ describe('Importing tokens from Figma', () => {
 
       // Expect the colours to be extracted correctly
       expect(colours).toEqual({
+        $type: 'color',
         custom: {
-          black: '#000000',
-          white: '#FFFFFF',
-          red: '#E53E3E',
+          black: {
+            $value: '#000',
+          },
+          red: {
+            $value: '#e53e3e',
+          },
+          white: {
+            $value: '#fff',
+          },
         },
       });
     });
@@ -127,15 +143,15 @@ describe('Importing tokens from Figma', () => {
     it('allows colour values to be nested for creating colour scales', () => {
       // Create a colour scale
       const palette = [
-        createColour(getName('grey/50'), '#FFFAFA'),
-        createColour(getName('grey/100'), '#EAE5E5'),
-        createColour(getName('grey/200'), '#D5D0D0'),
-        createColour(getName('grey/300'), '#A8A3A3'),
-        createColour(getName('grey/400'), '#7F7A7A'),
-        createColour(getName('grey/500'), '#5E5959'),
+        createColour(getName('grey/50'), '#fffafa'),
+        createColour(getName('grey/100'), '#eAe5e5'),
+        createColour(getName('grey/200'), '#d5d0d0'),
+        createColour(getName('grey/300'), '#a8a3a3'),
+        createColour(getName('grey/400'), '#7f7a7a'),
+        createColour(getName('grey/500'), '#5e5959'),
         createColour(getName('grey/600'), '#464241'),
         createColour(getName('grey/700'), '#363231'),
-        createColour(getName('grey/800'), '#2C2727'),
+        createColour(getName('grey/800'), '#2c2727'),
         createColour(getName('grey/900'), '#262121'),
       ];
 
@@ -146,18 +162,39 @@ describe('Importing tokens from Figma', () => {
 
       // Expect the colours to be nested correctly
       expect(colours).toEqual({
+        $type: 'color',
         custom: {
           grey: {
-            '50': '#FFFAFA',
-            '100': '#EAE5E5',
-            '200': '#D5D0D0',
-            '300': '#A8A3A3',
-            '400': '#7F7A7A',
-            '500': '#5E5959',
-            '600': '#464241',
-            '700': '#363231',
-            '800': '#2C2727',
-            '900': '#262121',
+            '50': {
+              $value: '#fffafa',
+            },
+            '100': {
+              $value: '#eae5e5',
+            },
+            '200': {
+              $value: '#d5d0d0',
+            },
+            '300': {
+              $value: '#a8a3a3',
+            },
+            '400': {
+              $value: '#7f7a7a',
+            },
+            '500': {
+              $value: '#5e5959',
+            },
+            '600': {
+              $value: '#464241',
+            },
+            '700': {
+              $value: '#363231',
+            },
+            '800': {
+              $value: '#2c2727',
+            },
+            '900': {
+              $value: '#262121',
+            },
           },
         },
       });
@@ -192,9 +229,42 @@ describe('Importing tokens from Figma', () => {
       // Expect the generated grid config to have the correct values
       expect(gridStyles).toEqual({
         page: {
-          columns: { base: 4, md: 8, lg: 12 },
-          gutter: { base: rem('8px'), md: rem('16px'), lg: rem('24px') },
-          margin: { base: rem('16px'), md: rem('32px'), lg: rem('96px') },
+          columns: {
+            $type: 'number',
+            base: {
+              $value: 4,
+            },
+            md: {
+              $value: 8,
+            },
+            lg: {
+              $value: 12,
+            },
+          },
+          gutter: {
+            $type: 'dimension',
+            base: {
+              $value: rem('8px'),
+            },
+            md: {
+              $value: rem('16px'),
+            },
+            lg: {
+              $value: rem('24px'),
+            },
+          },
+          margin: {
+            $type: 'dimension',
+            base: {
+              $value: rem('16px'),
+            },
+            md: {
+              $value: rem('32px'),
+            },
+            lg: {
+              $value: rem('96px'),
+            },
+          },
         },
       });
     });
@@ -220,9 +290,16 @@ describe('Importing tokens from Figma', () => {
 
       // Expect the radii to be rem-based and use the correct names
       expect(radii).toEqual({
-        sm: rem('2px'),
-        md: rem('4px'),
-        lg: rem('8px'),
+        $type: 'dimension',
+        sm: {
+          $value: rem('2px'),
+        },
+        md: {
+          $value: rem('4px'),
+        },
+        lg: {
+          $value: rem('8px'),
+        },
       });
     });
   });
@@ -260,9 +337,43 @@ describe('Importing tokens from Figma', () => {
 
       // Expect the CSS shadows to have the correct values
       expect(shadows).toEqual({
-        sm: '0 1px 2px 0 rgba(0, 0, 0, 0.1)',
-        md: '1px 2px 3px 1px rgba(26, 26, 26, 0.2)',
-        lg: '2px 3px 4px 3px rgba(26, 51, 77, 0.3)',
+        $type: 'shadow',
+        lg: {
+          $value: [
+            {
+              blur: '4px',
+              color: '#1a334d4d',
+              inset: false,
+              offsetX: '2px',
+              offsetY: '3px',
+              spread: '3px',
+            },
+          ],
+        },
+        md: {
+          $value: [
+            {
+              blur: '3px',
+              color: '#1a1a1a33',
+              inset: false,
+              offsetX: '1px',
+              offsetY: '2px',
+              spread: '1px',
+            },
+          ],
+        },
+        sm: {
+          $value: [
+            {
+              blur: '2px',
+              color: '#0000001a',
+              inset: false,
+              offsetX: '0px',
+              offsetY: '1px',
+              spread: '0px',
+            },
+          ],
+        },
       });
     });
   });
@@ -284,9 +395,16 @@ describe('Importing tokens from Figma', () => {
 
       // Expect the sizes to be rem-based and use the correct names
       expect(sizes).toEqual({
-        sm: rem('64px'),
-        md: rem('128px'),
-        lg: rem('256px'),
+        $type: 'dimension',
+        lg: {
+          $value: rem('256px'),
+        },
+        md: {
+          $value: rem('128px'),
+        },
+        sm: {
+          $value: rem('64px'),
+        },
       });
     });
   });
@@ -309,10 +427,19 @@ describe('Importing tokens from Figma', () => {
 
       // Expect the spacing scale to be rem-based and use the correct names
       expect(spacing).toEqual({
-        '1': rem('4px'),
-        '2': rem('8px'),
-        '3': rem('12px'),
-        '4': rem('16px'),
+        $type: 'dimension',
+        '1': {
+          $value: rem('4px'),
+        },
+        '2': {
+          $value: rem('8px'),
+        },
+        '3': {
+          $value: rem('12px'),
+        },
+        '4': {
+          $value: rem('16px'),
+        },
       });
     });
   });
@@ -342,9 +469,16 @@ describe('Importing tokens from Figma', () => {
 
         // Expect the fonts to be extracted correctly
         expect(fonts).toEqual({
-          heading: 'Georgia',
-          body: 'Helvetica',
-          logo: 'Montserrat',
+          $type: 'fontFamily',
+          body: {
+            $value: "'Helvetica'",
+          },
+          heading: {
+            $value: "'Georgia'",
+          },
+          logo: {
+            $value: "'Montserrat'",
+          },
         });
       });
 
@@ -404,9 +538,16 @@ describe('Importing tokens from Figma', () => {
 
         // Expect the font sizes to be rem-based and use the correct names
         expect(fonts).toEqual({
-          sm: rem('12px'),
-          md: rem('16px'),
-          lg: rem('24px'),
+          $type: 'dimension',
+          lg: {
+            $value: rem('24px'),
+          },
+          md: {
+            $value: rem('16px'),
+          },
+          sm: {
+            $value: rem('12px'),
+          },
         });
       });
     });
@@ -431,7 +572,10 @@ describe('Importing tokens from Figma', () => {
 
           // Expect the name and value to be correct
           expect(lineHeights).toEqual({
-            tall: '1.75',
+            $type: 'string',
+            tall: {
+              $value: '1.75',
+            },
           });
         });
 
@@ -465,9 +609,16 @@ describe('Importing tokens from Figma', () => {
 
           // Expect the values to be rem-based and using the correct names
           expect(lineHeights).toEqual({
-            short: rem('12px'),
-            base: rem('16px'),
-            tall: rem('20px'),
+            $type: 'string',
+            base: {
+              $value: rem('16px'),
+            },
+            short: {
+              $value: rem('12px'),
+            },
+            tall: {
+              $value: rem('20px'),
+            },
           });
         });
 
@@ -486,7 +637,10 @@ describe('Importing tokens from Figma', () => {
 
           // Expect the name to be correct and the value to be "normal"
           expect(lineHeights).toEqual({
-            normal: 'normal',
+            $type: 'string',
+            normal: {
+              $value: 'normal',
+            },
           });
         });
       });
@@ -520,9 +674,16 @@ describe('Importing tokens from Figma', () => {
 
         // Expect the values to be em-based and using the correct names
         expect(letterSpacings).toEqual({
-          tight: '-0.025em',
-          normal: '0',
-          wide: '0.025em',
+          $type: 'dimension',
+          normal: {
+            $value: '0',
+          },
+          tight: {
+            $value: '-0.025em',
+          },
+          wide: {
+            $value: '0.025em',
+          },
         });
       });
     });
@@ -542,7 +703,7 @@ describe('Importing tokens from Figma', () => {
     };
     // Expected CSS output of the above properties
     const baseOutput = {
-      fontFamily: 'Helvetica',
+      fontFamily: "'Helvetica'",
       fontSize: rem('16px'),
       fontStyle: 'normal',
       fontWeight: '400',
@@ -562,7 +723,12 @@ describe('Importing tokens from Figma', () => {
       const textStyles = getTextStyles(canvas, fileStyles);
 
       // Expect the generated CSS props to match
-      expect(textStyles).toEqual({ body: baseOutput });
+      expect(textStyles).toEqual({
+        $type: 'typography',
+        body: {
+          $value: baseOutput,
+        },
+      });
     });
 
     it('generates a responsive text style if multiple styles use the same name', () => {
@@ -579,12 +745,15 @@ describe('Importing tokens from Figma', () => {
 
       // Expect the generated CSS props to have a responsive font-size value
       expect(textStyles).toEqual({
+        $type: 'typography',
         h1: {
-          ...baseOutput,
-          fontSize: {
-            base: rem('16px'),
-            tablet: rem('32px'),
-            desktop: rem('64px'),
+          $value: {
+            ...baseOutput,
+            fontSize: {
+              base: rem('16px'),
+              tablet: rem('32px'),
+              desktop: rem('64px'),
+            },
           },
         },
       });
@@ -601,7 +770,15 @@ describe('Importing tokens from Figma', () => {
         const canvas = createCanvas({ children: [style.node] });
         const textStyles = getTextStyles(canvas, createFileStyles([style]));
         // Expect the generated CSS props to have the given output property(s)
-        expect(textStyles).toEqual({ body: { ...baseOutput, ...test.output } });
+        expect(textStyles).toEqual({
+          $type: 'typography',
+          body: {
+            $value: {
+              ...baseOutput,
+              ...test.output,
+            },
+          },
+        });
       };
 
       it('italics', () => {

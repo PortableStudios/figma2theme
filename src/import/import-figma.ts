@@ -16,6 +16,7 @@ import type {
   Palette,
   Radii,
   Shadows,
+  Shadow,
   Sizes,
   Spacing,
   Typography,
@@ -144,8 +145,11 @@ export const getBreakpoints = (canvas: Figma.Node<'CANVAS'>): Breakpoints => {
   // Convert array to object
   return breakpoints.reduce(
     (obj, r) => ({
+      $type: 'dimension',
       ...obj,
-      [r.name]: r.width,
+      [r.name]: {
+        $value: r.width,
+      },
     }),
     {}
   );
@@ -231,8 +235,11 @@ export const getRadii = (canvas: Figma.Node<'CANVAS'>): Radii => {
   // Convert array to object
   return radii.reduce(
     (obj, r) => ({
+      $type: 'dimension',
       ...obj,
-      [r.name]: r.cornerRadius,
+      [r.name]: {
+        $value: r.cornerRadius,
+      },
     }),
     {}
   );
@@ -266,19 +273,21 @@ export const getShadows = (
     return Object.keys(shadowStyles).includes(effectKey);
   });
 
-  const shadows: Dictionary<string> = {};
+  const shadows: Shadows = {
+    $type: 'shadow',
+  };
   rectangles.forEach((r) => {
     const effects = r.effects;
     const effectKey = r.styles?.effect;
     if (effects === undefined || effectKey === undefined) {
       return;
     }
-
     // Convert each shadow to a CSS `box-shadow` value, then join them
-    shadows[shadowStyles[effectKey]] = effects
-      .map((e) => convertFigmaShadowToCss(e as Figma.EffectShadow))
-      .reverse()
-      .join(', ');
+    shadows[shadowStyles[effectKey]] = {
+      $value: effects
+        .map((e) => convertFigmaShadowToDesignToken(e as Figma.EffectShadow))
+        .reverse(),
+    };
   });
 
   return shadows;
@@ -303,8 +312,11 @@ export const getSizes = (canvas: Figma.Node<'CANVAS'>): Sizes => {
   // Convert array to object
   return sizes.reduce(
     (obj, s) => ({
+      $type: 'dimension',
       ...obj,
-      [s.name]: s.size,
+      [s.name]: {
+        $value: s.size,
+      },
     }),
     {}
   );
@@ -329,8 +341,11 @@ export const getSpacing = (canvas: Figma.Node<'CANVAS'>): Spacing => {
   // Convert array to object
   return spacing.reduce(
     (obj, s) => ({
+      $type: 'dimension',
       ...obj,
-      [s.name]: s.size,
+      [s.name]: {
+        $value: s.size,
+      },
     }),
     {}
   );
@@ -354,8 +369,11 @@ export const getFontFamilies = (
   // Convert array to object
   const fontMap = fonts.reduce(
     (obj, s) => ({
+      $type: 'fontFamily',
       ...obj,
-      [s.name]: s.fontFamily,
+      [s.name]: {
+        $value: `'${s.fontFamily}'`,
+      },
     }),
     {}
   );
@@ -403,8 +421,11 @@ export const getFontSizes = (
   // Convert array to object
   return fontSizes.reduce(
     (obj, s) => ({
+      $type: 'dimension',
       ...obj,
-      [s.name]: s.size,
+      [s.name]: {
+        $value: s.size,
+      },
     }),
     {}
   );
@@ -464,9 +485,12 @@ export const getGridStyles = (
     if (bp) {
       // If the style does correspond to a breakpoint, add the values under that key
       name = name.replace(`/${bp}`, '');
-      setWith(variants, `${name}.columns.${bp}`, values.columns);
-      setWith(variants, `${name}.gutter.${bp}]`, values.gutter);
-      setWith(variants, `${name}.margin.${bp}]`, values.margin);
+      setWith(variants, `${name}.columns.$type`, 'number');
+      setWith(variants, `${name}.columns.${bp}`, { $value: values.columns });
+      setWith(variants, `${name}.gutter.$type`, 'dimension');
+      setWith(variants, `${name}.gutter.${bp}]`, { $value: values.gutter });
+      setWith(variants, `${name}.margin.$type`, 'dimension');
+      setWith(variants, `${name}.margin.${bp}]`, { $value: values.margin });
       return;
     }
 
@@ -510,8 +534,11 @@ export const getLineHeights = (
   // Convert array to object
   return lineHeights.reduce(
     (obj, s) => ({
+      $type: 'string',
       ...obj,
-      [s.name]: s.lineHeight,
+      [s.name]: {
+        $value: s.lineHeight,
+      },
     }),
     {}
   );
@@ -544,8 +571,11 @@ export const getLetterSpacing = (
   // Convert array to object
   return letterSpacing.reduce(
     (obj, s) => ({
+      $type: 'dimension',
       ...obj,
-      [s.name]: s.letterSpacing,
+      [s.name]: {
+        $value: s.letterSpacing,
+      },
     }),
     {}
   );
@@ -579,7 +609,7 @@ const getTextTransformValue = (t: Figma.Node<'TEXT'>): string => {
 
 // Get the style values from a text element (i.e. font family, font size, etc.)
 const getTextStyleValues = (t: Figma.Node<'TEXT'>): TextVariant => {
-  const fontFamily = t.style.fontFamily;
+  const fontFamily = `'${t.style.fontFamily}'`;
   const fontSize = rem(t.style.fontSize);
   const fontStyle = t.style.italic ? 'italic' : 'normal';
   const fontWeight = `${t.style.fontWeight}`;
@@ -605,7 +635,7 @@ const getTextStyleValues = (t: Figma.Node<'TEXT'>): TextVariant => {
 export const getTextStyles = (
   canvas: Figma.Node<'CANVAS'>,
   styles: Dictionary<Figma.Style>
-): { [key: string]: TextVariant } => {
+): { [key: string]: string | { $value: TextVariant } } => {
   // Get all the text styles
   const textStyles: Dictionary<string> = {};
   Object.keys(styles).forEach((key) => {
@@ -629,7 +659,11 @@ export const getTextStyles = (
   });
 
   // Extract the styles from each text element
-  const variants: { [key: string]: TextVariant } = {};
+  const variants: {
+    [key: string]: string | { $value: TextVariant };
+  } = {
+    $type: 'typography',
+  };
   textElements.forEach((t) => {
     const styleKey = t.styles?.text;
     if (styleKey === undefined) {
@@ -645,44 +679,58 @@ export const getTextStyles = (
     if (bp) {
       // If the style does correspond to a breakpoint, add the values under that key
       name = name.replace(`/${bp}`, '');
-      setWith(variants, `${name}.fontFamily.${bp}`, values.fontFamily);
-      setWith(variants, `${name}.fontSize.${bp}]`, values.fontSize);
-      setWith(variants, `${name}.fontStyle.${bp}]`, values.fontStyle);
-      setWith(variants, `${name}.fontWeight.${bp}]`, values.fontWeight);
-      setWith(variants, `${name}.letterSpacing.${bp}]`, values.letterSpacing);
-      setWith(variants, `${name}.lineHeight.${bp}]`, values.lineHeight);
+      setWith(variants, `${name}.$value.fontFamily.${bp}`, values.fontFamily);
+      setWith(variants, `${name}.$value.fontSize.${bp}]`, values.fontSize);
+      setWith(variants, `${name}.$value.fontStyle.${bp}]`, values.fontStyle);
+      setWith(variants, `${name}.$value.fontWeight.${bp}]`, values.fontWeight);
       setWith(
         variants,
-        `${name}.textDecorationLine.${bp}]`,
+        `${name}.$value.letterSpacing.${bp}]`,
+        values.letterSpacing
+      );
+      setWith(variants, `${name}.$value.lineHeight.${bp}]`, values.lineHeight);
+      setWith(
+        variants,
+        `${name}.$value.textDecorationLine.${bp}]`,
         values.textDecorationLine
       );
-      setWith(variants, `${name}.textTransform.${bp}]`, values.textTransform);
+      setWith(
+        variants,
+        `${name}.$value.textTransform.${bp}]`,
+        values.textTransform
+      );
       return;
     }
 
     // Otherwise just assign the style object as normal
-    variants[name] = values;
+    setWith(variants, `${name}.$value]`, values);
   });
 
   // Iterate over the styles and flatten any unnecessary responsive values
-  // e.g. change `fontSize: { base: '1rem', sm: '1rem', md: '1rem' }` to just `fontSize: '1rem'`
+  // e.g. change `fontSize: { base: { $value: '1rem' }, sm: { $value: '1rem' }, md: { $value: '1rem' } }` to just `fontSize: { $value: '1rem' }`
   const flatten = (value: string | string[]) => {
     const objValues =
       typeof value === 'object' ? Object.values(value) : undefined;
     return objValues?.every((v) => v === objValues[0]) ? objValues[0] : value;
   };
   Object.keys(variants).forEach((k) => {
-    const v = variants[k];
-    variants[k] = {
-      fontFamily: flatten(v.fontFamily),
-      fontSize: flatten(v.fontSize),
-      fontStyle: flatten(v.fontStyle),
-      fontWeight: flatten(v.fontWeight),
-      letterSpacing: flatten(v.letterSpacing),
-      lineHeight: flatten(v.lineHeight),
-      textDecorationLine: flatten(v.textDecorationLine),
-      textTransform: flatten(v.textTransform),
-    };
+    if (typeof variants[k] !== 'string') {
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      const v = variants[k].$value;
+      variants[k] = {
+        $value: {
+          fontFamily: flatten(v.fontFamily),
+          fontSize: flatten(v.fontSize),
+          fontStyle: flatten(v.fontStyle),
+          fontWeight: flatten(v.fontWeight),
+          letterSpacing: flatten(v.letterSpacing),
+          lineHeight: flatten(v.lineHeight),
+          textDecorationLine: flatten(v.textDecorationLine),
+          textTransform: flatten(v.textTransform),
+        },
+      };
+    }
   });
 
   return variants;
@@ -758,7 +806,9 @@ const getIcons = async (
     .reduce(
       (obj, r) => ({
         ...obj,
-        [r.name]: r.svg,
+        [r.name]: {
+          $value: r.svg,
+        },
       }),
       {}
     );

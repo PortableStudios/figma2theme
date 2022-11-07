@@ -7,7 +7,13 @@ import * as svgson from 'svgson';
 import type { Data } from 'ejs';
 
 import { version } from '../../package.json';
-import type { OptimisedSVG, Icons, Tokens } from '../utils/types';
+import { convertShadowsDesignTokenToCss } from '../utils/convertDesignTokenToCss';
+import type {
+  OptimisedSVG,
+  ChakraIcons,
+  ChakraTokens,
+  Tokens,
+} from '../utils/types';
 
 const prettierConfigFile = path.resolve(__dirname, '../../.prettierrc');
 const templateDir = path.resolve(__dirname, '../../templates');
@@ -36,7 +42,7 @@ type ChakraIcon = {
   viewBox: string;
   path: string;
 };
-const processIcons = async (icons: Icons): Promise<ChakraIcon[]> => {
+const processIcons = async (icons: ChakraIcons): Promise<ChakraIcon[]> => {
   // Take an SVGO object and modify it to use with Chakra UI
   const processIcon = async (
     key: string,
@@ -100,9 +106,9 @@ const processIcons = async (icons: Icons): Promise<ChakraIcon[]> => {
 // Process text styles to replace hardcoded font families with tokens
 // e.g. replace `Noto Sans` with `body`
 const processTextStyles = (
-  textStyles: Tokens['textStyles'],
-  fontFamilies: Tokens['typography']['fonts']
-): Tokens['textStyles'] => {
+  textStyles: ChakraTokens['textStyles'],
+  fontFamilies: ChakraTokens['typography']['fonts']
+): ChakraTokens['textStyles'] => {
   const updatedTextStyles = { ...textStyles };
 
   // Find the token for a given font family (e.g. get `body` from `Arial`)
@@ -117,17 +123,44 @@ const processTextStyles = (
 
   // Replace the font family in each text style with the corresponding token
   Object.keys(updatedTextStyles).forEach((key) => {
-    const value = updatedTextStyles[key];
-    const fontFamily = value.fontFamily;
-    if (typeof fontFamily === 'string') {
-      const token = getFontFamilyToken(fontFamily);
-      if (token) {
-        value.fontFamily = token;
+    if (typeof updatedTextStyles[key] !== 'string') {
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      const value = updatedTextStyles[key];
+      const fontFamily = value.fontFamily;
+      if (typeof fontFamily === 'string') {
+        const token = getFontFamilyToken(fontFamily);
+        if (token) {
+          value.fontFamily = token;
+        }
       }
     }
   });
 
   return updatedTextStyles;
+};
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const reshapeDesignTokens = (tokens: any): ChakraTokens => {
+  const obj = tokens;
+
+  for (const key in obj) {
+    if (key === '$type') delete obj[key];
+
+    if (obj[key]?.$value) {
+      obj[key] = obj[key].$value;
+    }
+
+    if (Array.isArray(obj[key])) {
+      obj[key] = convertShadowsDesignTokenToCss(obj[key]);
+    }
+
+    if (obj[key] !== null && typeof obj[key] === 'object') {
+      reshapeDesignTokens(obj[key]);
+    }
+  }
+
+  return obj;
 };
 
 export default async function exportChakraFromTokens(
@@ -137,44 +170,49 @@ export default async function exportChakraFromTokens(
   versionDescription: string,
   fontFallbacks?: { [token: string]: string }
 ) {
+  const chakraTokens = reshapeDesignTokens(tokens);
+
   // Create a config for the templates by combining the design tokens with default Chakra values
   const chakra = {
-    breakpoints: tokens.breakpoints,
-    colours: tokens.colours,
-    gridStyles: tokens.gridStyles,
-    icons: await processIcons(tokens.icons),
+    breakpoints: chakraTokens.breakpoints,
+    colours: chakraTokens.colours,
+    gridStyles: chakraTokens.gridStyles,
+    icons: await processIcons(chakraTokens.icons),
     radii: {
       none: '0',
-      ...tokens.radii,
+      ...chakraTokens.radii,
       full: '9999px',
     },
     shadows: {
-      ...tokens.shadows,
+      ...chakraTokens.shadows,
       none: 'none',
     },
     spacing: {
       px: '1px',
       '0': '0',
-      ...tokens.spacing,
+      ...chakraTokens.spacing,
     },
     sizes: {
       full: '100%',
-      ...tokens.sizes,
+      ...chakraTokens.sizes,
     },
     typography: {
       fonts: {
-        ...Object.keys(tokens.typography.fonts).reduce((obj, name) => {
-          const font = tokens.typography.fonts[name];
+        ...Object.keys(chakraTokens.typography.fonts).reduce((obj, name) => {
+          const font = chakraTokens.typography.fonts[name];
           const fallback = fontFallbacks?.[name] ?? 'sans-serif';
-          return { ...obj, [name]: `"${font}", ${fallback}` };
+          return { ...obj, [name]: `${font}, ${fallback}` };
         }, {}),
         mono: '"Courier New", Courier, monospace',
       },
-      fontSizes: tokens.typography.fontSizes,
-      lineHeights: tokens.typography.lineHeights,
-      letterSpacing: tokens.typography.letterSpacing,
+      fontSizes: chakraTokens.typography.fontSizes,
+      lineHeights: chakraTokens.typography.lineHeights,
+      letterSpacing: chakraTokens.typography.letterSpacing,
     },
-    textStyles: processTextStyles(tokens.textStyles, tokens.typography.fonts),
+    textStyles: processTextStyles(
+      chakraTokens.textStyles,
+      chakraTokens.typography.fonts
+    ),
   };
 
   // Specify which templates should be rendered and where they should be saved

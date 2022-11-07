@@ -18,13 +18,24 @@ export type OptimisedSVG = {
     height: string;
   };
 };
-export type Icons = { [name: string]: OptimisedSVG };
+export type Icons = { [name: string]: { $value: OptimisedSVG } };
+export type ChakraIcons = { [name: string]: OptimisedSVG };
 
 export type Palette = Dictionary<string | Dictionary<string>>;
 
 export type Radii = Dictionary<string>;
 
-export type Shadows = Dictionary<string>;
+export type Shadows = Dictionary<string | { $value: Shadow[] }>;
+export type ChakraShadows = Dictionary<Shadow[]>;
+
+export type Shadow = {
+  inset: boolean;
+  color: string;
+  offsetX: string;
+  offsetY: string;
+  blur: string;
+  spread: string;
+};
 
 export type Sizes = Dictionary<string>;
 
@@ -55,6 +66,19 @@ export type Tokens = {
   icons: Icons;
   radii: Radii;
   shadows: Shadows;
+  sizes: Sizes;
+  spacing: Spacing;
+  typography: Typography;
+  textStyles: { [key: string]: string | TextVariant | { $value: TextVariant } };
+};
+
+export type ChakraTokens = {
+  breakpoints: Breakpoints;
+  colours: Palette;
+  gridStyles: { [key: string]: GridVariant };
+  icons: ChakraIcons;
+  radii: Radii;
+  shadows: ChakraShadows;
   sizes: Sizes;
   spacing: Spacing;
   typography: Typography;
