@@ -25,7 +25,6 @@
     "prepare": "husky install",
     "pre-commit": "lint-staged",
     "pre-push": "concurrently --group yarn:typecheck yarn:test",
-    "preinstall": "./preinstall.sh",
     "postinstall": "patch-package",
     "prepublishOnly": "pinst --disable",
     "postpublish": "pinst --enable",
