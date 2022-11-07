@@ -69,6 +69,8 @@ FIGMA_API_KEY=
 Both of these variables can be provided through either the `.figma2themerc` file, the
 environment variables or the CLI arguments. We recommend the above setup for most projects.
 
+If you want you can have a global `.figma2themerc` file in your home directory (e.g. `~/.figma2themerc`).
+
 ### 4. Generate your theme
 
 Run the following command to generate your Chakra UI theme:
