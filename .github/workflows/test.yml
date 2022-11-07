@@ -9,10 +9,11 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-node@v1
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
         with:
-          node-version: '16.x'
+          node-version: 16.18.0
+          cache: yarn
 
       - name: Build and install the CLI
         run: |
@@ -21,8 +22,7 @@ jobs:
           echo "$(yarn global bin)" >> $GITHUB_PATH
 
       - name: Generate the theme
-        run: |
-          yarn concurrently --group "figma2theme generate-json --latest-changes" "figma2theme generate-chakra --latest-changes"
+        run: yarn concurrently --group "figma2theme generate-json --latest-changes" "figma2theme generate-chakra --latest-changes"
         env:
           FIGMA_API_KEY: ${{secrets.FIGMA_API_KEY}}
 
@@ -36,3 +36,6 @@ jobs:
 
       - name: Test, lint and typecheck the project and build Storybook
         run: yarn concurrently --group "yarn:test" "yarn:lint" "yarn:typecheck" "yarn:build-storybook"
+
+      - name: Serve Storybook and run tests
+        run: yarn concurrently -k -s first -n "SB,TEST" -c "magenta,blue" "yarn http-server storybook-static --port 6006 --silent" "yarn wait-on tcp:6006 && yarn test-storybook"
