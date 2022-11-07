@@ -3,7 +3,7 @@ import SVGO from 'svgo';
 import fetch from 'node-fetch';
 import { em, rem } from 'polished';
 import setWith from 'lodash.setwith';
-import colorConvert from 'color-convert';
+import Color from 'colorjs.io';
 
 import { getFile } from '../api';
 import { logError } from '../utils/log';
@@ -94,25 +94,25 @@ const getAllTextNodes = (from: Figma.Node<'CANVAS'>) =>
 const getAllComponentNodes = (from: Figma.Node<'CANVAS'>) =>
   getAllNodesByType('COMPONENT', from);
 
-// Convert a Figma shadow "effect style" to a CSS box-shadow value
-const convertFigmaShadowToCss = (shadow: Figma.EffectShadow): string => {
-  // Use 'inset' for inner shadows
-  const type = shadow.type === Figma.EffectType.INNER_SHADOW ? 'inset ' : '';
-
+// Convert a Figma shadow "effect style" to a shadow design token
+const convertFigmaShadowToDesignToken = (
+  shadow: Figma.EffectShadow
+): Shadow => {
   // Convert shadow colour to CSS value
-  const r = Math.round(shadow.color.r * 255);
-  const g = Math.round(shadow.color.g * 255);
-  const b = Math.round(shadow.color.b * 255);
-  const a = parseFloat(shadow.color.a.toFixed(2));
-  const colour = `rgba(${r}, ${g}, ${b}, ${a})`;
+  const colour = new Color(
+    'srgb',
+    [shadow.color.r, shadow.color.g, shadow.color.b],
+    shadow.color.a
+  ).toString({ format: 'hex' });
 
-  // Convert shadow offset and radius to px
-  const x = shadow.offset.x === 0 ? '0' : `${shadow.offset.x}px`;
-  const y = shadow.offset.y === 0 ? '0' : `${shadow.offset.y}px`;
-  const radius = shadow.radius === 0 ? '0' : `${shadow.radius}px`;
-  const spread = shadow.spread ? `${shadow.spread}px` : '0';
-
-  return `${type}${x} ${y} ${radius} ${spread} ${colour}`;
+  return {
+    inset: shadow.type === Figma.EffectType.INNER_SHADOW,
+    color: colour,
+    offsetX: `${shadow.offset.x}px`,
+    offsetY: `${shadow.offset.y}px`,
+    blur: `${shadow.radius || 0}px`,
+    spread: `${shadow.spread || 0}px`,
+  };
 };
 
 /**
@@ -181,7 +181,9 @@ export const getColours = (
     return Object.keys(colourStyles).includes(fillKey);
   });
 
-  const palette: Palette = {};
+  const palette: Palette = {
+    $type: 'color',
+  };
   rectangles.forEach((r) => {
     // Figma typings claim that a canvas has no fills property, this is a lie
     const colour = (r as Figma.Node<'RECTANGLE'>).fills[0].color;
@@ -190,13 +192,17 @@ export const getColours = (
       return;
     }
 
-    // Convert each colour from RGB to HEX
-    const red = Math.round(colour.r * 255);
-    const green = Math.round(colour.g * 255);
-    const blue = Math.round(colour.b * 255);
-    const hex = colorConvert.rgb.hex([red, green, blue]);
+    // Convert each colour from RGBA to HEX
+    const hex = new Color(
+      'srgb',
+      [colour.r, colour.g, colour.b],
+      colour.a
+    ).toString({ format: 'hex' });
     const key = colourStyles[fillKey].replace(/\//g, '.');
-    setWith(palette, key, `#${hex}`, Object);
+    const value = {
+      $value: hex,
+    };
+    setWith(palette, key, value, Object);
   });
 
   return palette;
