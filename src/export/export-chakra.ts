@@ -123,16 +123,12 @@ const processTextStyles = (
 
   // Replace the font family in each text style with the corresponding token
   Object.keys(updatedTextStyles).forEach((key) => {
-    if (typeof updatedTextStyles[key] !== 'string') {
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
-      const value = updatedTextStyles[key];
-      const fontFamily = value.fontFamily;
-      if (typeof fontFamily === 'string') {
-        const token = getFontFamilyToken(fontFamily);
-        if (token) {
-          value.fontFamily = token;
-        }
+    const value = updatedTextStyles[key];
+    const fontFamily = value.fontFamily;
+    if (typeof fontFamily === 'string') {
+      const token = getFontFamilyToken(fontFamily);
+      if (token) {
+        value.fontFamily = token;
       }
     }
   });
