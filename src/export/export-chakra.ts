@@ -136,27 +136,34 @@ const processTextStyles = (
   return updatedTextStyles;
 };
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const reshapeDesignTokens = (tokens: any): ChakraTokens => {
-  const obj = tokens;
+// Reshaping the tokens to match Chakra's theme format (https://chakra-ui.com/docs/styled-system/theme)
+// This function is recursive so that it can climb throughout the whole
+// tree of tokens and make the nesisary undates to every individual token.
+const reshapeDesignTokens = (tokens: Tokens): ChakraTokens => {
+  const newTokens = { ...tokens };
 
-  for (const key in obj) {
-    if (key === '$type') delete obj[key];
+  for (const key in newTokens) {
+    // Deleting the $type keys as Chakra doesn't need them.
+    if (key === '$type') delete newTokens[key];
 
-    if (obj[key]?.$value) {
-      obj[key] = obj[key].$value;
+    // Flattening the `[key]: { $value: ... }` to `[key]: ...`
+    if (newTokens[key]?.$value) {
+      newTokens[key] = newTokens[key].$value;
     }
 
-    if (Array.isArray(obj[key])) {
-      obj[key] = convertShadowsDesignTokenToCss(obj[key]);
+    // The only keys that are arrays are shadows, so we convert them to CSS shadows like Chakra expects.
+    if (Array.isArray(newTokens[key])) {
+      newTokens[key] = convertShadowsDesignTokenToCss(newTokens[key]);
     }
 
-    if (obj[key] !== null && typeof obj[key] === 'object') {
-      reshapeDesignTokens(obj[key]);
+    // If the current key is an object recursively call the function again to climb the tree.
+    if (newTokens[key] !== null && typeof newTokens[key] === 'object') {
+      reshapeDesignTokens(newTokens[key]);
     }
   }
 
-  return obj;
+  // Return the tokens that are now in the Chakra tokens shape.
+  return newTokens;
 };
 
 export default async function exportChakraFromTokens(
