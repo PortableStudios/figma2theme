@@ -1,7 +1,7 @@
 # Script output
 lib
 theme
-tokens.json
+tokens.*
 
 # Storybook output
 storybook-static
@@ -82,6 +82,9 @@ typings/
 # dotenv environment variables file
 .env
 .env.test
+
+# rc config file
+.figma2themerc
 
 # parcel-bundler cache (https://parceljs.org/)
 .cache
