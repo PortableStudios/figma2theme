@@ -83,9 +83,6 @@ typings/
 .env
 .env.test
 
-# rc config file
-.figma2themerc
-
 # parcel-bundler cache (https://parceljs.org/)
 .cache
 
