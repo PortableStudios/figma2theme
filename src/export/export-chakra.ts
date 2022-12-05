@@ -9,9 +9,9 @@ import type { Data } from 'ejs';
 import { version } from '../../package.json';
 import { convertShadowsDesignTokenToCss } from '../utils/convertDesignTokenToCss';
 import type {
-  OptimisedSVG,
-  ChakraIcons,
   ChakraTokens,
+  Dictionary,
+  IconValue,
   Tokens,
 } from '../utils/types';
 
@@ -42,11 +42,13 @@ type ChakraIcon = {
   viewBox: string;
   path: string;
 };
-const processIcons = async (icons: ChakraIcons): Promise<ChakraIcon[]> => {
+const processIcons = async (
+  icons: Dictionary<IconValue>
+): Promise<ChakraIcon[]> => {
   // Take an SVGO object and modify it to use with Chakra UI
   const processIcon = async (
     key: string,
-    icon: OptimisedSVG
+    icon: IconValue
   ): Promise<ChakraIcon> => {
     // Convert the name from kebab-case to title-case (i.e. down-arrow to DownArrow)
     const name = key
@@ -139,7 +141,9 @@ const processTextStyles = (
 // Reshaping the tokens to match Chakra's theme format (https://chakra-ui.com/docs/styled-system/theme)
 // This function is recursive so that it can climb throughout the whole
 // tree of tokens and make the nesisary undates to every individual token.
-const reshapeDesignTokens = (tokens: Tokens): ChakraTokens => {
+// TODO: Refactor to remove the need to use `any` types
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const reshapeDesignTokens = (tokens: any): any => {
   const newTokens = { ...tokens };
 
   for (const key in newTokens) {
@@ -158,7 +162,7 @@ const reshapeDesignTokens = (tokens: Tokens): ChakraTokens => {
 
     // If the current key is an object recursively call the function again to climb the tree.
     if (newTokens[key] !== null && typeof newTokens[key] === 'object') {
-      reshapeDesignTokens(newTokens[key]);
+      newTokens[key] = reshapeDesignTokens(newTokens[key]);
     }
   }
 
@@ -173,7 +177,7 @@ export default async function exportChakraFromTokens(
   versionDescription: string,
   fontFallbacks?: { [token: string]: string }
 ) {
-  const chakraTokens = reshapeDesignTokens(tokens);
+  const chakraTokens = reshapeDesignTokens(tokens) as ChakraTokens;
 
   // Create a config for the templates by combining the design tokens with default Chakra values
   const chakra = {

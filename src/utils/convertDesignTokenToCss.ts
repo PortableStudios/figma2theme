@@ -1,7 +1,9 @@
-import { Shadow } from './types';
+import { ShadowValue } from './types';
 
 // Convert a shadow design token to a CSS box-shadow value
-export const convertShadowsDesignTokenToCss = (shadows: Shadow[]): string => {
+export const convertShadowsDesignTokenToCss = (
+  shadows: ShadowValue[]
+): string => {
   const css = [];
 
   for (const { inset, offsetX, offsetY, blur, spread, color } of shadows) {
