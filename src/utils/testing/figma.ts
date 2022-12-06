@@ -10,7 +10,7 @@ import {
 } from 'figma-api';
 import merge from 'lodash.merge';
 import { v4 as uuidv4 } from 'uuid';
-import colorConvert from 'color-convert';
+import Color from 'colorjs.io';
 import type { Node } from 'figma-api';
 
 import type { DeepPartial } from '../types';
@@ -278,7 +278,9 @@ export const createShadow = (
 
 // Utility function to create a colour style and a rectangle with it attached
 export const createColour = (name: string, hex: string) => {
-  const [r, g, b] = colorConvert.hex.rgb(hex);
+  const colour = new Color(hex);
+  const [r, g, b] = colour.coords;
+  const a = colour.alpha;
 
   const id = uuidv4();
   const style = { name: name, styleType: 'FILL' };
@@ -288,7 +290,7 @@ export const createColour = (name: string, hex: string) => {
       {
         type: PaintType.SOLID,
         blendMode: BlendMode.NORMAL,
-        color: { r: r / 255, g: g / 255, b: b / 255, a: 1 },
+        color: { r, g, b, a },
       },
     ],
   });
