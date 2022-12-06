@@ -4,7 +4,8 @@
   "author": "Darcy Glennen <darcy@portable.com.au>",
   "contributors": [
     "Darcy Glennen <darcy@portable.com.au>",
-    "Cam Stark <cam@portable.com.au>"
+    "Cam Stark <cam@portable.com.au>",
+    "Elly Loel <elly.loel@portable.com.au>"
   ],
   "license": "MIT",
   "main": "lib/src/index.js",
