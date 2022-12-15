@@ -36,7 +36,7 @@ import type {
 // Fetch a canvas from a Figma document by the page name
 export const getPageCanvasByName = (
   document: Figma.Node<'DOCUMENT'>,
-  pageName: string
+  pageNames: string[]
 ): Figma.Node<'CANVAS'> | undefined => {
   return (
     document.children
@@ -45,8 +45,12 @@ export const getPageCanvasByName = (
       // Return the first one that has a matching name
       .find((canvas) => {
         // Strip non-alphanumeric characters (e.g. emojis) from canvas name before comparing
-        const canvasName = canvas.name.toLowerCase().replace(/[^0-9a-z]/g, '');
-        return canvasName === pageName.toLowerCase();
+        const canvasName = canvas.name
+          .toLowerCase()
+          .replace(/[^0-9a-z\&]/g, '');
+        const namesToMatch = pageNames.map((p) => p.toLowerCase());
+
+        return namesToMatch.includes(canvasName);
       })
   );
 };
@@ -828,15 +832,16 @@ const getIcons = async (
 
 // The names of the pages we want to extract from the Figma file
 const pageNames = {
-  breakpoints: 'Breakpoints',
-  colours: 'Colours',
-  grids: 'Grids',
-  icons: 'Icons',
-  radii: 'Radii',
-  shadows: 'Shadows',
-  sizes: 'Sizes',
-  spacing: 'Spacing',
-  typography: 'Typography',
+  breakpoints: ['Breakpoints'],
+  colours: ['Colours'],
+  grids: ['Grids'],
+  // "Icons" is supported for backwards compatibility
+  icons: ['Icons', 'Icons&Media'],
+  radii: ['Radii'],
+  shadows: ['Shadows'],
+  sizes: ['Sizes'],
+  spacing: ['Spacing'],
+  typography: ['Typography'],
 };
 
 export default async function importTokensFromFigma(
