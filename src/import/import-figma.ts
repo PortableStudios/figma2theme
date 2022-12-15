@@ -306,6 +306,8 @@ export const getShadows = (
 
 // Extract 'sizes' design tokens from a canvas
 export const getSizes = (canvas: Figma.Node<'CANVAS'>): SizeTokens => {
+  if (!canvas) return {};
+
   const prefix = 'size-';
   const sizes = [...getAllRectangleNodes(canvas), ...getAllFrameNodes(canvas)]
     // Get all the rectangles and frames with a name prefixed 'size-'
@@ -831,17 +833,44 @@ const getIcons = async (
  */
 
 // The names of the pages we want to extract from the Figma file
-const pageNames = {
-  breakpoints: ['Breakpoints'],
-  colours: ['Colours'],
-  grids: ['Grids'],
+const pages = {
+  breakpoints: {
+    names: ['Breakpoints'],
+    isRequired: true,
+  },
+  colours: {
+    names: ['Colours'],
+    isRequired: true,
+  },
+  grids: {
+    names: ['Grids'],
+    isRequired: true,
+  },
   // "Icons" is supported for backwards compatibility
-  icons: ['Icons', 'Icons&Media'],
-  radii: ['Radii'],
-  shadows: ['Shadows'],
-  sizes: ['Sizes'],
-  spacing: ['Spacing'],
-  typography: ['Typography'],
+  icons: {
+    names: ['Icons', 'Icons&Media'],
+    isRequired: true,
+  },
+  radii: {
+    names: ['Radii'],
+    isRequired: true,
+  },
+  shadows: {
+    names: ['Shadows'],
+    isRequired: true,
+  },
+  sizes: {
+    names: ['Sizes'],
+    isRequired: false,
+  },
+  spacing: {
+    names: ['Spacing'],
+    isRequired: true,
+  },
+  typography: {
+    names: ['Typography'],
+    isRequired: true,
+  },
 };
 
 export default async function importTokensFromFigma(
@@ -856,15 +885,18 @@ export default async function importTokensFromFigma(
   // Find all the page canvases we need to extract tokens from, log an error and exit if any are missing
   let missingPage = false;
   const canvases: Dictionary<Figma.Node<'CANVAS'>> = {};
-  Object.keys(pageNames).forEach((k) => {
-    const key = k as keyof typeof pageNames;
-    const canvas = getPageCanvasByName(file.document, pageNames[key]);
+  Object.keys(pages).forEach((k) => {
+    const key = k as keyof typeof pages;
+    const page = pages[key];
+    const canvas = getPageCanvasByName(file.document, page.names);
     if (canvas === undefined) {
-      logError(
-        `Unable to find a page with the name "${pageNames[key]}" in the file.`,
-        '- Please check that this page exists in the Figma file.'
-      );
-      missingPage = true;
+      if (page.isRequired) {
+        logError(
+          `Unable to find a page with the name "${pages[key].names}" in the file.`,
+          '- Please check that this page exists in the Figma file.'
+        );
+        missingPage = true;
+      }
       return;
     }
     canvases[key] = canvas;
