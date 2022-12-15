@@ -38,7 +38,7 @@ describe('Figma utility functions', () => {
     }) => {
       const canvas = createCanvas({ name: opts.name });
       const document = createDocument({ children: [canvas] });
-      const match = getPageCanvasByName(document, opts.search);
+      const match = getPageCanvasByName(document, [opts.search]);
       if (opts.shouldMatch) {
         expect(match).toEqual(canvas);
       } else {
