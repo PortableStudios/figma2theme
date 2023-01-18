@@ -20,7 +20,8 @@ const configKeys = {
   },
 } as const;
 
-// Get the JSON from the .figma2themerc config file
+// Get the JSON from the .figma2themerc config file with the following priority:
+// local > global
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const getConfigFileJSON = async (): Promise<any> => {
   const filePath = path.resolve(process.cwd(), './.figma2themerc');
