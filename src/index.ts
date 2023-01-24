@@ -2,7 +2,12 @@
 import { Command } from 'commander';
 import path from 'path';
 
-import { generateChakra, generateJson, generateCss } from './generate';
+import {
+  generateChakra,
+  generateJson,
+  generateCss,
+  generateUtilityClasses,
+} from './generate';
 import { version } from '../package.json';
 
 const OPTIONS = {
@@ -77,6 +82,27 @@ program
     const { output, apiKey, fileUrl, latestChanges } = cmd.opts();
     const outputDir = path.resolve(process.cwd(), output);
     await generateCss(outputDir, apiKey, fileUrl, latestChanges).catch((e) => {
+      console.error(e);
+    });
+  });
+
+program
+  .command('generate-utility-classes')
+  .description('output a CSS file with utility classes')
+  .storeOptionsAsProperties(true)
+  .option(OPTIONS.OUTPUT.FLAGS, OPTIONS.OUTPUT.DESCRIPTION, './')
+  .option(OPTIONS.API.FLAGS, OPTIONS.API.DESCRIPTION)
+  .option(OPTIONS.URL.FLAGS, OPTIONS.URL.DESCRIPTION)
+  .option(OPTIONS.LATEST.FLAGS, OPTIONS.LATEST.DESCRIPTION)
+  .action(async (cmd) => {
+    const { output, apiKey, fileUrl, latestChanges } = cmd.opts();
+    const outputDir = path.resolve(process.cwd(), output);
+    await generateUtilityClasses(
+      outputDir,
+      apiKey,
+      fileUrl,
+      latestChanges
+    ).catch((e) => {
       console.error(e);
     });
   });

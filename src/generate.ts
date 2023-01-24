@@ -12,7 +12,12 @@ import type {
 
 import getConfig from './utils/config';
 import { getFile, getVersions } from './api';
-import { exportChakra, exportJson, exportCss } from './export';
+import {
+  exportChakra,
+  exportJson,
+  exportCss,
+  exportUtilityClasses,
+} from './export';
 import importTokensFromFigma from './import/import-figma';
 
 import type { Tokens } from './utils/types';
@@ -185,11 +190,27 @@ export const generateCss = async (
   fileUrlOverride?: string,
   latestChanges?: boolean
 ) => {
-  // Generate a CSS file using the tokens
+  // Generate a CSS file of custom properties using the tokens
   const exporter: Exporter = async (tokens) => {
     const relativeDir = path.relative(process.cwd(), outputDir);
     console.log(`Exporting CSS file to "${relativeDir}/tokens.css"...`.bold);
     await exportCss(tokens, outputDir);
+  };
+
+  return generator(exporter, apiKeyOverride, fileUrlOverride, latestChanges);
+};
+
+export const generateUtilityClasses = async (
+  outputDir: string,
+  apiKeyOverride?: string,
+  fileUrlOverride?: string,
+  latestChanges?: boolean
+) => {
+  // Generate a CSS file of utility classes using the tokens
+  const exporter: Exporter = async (tokens) => {
+    const relativeDir = path.relative(process.cwd(), outputDir);
+    console.log(`Exporting CSS file to "${relativeDir}/utilities.css"...`.bold);
+    await exportUtilityClasses(tokens, outputDir);
   };
 
   return generator(exporter, apiKeyOverride, fileUrlOverride, latestChanges);
