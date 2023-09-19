@@ -3,23 +3,29 @@ import SVGO from 'svgo';
 import fetch from 'node-fetch';
 import { em, rem } from 'polished';
 import setWith from 'lodash.setwith';
-import colorConvert from 'color-convert';
+import Color from 'colorjs.io';
 
 import { getFile } from '../api';
 import { logError } from '../utils/log';
 import type {
+  BreakpointTokens,
+  ColourToken,
+  ColourTokens,
   Dictionary,
-  Breakpoints,
-  GridVariant,
-  Icons,
-  OptimisedSVG,
-  Palette,
-  Radii,
-  Shadows,
-  Sizes,
-  Spacing,
-  Typography,
-  TextVariant,
+  FontFamilyTokens,
+  FontSizeTokens,
+  GridVariantTokens,
+  IconTokens,
+  IconValue,
+  LetterSpacingTokens,
+  LineHeightTokens,
+  RadiiTokens,
+  ShadowTokens,
+  ShadowValue,
+  SizeTokens,
+  SpacingTokens,
+  TextStyleTokens,
+  TextStyleValue,
   Tokens,
 } from '../utils/types';
 
@@ -30,7 +36,7 @@ import type {
 // Fetch a canvas from a Figma document by the page name
 export const getPageCanvasByName = (
   document: Figma.Node<'DOCUMENT'>,
-  pageName: string
+  pageNames: string[]
 ): Figma.Node<'CANVAS'> | undefined => {
   return (
     document.children
@@ -39,8 +45,12 @@ export const getPageCanvasByName = (
       // Return the first one that has a matching name
       .find((canvas) => {
         // Strip non-alphanumeric characters (e.g. emojis) from canvas name before comparing
-        const canvasName = canvas.name.toLowerCase().replace(/[^0-9a-z]/g, '');
-        return canvasName === pageName.toLowerCase();
+        const canvasName = canvas.name
+          .toLowerCase()
+          .replace(/[^0-9a-z\&]/g, '');
+        const namesToMatch = pageNames.map((p) => p.toLowerCase());
+
+        return namesToMatch.includes(canvasName);
       })
   );
 };
@@ -84,6 +94,9 @@ const getAllFrameNodes = (from: Figma.Node<'CANVAS'>) =>
 // Helper function to get all rectangle nodes from a page
 const getAllRectangleNodes = (from: Figma.Node<'CANVAS'>) =>
   getAllNodesByType('RECTANGLE', from);
+// Helper function to get all ellipse nodes from a page
+const getAllEllipseNodes = (from: Figma.Node<'CANVAS'>) =>
+  getAllNodesByType('ELLIPSE', from);
 // Helper function to get all text nodes from a page
 const getAllTextNodes = (from: Figma.Node<'CANVAS'>) =>
   getAllNodesByType('TEXT', from);
@@ -91,25 +104,25 @@ const getAllTextNodes = (from: Figma.Node<'CANVAS'>) =>
 const getAllComponentNodes = (from: Figma.Node<'CANVAS'>) =>
   getAllNodesByType('COMPONENT', from);
 
-// Convert a Figma shadow "effect style" to a CSS box-shadow value
-const convertFigmaShadowToCss = (shadow: Figma.EffectShadow): string => {
-  // Use 'inset' for inner shadows
-  const type = shadow.type === Figma.EffectType.INNER_SHADOW ? 'inset ' : '';
-
+// Convert a Figma shadow "effect style" to a shadow design token
+const convertFigmaShadowToDesignToken = (
+  shadow: Figma.EffectShadow
+): ShadowValue => {
   // Convert shadow colour to CSS value
-  const r = Math.round(shadow.color.r * 255);
-  const g = Math.round(shadow.color.g * 255);
-  const b = Math.round(shadow.color.b * 255);
-  const a = parseFloat(shadow.color.a.toFixed(2));
-  const colour = `rgba(${r}, ${g}, ${b}, ${a})`;
+  const colour = new Color(
+    'srgb',
+    [shadow.color.r, shadow.color.g, shadow.color.b],
+    shadow.color.a
+  ).toString({ format: 'hex' });
 
-  // Convert shadow offset and radius to px
-  const x = shadow.offset.x === 0 ? '0' : `${shadow.offset.x}px`;
-  const y = shadow.offset.y === 0 ? '0' : `${shadow.offset.y}px`;
-  const radius = shadow.radius === 0 ? '0' : `${shadow.radius}px`;
-  const spread = shadow.spread ? `${shadow.spread}px` : '0';
-
-  return `${type}${x} ${y} ${radius} ${spread} ${colour}`;
+  return {
+    inset: shadow.type === Figma.EffectType.INNER_SHADOW,
+    color: colour,
+    offsetX: `${shadow.offset.x}px`,
+    offsetY: `${shadow.offset.y}px`,
+    blur: `${shadow.radius || 0}px`,
+    spread: `${shadow.spread || 0}px`,
+  };
 };
 
 /**
@@ -117,7 +130,9 @@ const convertFigmaShadowToCss = (shadow: Figma.EffectShadow): string => {
  */
 
 // Extract 'breakpoint' design tokens from a canvas
-export const getBreakpoints = (canvas: Figma.Node<'CANVAS'>): Breakpoints => {
+export const getBreakpoints = (
+  canvas: Figma.Node<'CANVAS'>
+): BreakpointTokens => {
   const prefix = 'breakpoint-';
   const breakpoints = [
     ...getAllRectangleNodes(canvas),
@@ -138,11 +153,14 @@ export const getBreakpoints = (canvas: Figma.Node<'CANVAS'>): Breakpoints => {
       width: em(r.width),
     }));
 
-  // Convert array to object
-  return breakpoints.reduce(
+  // Transform the array in to the expected token dictionary
+  return breakpoints.reduce<BreakpointTokens>(
     (obj, r) => ({
       ...obj,
-      [r.name]: r.width,
+      [r.name]: {
+        $type: 'dimension',
+        $value: r.width,
+      },
     }),
     {}
   );
@@ -152,20 +170,22 @@ export const getBreakpoints = (canvas: Figma.Node<'CANVAS'>): Breakpoints => {
 export const getColours = (
   canvas: Figma.Node<'CANVAS'>,
   styles: Dictionary<Figma.Style>
-): Palette => {
-  // Get all the colour styles with the provided prefix in their name
-  const prefix = 'custom/';
+): ColourTokens => {
+  // Get all the colour styles
   const colourStyles: Dictionary<string> = {};
   Object.keys(styles).forEach((key) => {
     const effect = styles[key];
-    if (effect.name.startsWith(prefix)) {
-      colourStyles[key] = effect.name.replace(prefix, '');
-    }
+
+    // Ignore colour styles that start with a `_`
+    if (effect.name.startsWith('_')) return;
+
+    colourStyles[key] = effect.name.toLowerCase();
   });
 
-  // Get all the rectangles and frames that are using one of the colour styles
+  // Get all the rectangles, ellipses and frames that are using one of the colour styles
   const rectangles = [
     ...getAllRectangleNodes(canvas),
+    ...getAllEllipseNodes(canvas),
     ...getAllFrameNodes(canvas),
   ].filter((r) => {
     const fillKey = r.styles?.fill;
@@ -176,7 +196,8 @@ export const getColours = (
     return Object.keys(colourStyles).includes(fillKey);
   });
 
-  const palette: Palette = {};
+  // Transform the array in to the expected token dictionary
+  const palette: ColourTokens = {};
   rectangles.forEach((r) => {
     // Figma typings claim that a canvas has no fills property, this is a lie
     const colour = (r as Figma.Node<'RECTANGLE'>).fills[0].color;
@@ -185,20 +206,22 @@ export const getColours = (
       return;
     }
 
-    // Convert each colour from RGB to HEX
-    const red = Math.round(colour.r * 255);
-    const green = Math.round(colour.g * 255);
-    const blue = Math.round(colour.b * 255);
-    const hex = colorConvert.rgb.hex([red, green, blue]);
+    // Convert each colour from RGBA to HEX
+    const hex = new Color(
+      'srgb',
+      [colour.r, colour.g, colour.b],
+      colour.a
+    ).toString({ format: 'hex' });
     const key = colourStyles[fillKey].replace(/\//g, '.');
-    setWith(palette, key, `#${hex}`, Object);
+    const value: ColourToken = { $type: 'color', $value: hex };
+    setWith(palette, key, value, Object);
   });
 
   return palette;
 };
 
 // Extract 'border radius' design tokens from a canvas
-export const getRadii = (canvas: Figma.Node<'CANVAS'>): Radii => {
+export const getRadii = (canvas: Figma.Node<'CANVAS'>): RadiiTokens => {
   const prefix = 'radii-';
   const radii = [...getAllRectangleNodes(canvas), ...getAllFrameNodes(canvas)]
     // Get all the rectangles and frames with a name prefixed 'radii-'
@@ -217,11 +240,14 @@ export const getRadii = (canvas: Figma.Node<'CANVAS'>): Radii => {
       cornerRadius: r.cornerRadius ? rem(r.cornerRadius) : '0',
     }));
 
-  // Convert array to object
-  return radii.reduce(
+  // Transform the array in to the expected token dictionary
+  return radii.reduce<RadiiTokens>(
     (obj, r) => ({
       ...obj,
-      [r.name]: r.cornerRadius,
+      [r.name]: {
+        $type: 'dimension',
+        $value: r.cornerRadius,
+      },
     }),
     {}
   );
@@ -231,7 +257,7 @@ export const getRadii = (canvas: Figma.Node<'CANVAS'>): Radii => {
 export const getShadows = (
   canvas: Figma.Node<'CANVAS'>,
   styles: Dictionary<Figma.Style>
-): Shadows => {
+): ShadowTokens => {
   // Get all the effect styles with a name prefixed 'shadow-'
   const prefix = 'shadow-';
   const shadowStyles: Dictionary<string> = {};
@@ -255,7 +281,8 @@ export const getShadows = (
     return Object.keys(shadowStyles).includes(effectKey);
   });
 
-  const shadows: Dictionary<string> = {};
+  // Transform the array in to the expected token dictionary
+  const shadowTokens: ShadowTokens = {};
   rectangles.forEach((r) => {
     const effects = r.effects;
     const effectKey = r.styles?.effect;
@@ -263,18 +290,24 @@ export const getShadows = (
       return;
     }
 
-    // Convert each shadow to a CSS `box-shadow` value, then join them
-    shadows[shadowStyles[effectKey]] = effects
-      .map((e) => convertFigmaShadowToCss(e as Figma.EffectShadow))
-      .reverse()
-      .join(', ');
+    // Convert each shadow effect to the expected token type
+    const shadows = effects
+      .map((e) => convertFigmaShadowToDesignToken(e as Figma.EffectShadow))
+      .reverse();
+
+    shadowTokens[shadowStyles[effectKey]] = {
+      $type: 'shadow',
+      $value: shadows,
+    };
   });
 
-  return shadows;
+  return shadowTokens;
 };
 
 // Extract 'sizes' design tokens from a canvas
-export const getSizes = (canvas: Figma.Node<'CANVAS'>): Sizes => {
+export const getSizes = (canvas: Figma.Node<'CANVAS'>): SizeTokens => {
+  if (!canvas) return {};
+
   const prefix = 'size-';
   const sizes = [...getAllRectangleNodes(canvas), ...getAllFrameNodes(canvas)]
     // Get all the rectangles and frames with a name prefixed 'size-'
@@ -289,18 +322,21 @@ export const getSizes = (canvas: Figma.Node<'CANVAS'>): Sizes => {
       size: r.size > 1 ? rem(r.size) : `${r.size}px`,
     }));
 
-  // Convert array to object
-  return sizes.reduce(
+  // Transform the array in to the expected token dictionary
+  return sizes.reduce<SizeTokens>(
     (obj, s) => ({
       ...obj,
-      [s.name]: s.size,
+      [s.name]: {
+        $type: 'dimension',
+        $value: s.size,
+      },
     }),
     {}
   );
 };
 
 // Extract 'spacing' design tokens from a canvas
-export const getSpacing = (canvas: Figma.Node<'CANVAS'>): Spacing => {
+export const getSpacing = (canvas: Figma.Node<'CANVAS'>): SpacingTokens => {
   const prefix = 'space-';
   const spacing = getAllComponentNodes(canvas)
     // Get all the components with a name prefixed 'space-'
@@ -315,11 +351,14 @@ export const getSpacing = (canvas: Figma.Node<'CANVAS'>): Spacing => {
       size: r.size > 1 ? rem(r.size) : `${r.size}px`,
     }));
 
-  // Convert array to object
-  return spacing.reduce(
+  // Transform the array in to the expected token dictionary
+  return spacing.reduce<SpacingTokens>(
     (obj, s) => ({
       ...obj,
-      [s.name]: s.size,
+      [s.name]: {
+        $type: 'dimension',
+        $value: s.size,
+      },
     }),
     {}
   );
@@ -328,7 +367,7 @@ export const getSpacing = (canvas: Figma.Node<'CANVAS'>): Spacing => {
 // Extract 'font families' design tokens from a canvas
 export const getFontFamilies = (
   canvas: Figma.Node<'CANVAS'>
-): Typography['fonts'] => {
+): FontFamilyTokens => {
   // TODO: Support importing font stacks (e.g. "Roboto, Arial, sans-serif")
   const prefix = 'font-';
   const fonts = getAllTextNodes(canvas)
@@ -340,11 +379,14 @@ export const getFontFamilies = (
       fontFamily: e.style.fontFamily,
     }));
 
-  // Convert array to object
-  const fontMap = fonts.reduce(
+  // Transform the array in to the expected token dictionary
+  const fontMap = fonts.reduce<FontFamilyTokens>(
     (obj, s) => ({
       ...obj,
-      [s.name]: s.fontFamily,
+      [s.name]: {
+        $type: 'fontFamily',
+        $value: `'${s.fontFamily}'`,
+      },
     }),
     {}
   );
@@ -372,9 +414,7 @@ export const getFontFamilies = (
 };
 
 // Extract 'font sizes' design tokens from a canvas
-export const getFontSizes = (
-  canvas: Figma.Node<'CANVAS'>
-): Typography['fontSizes'] => {
+export const getFontSizes = (canvas: Figma.Node<'CANVAS'>): FontSizeTokens => {
   const prefix = 'fontSize-';
   const fontSizes = getAllTextNodes(canvas)
     // Get all the text element with a name prefixed 'fontSize-'
@@ -389,11 +429,14 @@ export const getFontSizes = (
       size: rem(s.size),
     }));
 
-  // Convert array to object
-  return fontSizes.reduce(
+  // Transform the array in to the expected token dictionary
+  return fontSizes.reduce<FontSizeTokens>(
     (obj, s) => ({
       ...obj,
-      [s.name]: s.size,
+      [s.name]: {
+        $type: 'dimension',
+        $value: s.size,
+      },
     }),
     {}
   );
@@ -402,7 +445,7 @@ export const getFontSizes = (
 export const getGridStyles = (
   canvas: Figma.Node<'CANVAS'>,
   styles: Dictionary<Figma.Style>
-): { [key: string]: GridVariant } => {
+): GridVariantTokens => {
   // Get all the grid styles
   const gridStyles: Dictionary<string> = {};
   Object.keys(styles).forEach((key) => {
@@ -420,7 +463,7 @@ export const getGridStyles = (
     return Object.keys(gridStyles).includes(styleKey);
   });
   // Extract the styles from each frame element
-  const variants: { [key: string]: GridVariant } = {};
+  const variants: GridVariantTokens = {};
   frameElements.forEach((t) => {
     const styleKey = t.styles?.grid;
     if (styleKey === undefined) {
@@ -453,14 +496,27 @@ export const getGridStyles = (
     if (bp) {
       // If the style does correspond to a breakpoint, add the values under that key
       name = name.replace(`/${bp}`, '');
-      setWith(variants, `${name}.columns.${bp}`, values.columns);
-      setWith(variants, `${name}.gutter.${bp}]`, values.gutter);
-      setWith(variants, `${name}.margin.${bp}]`, values.margin);
+      setWith(variants, `${name}.columns.${bp}`, {
+        $type: 'number',
+        $value: values.columns,
+      });
+      setWith(variants, `${name}.gutter.${bp}]`, {
+        $type: 'dimension',
+        $value: values.gutter,
+      });
+      setWith(variants, `${name}.margin.${bp}]`, {
+        $type: 'dimension',
+        $value: values.margin,
+      });
       return;
     }
 
-    // Otherwise just assign the style object as normal
-    variants[name] = values;
+    // Otherwise just create a non-responsive grid variant
+    variants[name] = {
+      columns: { base: { $type: 'number', $value: values.columns } },
+      gutter: { base: { $type: 'dimension', $value: values.gutter } },
+      margin: { base: { $type: 'dimension', $value: values.margin } },
+    };
   });
 
   return variants;
@@ -485,7 +541,7 @@ const getLineHeightValue = (t: Figma.Node<'TEXT'>): string => {
 // Extract 'line heights' design tokens from a canvas
 export const getLineHeights = (
   canvas: Figma.Node<'CANVAS'>
-): Typography['lineHeights'] => {
+): LineHeightTokens => {
   const prefix = 'lineHeight-';
   const lineHeights = getAllTextNodes(canvas)
     // Get all the text elements with a name prefixed 'lineHeight-'
@@ -496,11 +552,14 @@ export const getLineHeights = (
       lineHeight: getLineHeightValue(e),
     }));
 
-  // Convert array to object
-  return lineHeights.reduce(
+  // Transform the array in to the expected token dictionary
+  return lineHeights.reduce<LineHeightTokens>(
     (obj, s) => ({
       ...obj,
-      [s.name]: s.lineHeight,
+      [s.name]: {
+        $type: 'string',
+        $value: s.lineHeight,
+      },
     }),
     {}
   );
@@ -509,7 +568,7 @@ export const getLineHeights = (
 // Extract 'letter spacing' design tokens from a canvas
 export const getLetterSpacing = (
   canvas: Figma.Node<'CANVAS'>
-): Typography['letterSpacing'] => {
+): LetterSpacingTokens => {
   const prefix = 'letterSpacing-';
   const letterSpacing = getAllTextNodes(canvas)
     // Get all the text element with a name prefixed 'letterSpacing-'
@@ -530,11 +589,14 @@ export const getLetterSpacing = (
       };
     });
 
-  // Convert array to object
-  return letterSpacing.reduce(
+  // Transform the array in to the expected token dictionary
+  return letterSpacing.reduce<LetterSpacingTokens>(
     (obj, s) => ({
       ...obj,
-      [s.name]: s.letterSpacing,
+      [s.name]: {
+        $type: 'dimension',
+        $value: s.letterSpacing,
+      },
     }),
     {}
   );
@@ -567,8 +629,8 @@ const getTextTransformValue = (t: Figma.Node<'TEXT'>): string => {
 };
 
 // Get the style values from a text element (i.e. font family, font size, etc.)
-const getTextStyleValues = (t: Figma.Node<'TEXT'>): TextVariant => {
-  const fontFamily = t.style.fontFamily;
+const getTextStyleValues = (t: Figma.Node<'TEXT'>): TextStyleValue => {
+  const fontFamily = `'${t.style.fontFamily}'`;
   const fontSize = rem(t.style.fontSize);
   const fontStyle = t.style.italic ? 'italic' : 'normal';
   const fontWeight = `${t.style.fontWeight}`;
@@ -594,14 +656,17 @@ const getTextStyleValues = (t: Figma.Node<'TEXT'>): TextVariant => {
 export const getTextStyles = (
   canvas: Figma.Node<'CANVAS'>,
   styles: Dictionary<Figma.Style>
-): { [key: string]: TextVariant } => {
+): TextStyleTokens => {
   // Get all the text styles
   const textStyles: Dictionary<string> = {};
   Object.keys(styles).forEach((key) => {
     const style = styles[key];
-    if (style.styleType === 'TEXT') {
-      textStyles[key] = style.name;
-    }
+    if (style.styleType !== 'TEXT') return;
+
+    // Ignore text styles that start with a `_`
+    if (style.name.startsWith('_')) return;
+
+    textStyles[key] = style.name;
   });
 
   // Get all the text elements that are using one of the styles
@@ -615,7 +680,7 @@ export const getTextStyles = (
   });
 
   // Extract the styles from each text element
-  const variants: { [key: string]: TextVariant } = {};
+  const variants: TextStyleTokens = {};
   textElements.forEach((t) => {
     const styleKey = t.styles?.text;
     if (styleKey === undefined) {
@@ -631,43 +696,54 @@ export const getTextStyles = (
     if (bp) {
       // If the style does correspond to a breakpoint, add the values under that key
       name = name.replace(`/${bp}`, '');
-      setWith(variants, `${name}.fontFamily.${bp}`, values.fontFamily);
-      setWith(variants, `${name}.fontSize.${bp}]`, values.fontSize);
-      setWith(variants, `${name}.fontStyle.${bp}]`, values.fontStyle);
-      setWith(variants, `${name}.fontWeight.${bp}]`, values.fontWeight);
-      setWith(variants, `${name}.letterSpacing.${bp}]`, values.letterSpacing);
-      setWith(variants, `${name}.lineHeight.${bp}]`, values.lineHeight);
+      setWith(variants, `${name}.$value.fontFamily.${bp}`, values.fontFamily);
+      setWith(variants, `${name}.$value.fontSize.${bp}]`, values.fontSize);
+      setWith(variants, `${name}.$value.fontStyle.${bp}]`, values.fontStyle);
+      setWith(variants, `${name}.$value.fontWeight.${bp}]`, values.fontWeight);
       setWith(
         variants,
-        `${name}.textDecorationLine.${bp}]`,
+        `${name}.$value.letterSpacing.${bp}]`,
+        values.letterSpacing
+      );
+      setWith(variants, `${name}.$value.lineHeight.${bp}]`, values.lineHeight);
+      setWith(
+        variants,
+        `${name}.$value.textDecorationLine.${bp}]`,
         values.textDecorationLine
       );
-      setWith(variants, `${name}.textTransform.${bp}]`, values.textTransform);
+      setWith(
+        variants,
+        `${name}.$value.textTransform.${bp}]`,
+        values.textTransform
+      );
       return;
     }
 
     // Otherwise just assign the style object as normal
-    variants[name] = values;
+    setWith(variants, `${name}.$value]`, values);
   });
 
   // Iterate over the styles and flatten any unnecessary responsive values
-  // e.g. change `fontSize: { base: '1rem', sm: '1rem', md: '1rem' }` to just `fontSize: '1rem'`
-  const flatten = (value: string | string[]) => {
+  // e.g. change `fontSize: { base: { $value: '1rem' }, sm: { $value: '1rem' }, md: { $value: '1rem' } }` to just `fontSize: { $value: '1rem' }`
+  const flatten = (value: string | Dictionary<string>) => {
     const objValues =
       typeof value === 'object' ? Object.values(value) : undefined;
     return objValues?.every((v) => v === objValues[0]) ? objValues[0] : value;
   };
   Object.keys(variants).forEach((k) => {
-    const v = variants[k];
+    const v = variants[k].$value;
     variants[k] = {
-      fontFamily: flatten(v.fontFamily),
-      fontSize: flatten(v.fontSize),
-      fontStyle: flatten(v.fontStyle),
-      fontWeight: flatten(v.fontWeight),
-      letterSpacing: flatten(v.letterSpacing),
-      lineHeight: flatten(v.lineHeight),
-      textDecorationLine: flatten(v.textDecorationLine),
-      textTransform: flatten(v.textTransform),
+      $type: 'typography',
+      $value: {
+        fontFamily: flatten(v.fontFamily),
+        fontSize: flatten(v.fontSize),
+        fontStyle: flatten(v.fontStyle),
+        fontWeight: flatten(v.fontWeight),
+        letterSpacing: flatten(v.letterSpacing),
+        lineHeight: flatten(v.lineHeight),
+        textDecorationLine: flatten(v.textDecorationLine),
+        textTransform: flatten(v.textTransform),
+      },
     };
   });
 
@@ -676,7 +752,7 @@ export const getTextStyles = (
 
 type ProcessedIcon = {
   name: string;
-  svg: OptimisedSVG;
+  svg: IconValue;
 };
 
 // Extract SVG icons from a canvas
@@ -684,7 +760,7 @@ const getIcons = async (
   api: Figma.Api,
   fileKey: string,
   canvas: Figma.Node<'CANVAS'>
-): Promise<Icons> => {
+): Promise<IconTokens> => {
   const prefix = 'icon/custom/';
   const icons = getAllComponentNodes(canvas)
     // Get all the components with a name prefixed 'icon/custom/'
@@ -709,7 +785,7 @@ const getIcons = async (
   const imageUrls = response.images;
 
   // Take an image URL, fetch it and optimise it using SVGO
-  const processIcon = async (imageUrl: string): Promise<OptimisedSVG> => {
+  const processIcon = async (imageUrl: string): Promise<IconValue> => {
     const image = await fetch(imageUrl);
     const svg = await image.text();
     const result = SVGO.optimize(svg);
@@ -744,7 +820,9 @@ const getIcons = async (
     .reduce(
       (obj, r) => ({
         ...obj,
-        [r.name]: r.svg,
+        [r.name]: {
+          $value: r.svg,
+        },
       }),
       {}
     );
@@ -755,16 +833,44 @@ const getIcons = async (
  */
 
 // The names of the pages we want to extract from the Figma file
-const pageNames = {
-  breakpoints: 'Breakpoints',
-  colours: 'Colours',
-  grids: 'Grids',
-  icons: 'Icons',
-  radii: 'Radii',
-  shadows: 'Shadows',
-  sizes: 'Sizes',
-  spacing: 'Spacing',
-  typography: 'Typography',
+const pages = {
+  breakpoints: {
+    names: ['Breakpoints'],
+    isRequired: true,
+  },
+  colours: {
+    names: ['Colours'],
+    isRequired: true,
+  },
+  grids: {
+    names: ['Grids'],
+    isRequired: true,
+  },
+  // "Icons" is supported for backwards compatibility
+  icons: {
+    names: ['Icons', 'Icons&Media'],
+    isRequired: true,
+  },
+  radii: {
+    names: ['Radii'],
+    isRequired: true,
+  },
+  shadows: {
+    names: ['Shadows'],
+    isRequired: true,
+  },
+  sizes: {
+    names: ['Sizes'],
+    isRequired: false,
+  },
+  spacing: {
+    names: ['Spacing'],
+    isRequired: true,
+  },
+  typography: {
+    names: ['Typography'],
+    isRequired: true,
+  },
 };
 
 export default async function importTokensFromFigma(
@@ -779,15 +885,18 @@ export default async function importTokensFromFigma(
   // Find all the page canvases we need to extract tokens from, log an error and exit if any are missing
   let missingPage = false;
   const canvases: Dictionary<Figma.Node<'CANVAS'>> = {};
-  Object.keys(pageNames).forEach((k) => {
-    const key = k as keyof typeof pageNames;
-    const canvas = getPageCanvasByName(file.document, pageNames[key]);
+  Object.keys(pages).forEach((k) => {
+    const key = k as keyof typeof pages;
+    const page = pages[key];
+    const canvas = getPageCanvasByName(file.document, page.names);
     if (canvas === undefined) {
-      logError(
-        `Unable to find a page with the name "${pageNames[key]}" in the file.`,
-        '- Please check that this page exists in the Figma file.'
-      );
-      missingPage = true;
+      if (page.isRequired) {
+        logError(
+          `Unable to find a page with the name "${pages[key].names}" in the file.`,
+          '- Please check that this page exists in the Figma file.'
+        );
+        missingPage = true;
+      }
       return;
     }
     canvases[key] = canvas;

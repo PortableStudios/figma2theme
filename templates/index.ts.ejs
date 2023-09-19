@@ -14,7 +14,7 @@ import * as customIcons from './icons';
 
 const breakpoints = createBreakpoints(<%- JSON.stringify(chakra.breakpoints) %>);
 
-const colors = <%- JSON.stringify(chakra.colours) %>;
+const colors = <%- JSON.stringify(chakra.colours, undefined, '\t') %>;
 export type Colors = typeof colors;
 
 const radii = <%- JSON.stringify(chakra.radii) %>;
@@ -73,7 +73,7 @@ const theme = {
   breakpoints: breakpoints,
   colors: {
     ...defaultTheme.colors,
-    custom: colors,
+    ...colors,
   },
   radii: radii,
   shadows: shadows,

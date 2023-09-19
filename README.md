@@ -74,7 +74,7 @@ environment variables or the CLI arguments. We recommend the above setup for mos
 Run the following command to generate your Chakra UI theme:
 
 ```bash
-figma2theme generate-chakra
+yarn figma2theme generate-chakra
 ```
 
 By default the generated theme file(s) will be saved to `./theme`.
