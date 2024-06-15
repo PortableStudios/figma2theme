@@ -17,6 +17,10 @@ jobs:
       - name: Install dependencies
         run: yarn install --frozen-lockfile
 
+      - name: Update the package name for GitHub
+        run: |
+          sed -i 's/"name": "figma2theme"/"name": "@portablestudios\/figma2theme"/' package.json
+
       - name: Build the project
         run: yarn build
 
