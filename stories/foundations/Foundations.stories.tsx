@@ -58,7 +58,7 @@ export const Breakpoints: Story = () => {
 Breakpoints.parameters = {
   design: ifFigmaDesignsForThemeEnabled({
     type: 'figma',
-    url: 'https://www.figma.com/file/m1rARkfdPU6dB7n9ofBRHw/Portable-UI-Kit?node-id=851%3A221',
+    url: 'https://www.figma.com/file/b6tcOWalyHLDfsD0IBSXyE/Portable-UI-Kit-v2?node-id=851-221',
   }),
 };
 
@@ -174,7 +174,7 @@ export const Colours: Story = () => {
 Colours.parameters = {
   design: ifFigmaDesignsForThemeEnabled({
     type: 'figma',
-    url: 'https://www.figma.com/file/m1rARkfdPU6dB7n9ofBRHw/Portable-UI-Kit?node-id=1053%3A326',
+    url: 'https://www.figma.com/file/b6tcOWalyHLDfsD0IBSXyE/Portable-UI-Kit-v2?node-id=1053-326',
   }),
 };
 
@@ -215,7 +215,7 @@ export const CustomIcons: Story = () => {
 CustomIcons.parameters = {
   design: ifFigmaDesignsForThemeEnabled({
     type: 'figma',
-    url: 'https://www.figma.com/file/m1rARkfdPU6dB7n9ofBRHw/Portable-UI-Kit?node-id=697%3A0',
+    url: 'https://www.figma.com/file/b6tcOWalyHLDfsD0IBSXyE/Portable-UI-Kit-v2?node-id=5794-232',
   }),
 };
 
@@ -259,7 +259,7 @@ export const Radii: Story = () => {
 Radii.parameters = {
   design: ifFigmaDesignsForThemeEnabled({
     type: 'figma',
-    url: 'https://www.figma.com/file/m1rARkfdPU6dB7n9ofBRHw/Portable-UI-Kit?node-id=855%3A48',
+    url: 'https://www.figma.com/file/b6tcOWalyHLDfsD0IBSXyE/Portable-UI-Kit-v2?node-id=855-48',
   }),
 };
 
@@ -303,7 +303,7 @@ export const Shadows: Story = () => {
 Shadows.parameters = {
   design: ifFigmaDesignsForThemeEnabled({
     type: 'figma',
-    url: 'https://www.figma.com/file/m1rARkfdPU6dB7n9ofBRHw/Portable-UI-Kit?node-id=860%3A0',
+    url: 'https://www.figma.com/file/b6tcOWalyHLDfsD0IBSXyE/Portable-UI-Kit-v2?node-id=860-0',
   }),
 };
 
@@ -392,7 +392,7 @@ export const Sizes: Story = () => {
 Sizes.parameters = {
   design: ifFigmaDesignsForThemeEnabled({
     type: 'figma',
-    url: 'https://www.figma.com/file/m1rARkfdPU6dB7n9ofBRHw/Portable-UI-Kit?node-id=1022%3A4',
+    url: 'https://www.figma.com/file/b6tcOWalyHLDfsD0IBSXyE/Portable-UI-Kit-v2?node-id=860-112',
   }),
 };
 
@@ -460,6 +460,6 @@ export const Spacing: Story = () => {
 Spacing.parameters = {
   design: ifFigmaDesignsForThemeEnabled({
     type: 'figma',
-    url: 'https://www.figma.com/file/m1rARkfdPU6dB7n9ofBRHw/Portable-UI-Kit?node-id=860%3A112',
+    url: 'https://www.figma.com/file/b6tcOWalyHLDfsD0IBSXyE/Portable-UI-Kit-v2?node-id=860-112',
   }),
 };

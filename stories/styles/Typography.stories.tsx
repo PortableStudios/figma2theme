@@ -25,7 +25,7 @@ export default {
   parameters: {
     design: ifFigmaDesignsForThemeEnabled({
       type: 'figma',
-      url: 'https://www.figma.com/file/m1rARkfdPU6dB7n9ofBRHw/Portable-UI-Kit?node-id=621%3A763',
+      url: 'https://www.figma.com/file/b6tcOWalyHLDfsD0IBSXyE/Portable-UI-Kit-v2?node-id=621-763',
     }),
   },
 } as Meta;

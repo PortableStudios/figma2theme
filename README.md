@@ -5,7 +5,7 @@ design tokens (colour palettes, typography, spacing scales, etc.)
 from a Figma file and then use them to generate a theme.
 
 **Figma template:**
-https://www.figma.com/file/m1rARkfdPU6dB7n9ofBRHw/Portable-UI-Kit
+https://www.figma.com/design/b6tcOWalyHLDfsD0IBSXyE/Portable-UI-Kit-v2
 
 **Example Storybook generated from the Figma template:**
 https://figma2theme.netlify.app/
@@ -25,7 +25,7 @@ Here's an example with the UI Kit template file:
 
 ```json
 {
-  "fileUrl": "https://www.figma.com/file/m1rARkfdPU6dB7n9ofBRHw/Portable-UI-Kit"
+  "fileUrl": "https://www.figma.com/design/b6tcOWalyHLDfsD0IBSXyE/Portable-UI-Kit-v2"
 }
 ```
 

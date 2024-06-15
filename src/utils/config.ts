@@ -74,8 +74,8 @@ export default async function getConfig(
   }
 
   // Get the file key from the file URL, throw an error if the URL is malformed
-  const fileKeyMatch = fileUrl.match(/figma\.com\/file\/(.*)\//);
-  const fileKey = fileKeyMatch ? fileKeyMatch[1] : '';
+  const fileKeyMatch = fileUrl.match(/figma\.com\/(file|design)\/(.*)\//);
+  const fileKey = fileKeyMatch ? fileKeyMatch[2] : '';
   if (fileKey === '') {
     logError('Your Figma file URL seems to be invalid.', [
       `- The URL we found was: ${fileUrl}`,
