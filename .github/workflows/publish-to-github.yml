@@ -6,12 +6,12 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
-          node-version: 16.18.0
+          node-version-file: '.nvmrc'
           cache: yarn
-          registry-url: https://npm.pkg.github.com/
+          registry-url: https://npm.pkg.github.com
           scope: '@portablestudios'
 
       - name: Install dependencies
@@ -21,6 +21,6 @@ jobs:
         run: yarn build
 
       - name: Publish the project
-        run: yarn publish --non-interactive
+        run: yarn publish --non-interactive --registry https://npm.pkg.github.com
         env:
           NODE_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}

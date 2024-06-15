@@ -19,9 +19,6 @@
     "type": "git",
     "url": "https://github.com/PortableStudios/figma2theme"
   },
-  "publishConfig": {
-    "registry": "https://npm.pkg.github.com/"
-  },
   "scripts": {
     "prepare": "husky install",
     "pre-commit": "lint-staged",
