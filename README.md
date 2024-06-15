@@ -12,46 +12,16 @@ https://figma2theme.netlify.app/
 
 ## Usage
 
-### 1. Authenticate via NPM
-
-To ensure you can install private Portable packages, login to our GitHub repo via NPM:
-
-(This only has to be done once per computer, skip this step if you've already done this)
+### 1. Add `figma2theme` to your project
 
 ```bash
-npm login --registry=https://npm.pkg.github.com
+yarn add --dev figma2theme
 ```
 
-When prompted for "Username", enter your GitHub username.
+### 2. Set your environment variables
 
-When prompted for "Password", enter a "Personal Access Token".
-To generate a token follow these instructions:
-
-- In GitHub visit Settings > Developer settings > Personal access tokens
-- Press "Generate new token"
-- Name the new token "portable_npm_login" or something similar
-- Select the "repo", "write:packages" and "read:packages" permissions
-
-Finally, when prompted for "Email" enter your Portable email address.
-
-### 2. Add `figma2theme` to your project
-
-Create an `.npmrc` file in your project root with the following contents:
-
-```
-@portablestudios:registry=https://npm.pkg.github.com
-```
-
-Install `figma2theme` to your package.json:
-
-```bash
-yarn add --dev @portablestudios/figma2theme
-```
-
-### 3. Define your variables
-
-Create a `.figma2themerc` file in your project containing the
-Figma file URL, here's an example using the URL of our Figma template:
+a. Create a `.figma2themerc` file in your project repo and add the URL of your project's UI Kit file.
+Here's an example with the UI Kit template file:
 
 ```json
 {
@@ -59,17 +29,14 @@ Figma file URL, here's an example using the URL of our Figma template:
 }
 ```
 
-Now add your Figma API key to the `.env` file of your project.
-A key can be generated under the 'Personal Access Tokens' section of the Figma settings.
+b. Generate a Figma API key and add it to the `.env` file of your project.
+An API key can be generated under the 'Personal Access Tokens' section of the Figma settings.
 
 ```
 FIGMA_API_KEY=
 ```
 
-Both of these variables can be provided through either the `.figma2themerc` file, the
-environment variables or the CLI arguments. We recommend the above setup for most projects.
-
-### 4. Generate your theme
+### 3. Generate your theme
 
 Run the following command to generate your Chakra UI theme:
 
@@ -79,11 +46,11 @@ yarn figma2theme generate-chakra
 
 By default the generated theme file(s) will be saved to `./theme`.
 
-### 5. Import the theme
+### 4. Import the theme
 
 Update your imports from `import { theme } from '@chakra-ui/react'` to the generated theme location.
 
-### 6. Import the stories (Optional)
+### 5. Import the stories (Optional)
 
 `figma2theme` provides a variety of Storybook stories that allow you to view elements of your
 current Chakra UI theme, including foundational values (e.g. colour palettes, font sizes, etc.)
@@ -95,6 +62,8 @@ the following glob to the `stories` array:
 `../node_modules/@portablestudios/figma2theme/lib/**/*.stories.js`
 
 ## Development
+
+Want to work on figma2theme? Here's how to get started.
 
 First set up your environment variables by duplicating the template:
 
