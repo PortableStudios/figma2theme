@@ -38,4 +38,4 @@ jobs:
         run: yarn concurrently --group "yarn:test" "yarn:lint" "yarn:typecheck" "yarn:build-storybook"
 
       - name: Serve Storybook and run tests
-        run: yarn concurrently -k -s first -n "SB,TEST" -c "magenta,blue" "yarn http-server storybook-static --port 6006 --silent" "yarn wait-on tcp:6006 && yarn test-storybook"
+        run: yarn concurrently -k -s first -n "SB,TEST" -c "magenta,blue" "yarn http-server storybook-static --port 6006 --silent" "yarn wait-on http://127.0.0.1:6006 && yarn storybook:test --url http://127.0.0.1:6006"
