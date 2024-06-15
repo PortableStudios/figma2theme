@@ -20,6 +20,6 @@ jobs:
         run: yarn build
 
       - name: Publish the project
-        run: yarn publish --non-interactive --registry https://registry.npmjs.org
+        run: yarn publish --non-interactive --registry https://registry.npmjs.org --access public
         env:
           NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
