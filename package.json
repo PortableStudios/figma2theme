@@ -29,7 +29,7 @@
     "dev": "ts-node ./src/index.ts",
     "prebuild": "rimraf ./lib",
     "build": "tsc -p .",
-    "postbuild": "rimraf ./lib/theme && copyfiles ./templates/** ./lib",
+    "postbuild": "rimraf ./lib/theme && copyfiles ./templates/**/** ./lib",
     "test": "jest",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
