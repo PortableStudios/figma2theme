@@ -65,8 +65,12 @@ const processTextStyles = (
   return Object.entries(processTokens(textStyles)).reduce(
     (obj, [name, style]) => {
       const className = `.typography-${name}`;
+      const fontFamily = getBaseValue(style.fontFamily) ?? '';
+      // Prefer the variable font if it exists (e.g. "Inter" -> "Inter Variable")
+      const variableFont =
+        fontFamily.slice(0, -1) + ' Variable' + fontFamily.slice(-1);
       const baseStyle = {
-        fontFamily: getBaseValue(style.fontFamily),
+        fontFamily: `${variableFont}, ${fontFamily}, sans-serif`,
         fontSize: getBaseValue(style.fontSize),
         fontStyle: getBaseValue(style.fontStyle),
         fontWeight: getBaseValue(style.fontWeight),
@@ -79,7 +83,6 @@ const processTextStyles = (
       // Iterate over each breakpoint and create a media query if the value is different from the base
       const mediaQueries = breakpointsInOrder.reduce((acc, breakpoint) => {
         const breakpointStyle = {
-          fontFamily: getBreakpointValue(style.fontFamily, breakpoint),
           fontSize: getBreakpointValue(style.fontSize, breakpoint),
           fontStyle: getBreakpointValue(style.fontStyle, breakpoint),
           fontWeight: getBreakpointValue(style.fontWeight, breakpoint),
@@ -143,11 +146,13 @@ export default async function exportTailwindFromTokens(
   const fonts = processTokens(tokens.typography.fonts);
   const fontFamily = Object.keys(fonts).reduce<Dictionary<string>>(
     (obj, name) => {
-      // Add font fallbacks if they exist
       const font = fonts[name];
-      const fallback = fontFallbacks?.[name] ?? 'sans-serif';
+      // Prefer the variable font if it exists (e.g. "Inter" -> "Inter Variable")
+      const variableFont = font.slice(0, -1) + ' Variable' + font.slice(-1);
+      // Add font fallbacks if they exist
+      const fallbacks = fontFallbacks?.[name] ?? 'sans-serif';
 
-      return { ...obj, [name]: `${font}, ${fallback}` };
+      return { ...obj, [name]: `${variableFont}, ${font}, ${fallbacks}` };
     },
     {}
   );
