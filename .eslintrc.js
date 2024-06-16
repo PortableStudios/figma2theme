@@ -54,6 +54,13 @@ module.exports = {
       // Add basic linting (and Prettier formatting) for the few necessary JS files (i.e. `next.config.js`, `jest.config.js`, etc.)
       files: ['**/*.js'],
       extends: ['airbnb-base', 'plugin:prettier/recommended'],
+      overrides: [
+        {
+          // Allow importing dev dependencies in the generated theme
+          files: ['tailwind.figma2theme.js'],
+          rules: { 'import/no-extraneous-dependencies': 'off' },
+        },
+      ],
     },
   ],
 };

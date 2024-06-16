@@ -881,6 +881,7 @@ export default async function importTokensFromFigma(
   // Fetch the Figma file based on the API and file keys
   const api = new Figma.Api({ personalAccessToken: apiKey });
   const file = await getFile(api, fileKey, version);
+  const fileUrl = `https://www.figma.com/design/${fileKey}`;
 
   // Find all the page canvases we need to extract tokens from, log an error and exit if any are missing
   let missingPage = false;
@@ -922,5 +923,16 @@ export default async function importTokensFromFigma(
       letterSpacing: getLetterSpacing(canvases.typography),
     },
     textStyles: getTextStyles(canvases.typography, file.styles),
+    urls: {
+      file: fileUrl,
+      breakpoints: `${fileUrl}?node-id=${canvases.breakpoints.id}`,
+      colours: `${fileUrl}?node-id=${canvases.colours.id}`,
+      grids: `${fileUrl}?node-id=${canvases.grids.id}`,
+      icons: `${fileUrl}?node-id=${canvases.icons.id}`,
+      radii: `${fileUrl}?node-id=${canvases.radii.id}`,
+      shadows: `${fileUrl}?node-id=${canvases.shadows.id}`,
+      spacing: `${fileUrl}?node-id=${canvases.spacing.id}`,
+      typography: `${fileUrl}?node-id=${canvases.typography.id}`,
+    },
   };
 }

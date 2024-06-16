@@ -2,12 +2,21 @@
 
 This CLI is a Portable tool designed to allow us to extract
 design tokens (colour palettes, typography, spacing scales, etc.)
-from a Figma file and then use them to generate a theme.
+from a UI Kit Figma file and then use them to generate a theme.
 
-**Figma template:**
+figma2theme supports theme exports for the following UI frameworks:
+
+- [Tailwind CSS](https://tailwindcss.com/)
+- [Chakra UI](https://chakra-ui.com/)
+
+## Resources
+
+**UI Kit Figma template:**
+
 https://www.figma.com/design/b6tcOWalyHLDfsD0IBSXyE/Portable-UI-Kit-v2
 
-**Example Storybook generated from the Figma template:**
+**Example Storybook generated from the template above using figma2theme and Chakra UI:**
+
 https://figma2theme.netlify.app/
 
 ## Usage
@@ -38,23 +47,53 @@ FIGMA_API_KEY=
 
 ### 3. Generate your theme
 
+#### Tailwind CSS
+
+Run the following command to generate your Tailwind CSS theme:
+
+```bash
+yarn figma2theme generate-tailwind
+```
+
+By default the generated file will be saved as `tailwind.figma2theme.js` in the root of your project.
+
+#### Chakra UI
+
 Run the following command to generate your Chakra UI theme:
 
 ```bash
 yarn figma2theme generate-chakra
 ```
 
-By default the generated theme file(s) will be saved to `./theme`.
+By default the generated files will be saved to the `./theme` directory.
 
 ### 4. Import the theme
 
-Update your imports from `import { theme } from '@chakra-ui/react'` to the generated theme location.
+#### Tailwind CSS
+
+Open your `tailwind.config.js` file and add the following line to the top of the config:
+
+```js
+presets: [require('./tailwind.figma2theme.js')],
+```
+
+This setting will use the generated theme as the base for your Tailwind configuration,
+giving you access to all the tokens from the UI Kit while still allowing you to extend
+or override them in your `tailwind.config.js` file as needed.
+
+For more information on this setting see the Tailwind docs: https://tailwindcss.com/docs/presets
+
+#### Chakra UI
+
+Change your imports from `import { theme } from '@chakra-ui/react'` to the generated theme
+location so that the generated theme is used instead of the default Chakra UI theme.
 
 ### 5. Import the stories (Optional)
 
 `figma2theme` provides a variety of Storybook stories that allow you to view elements of your
 current Chakra UI theme, including foundational values (e.g. colour palettes, font sizes, etc.)
 and component styles (e.g. button variants, text styles, etc.)
+These stories are currently only available for Chakra UI.
 
 To view these stories in the Storybook of your project, open `.storybook/main.js` and insert
 the following glob to the `stories` array:

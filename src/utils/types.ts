@@ -299,6 +299,7 @@ export type Tokens = {
   spacing: SpacingTokens;
   typography: TypographyTokens;
   textStyles: TextStyleTokens;
+  urls: Dictionary<string>;
 };
 
 /**

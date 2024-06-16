@@ -12,7 +12,7 @@ import type {
 
 import getConfig from './utils/config';
 import { getFile, getVersions } from './api';
-import { exportChakra, exportJson, exportCss } from './export';
+import { exportChakra, exportJson, exportCss, exportTailwind } from './export';
 import importTokensFromFigma from './import/import-figma';
 
 import type { Tokens } from './utils/types';
@@ -190,6 +190,39 @@ export const generateCss = async (
     const relativeDir = path.relative(process.cwd(), outputDir);
     console.log(`Exporting CSS file to "${relativeDir}/tokens.css"...`.bold);
     await exportCss(tokens, outputDir);
+  };
+
+  return generator(exporter, apiKeyOverride, fileUrlOverride, latestChanges);
+};
+
+export const generateTailwind = async (
+  outputDir: string,
+  apiKeyOverride?: string,
+  fileUrlOverride?: string,
+  latestChanges?: boolean
+) => {
+  // Generate a Tailwind theme using the tokens
+  const exporter: Exporter = async (
+    tokens,
+    fileKey,
+    versionDescription,
+    fontFallbacks
+  ) => {
+    const relativeDir = path.relative(process.cwd(), outputDir);
+    if (relativeDir !== '') {
+      console.log(
+        `Exporting Tailwind theme to "${relativeDir}" folder...`.bold
+      );
+    } else {
+      console.log('Exporting Tailwind theme to the project folder...'.bold);
+    }
+    await exportTailwind(
+      tokens,
+      outputDir,
+      fileKey,
+      versionDescription,
+      fontFallbacks
+    );
   };
 
   return generator(exporter, apiKeyOverride, fileUrlOverride, latestChanges);

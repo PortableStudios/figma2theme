@@ -2,6 +2,7 @@
 lib
 theme
 tokens.*
+tailwind.figma2theme.js
 
 # Storybook output
 storybook-static
