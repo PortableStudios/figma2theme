@@ -71,10 +71,14 @@ By default the generated files will be saved to the `./theme` directory.
 
 #### Tailwind CSS
 
-Open your `tailwind.config.js` file and add the following line to the top of the config:
+Open your `tailwind.config.js` file and add the generated theme to your `presets` array like so:
 
 ```js
-presets: [require('./tailwind.figma2theme.js')],
+import figmaPreset from './tailwind.figma2theme.js';
+
+/** @type {import('tailwindcss').Config} */
+const config = {
+	presets: [figmaPreset],
 ```
 
 This setting will use the generated theme as the base for your Tailwind configuration,
