@@ -226,7 +226,7 @@ export const getColours = (
       [colour.r, colour.g, colour.b],
       colour.a
     ).toString({ format: 'hex' });
-    const key = colourStyles[fillKey].replace(/\//g, '.');
+    const key = colourStyles[fillKey].replace(/\//g, '.').replace(/\s/g, '-');
     const value: ColourToken = { $type: 'color', $value: hex };
     setWith(palette, key, value, Object);
   });

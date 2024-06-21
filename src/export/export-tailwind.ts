@@ -64,7 +64,7 @@ const processTextStyles = (
 
   return Object.entries(processTokens(textStyles)).reduce(
     (obj, [name, style]) => {
-      const className = `.typography-${name}`;
+      const className = `.typography-${name.toLowerCase().replace(/\s/g, '-')}`;
       const fontFamily = getBaseValue(style.fontFamily) ?? '';
       // Prefer the variable font if it exists (e.g. "Inter" -> "Inter Variable")
       const variableFont =
