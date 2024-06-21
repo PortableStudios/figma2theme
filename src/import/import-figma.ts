@@ -59,28 +59,42 @@ export const getPageCanvasByName = (
 type FindableNode = keyof Omit<Figma.NodeTypes, 'DOCUMENT' | 'CANVAS'>;
 const getAllNodesByType = <T extends FindableNode>(
   type: T,
-  from: Figma.Node<'CANVAS'>
+  from: Figma.Node<'CANVAS'>,
+  skipInstances = true
 ): Figma.Node<T>[] => {
   const nodes: Figma.Node<T>[] = [];
 
   // Iterate through the child nodes
   for (let i = 0; i < from.children.length; i += 1) {
     const child = from.children[i];
+    // Skip component instances as they may have overridden values
+    if (skipInstances && child.type === 'INSTANCE') {
+      continue;
+    }
     switch (child.type) {
       // If a node matchs the given type, scoop it up and recursively search it's children
       case type:
         nodes.push(child as Figma.Node<T>);
         if ('children' in child) {
-          nodes.push(...getAllNodesByType(type, child as Figma.Node<'CANVAS'>));
+          nodes.push(
+            ...getAllNodesByType(
+              type,
+              child as Figma.Node<'CANVAS'>,
+              skipInstances
+            )
+          );
         }
-        break;
-      case 'INSTANCE':
-        // Skip component instances as they may have overridden values
         break;
       default:
         // Otherwise if the node has children, recursively search it
         if ('children' in child) {
-          nodes.push(...getAllNodesByType(type, child as Figma.Node<'CANVAS'>));
+          nodes.push(
+            ...getAllNodesByType(
+              type,
+              child as Figma.Node<'CANVAS'>,
+              skipInstances
+            )
+          );
         }
         break;
     }
@@ -184,9 +198,9 @@ export const getColours = (
 
   // Get all the rectangles, ellipses and frames that are using one of the colour styles
   const rectangles = [
-    ...getAllRectangleNodes(canvas),
-    ...getAllEllipseNodes(canvas),
-    ...getAllFrameNodes(canvas),
+    ...getAllNodesByType('RECTANGLE', canvas, false),
+    ...getAllNodesByType('ELLIPSE', canvas, false),
+    ...getAllNodesByType('FRAME', canvas, false),
   ].filter((r) => {
     const fillKey = r.styles?.fill;
     if (fillKey === undefined) {
