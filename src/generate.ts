@@ -186,10 +186,21 @@ export const generateCss = async (
   latestChanges?: boolean
 ) => {
   // Generate a CSS file using the tokens
-  const exporter: Exporter = async (tokens) => {
+  const exporter: Exporter = async (
+    tokens,
+    fileKey,
+    versionDescription,
+    fontFallbacks
+  ) => {
     const relativeDir = path.relative(process.cwd(), outputDir);
-    console.log(`Exporting CSS file to "${relativeDir}/tokens.css"...`.bold);
-    await exportCss(tokens, outputDir);
+    console.log(`Exporting CSS file to "${relativeDir}/theme.css"...`.bold);
+    await exportCss(
+      tokens,
+      outputDir,
+      fileKey,
+      versionDescription,
+      fontFallbacks
+    );
   };
 
   return generator(exporter, apiKeyOverride, fileUrlOverride, latestChanges);
