@@ -24,7 +24,7 @@ https://figma2theme.netlify.app/
 ### 1. Add `figma2theme` to your project
 
 ```bash
-yarn add --dev figma2theme
+pnpm add --save-dev figma2theme
 ```
 
 ### 2. Set your environment variables
@@ -52,7 +52,7 @@ FIGMA_API_KEY=
 Run the following command to generate your Tailwind CSS theme:
 
 ```bash
-yarn figma2theme generate-tailwind
+pnpm figma2theme generate-tailwind
 ```
 
 By default the generated file will be saved as `tailwind.figma2theme.js` in the root of your project.
@@ -62,7 +62,7 @@ By default the generated file will be saved as `tailwind.figma2theme.js` in the 
 Run the following command to generate your Chakra UI theme:
 
 ```bash
-yarn figma2theme generate-chakra
+pnpm figma2theme generate-chakra
 ```
 
 By default the generated files will be saved to the `./theme` directory.
@@ -108,6 +108,15 @@ the following glob to the `stories` array:
 
 Want to work on figma2theme? Here's how to get started.
 
+This project uses [pnpm](https://pnpm.io) v11+ and Node 22+ (see `.nvmrc`). Install dependencies with:
+
+```bash
+pnpm install
+```
+
+Dependencies must be at least 7 days old before they can be installed (`minimumReleaseAge` in
+`pnpm-workspace.yaml`), and install scripts are blocked unless explicitly allowed under `allowBuilds`.
+
 First set up your environment variables by duplicating the template:
 
 ```bash
@@ -122,7 +131,7 @@ A key can be generated under the 'Personal Access Tokens' section of the Figma s
 While developing the CLI you can use it by running:
 
 ```bash
-yarn dev
+pnpm dev
 ```
 
 This is equivalent to running `figma2theme` in a project.
@@ -130,7 +139,7 @@ This is equivalent to running `figma2theme` in a project.
 For example, to generate a Chakra UI theme run the following:
 
 ```bash
-yarn dev generate-chakra
+pnpm dev generate-chakra
 ```
 
 ---
@@ -138,16 +147,16 @@ yarn dev generate-chakra
 If you want to test `figma2theme` globally run the following:
 
 ```bash
-yarn global:install
+pnpm global:install
 ```
 
-This will build the CLI and use Yarn to install it globally,
+This will build the CLI and use pnpm to install it globally,
 allowing you to run the CLI by typing `figma2theme` anywhere.
 
 To remove the globally installed package run the following:
 
 ```bash
-yarn global:remove
+pnpm global:remove
 ```
 
 ### Storybook
@@ -155,7 +164,7 @@ yarn global:remove
 The provided stories can be previewed by running:
 
 ```bash
-yarn storybook
+pnpm storybook
 ```
 
-Ensure you have generated a theme beforehand using `yarn dev generate-chakra`.
+Ensure you have generated a theme beforehand using `pnpm dev generate-chakra`.

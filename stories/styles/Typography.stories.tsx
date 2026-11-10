@@ -14,14 +14,12 @@ import {
   Text,
   useTheme,
 } from '@chakra-ui/react';
-import { withDesign } from 'storybook-addon-designs';
-import type { Story, Meta } from '@storybook/react';
+import type { StoryFn, Meta } from '@storybook/react-vite';
 
 import { ifFigmaDesignsForThemeEnabled } from '../utils';
 
 export default {
   title: 'Theme/Styles/Typography',
-  decorators: [withDesign],
   parameters: {
     design: ifFigmaDesignsForThemeEnabled({
       type: 'figma',
@@ -40,7 +38,7 @@ type TextStyle = {
   letterSpacing: TextStyleValue;
   lineHeight: TextStyleValue;
 };
-export const TextStyles: Story = () => {
+export const TextStyles: StoryFn = () => {
   const theme = useTheme();
   const breakpointKeys = Object.keys(theme.breakpoints).filter((k) => {
     // Exclude integer keys

@@ -7,7 +7,7 @@ import {
   Stack,
   useTheme,
 } from '@chakra-ui/react';
-import type { Story, Meta } from '@storybook/react';
+import type { StoryFn, Meta } from '@storybook/react-vite';
 
 export default {
   title: 'Theme/Styles/Input',
@@ -45,7 +45,7 @@ const List: React.FC<ListProps> = ({ property, values, defaultValue }) => {
   );
 };
 
-export const Variants: Story = () => {
+export const Variants: StoryFn = () => {
   const theme = useTheme();
   const variants = Object.keys(theme.components.Input.variants ?? {});
   const defaultValue = theme.components.Input.defaultProps?.variant;
@@ -54,7 +54,7 @@ export const Variants: Story = () => {
   );
 };
 
-export const Sizes: Story = () => {
+export const Sizes: StoryFn = () => {
   const theme = useTheme();
   const sizes = Object.keys(theme.components.Input.sizes ?? {});
   const defaultValue = theme.components.Input.defaultProps?.size;

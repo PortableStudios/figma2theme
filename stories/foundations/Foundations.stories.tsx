@@ -1,7 +1,6 @@
 import React from 'react';
 import flatten from 'flat';
-import { Story, Meta } from '@storybook/react';
-import { withDesign } from 'storybook-addon-designs';
+import type { StoryFn, Meta } from '@storybook/react-vite';
 import {
   Box,
   Divider,
@@ -16,10 +15,9 @@ import { ifFigmaDesignsForThemeEnabled } from '../utils';
 
 export default {
   title: 'Theme/Foundations',
-  decorators: [withDesign],
 } as Meta;
 
-export const Breakpoints: Story = () => {
+export const Breakpoints: StoryFn = () => {
   const theme = useTheme();
   const breakpoints = theme.breakpoints;
   return (
@@ -62,7 +60,7 @@ Breakpoints.parameters = {
   }),
 };
 
-export const Colours: Story = () => {
+export const Colours: StoryFn = () => {
   const theme = useTheme();
   const colours = { ...theme.colors };
   delete colours.transparent;
@@ -178,7 +176,7 @@ Colours.parameters = {
   }),
 };
 
-export const CustomIcons: Story = () => {
+export const CustomIcons: StoryFn = () => {
   const theme = useTheme();
   const customIcons = theme.customIcons;
   console.log({ customIcons });
@@ -219,7 +217,7 @@ CustomIcons.parameters = {
   }),
 };
 
-export const Radii: Story = () => {
+export const Radii: StoryFn = () => {
   const theme = useTheme();
   const radii = theme.radii;
   return (
@@ -263,7 +261,7 @@ Radii.parameters = {
   }),
 };
 
-export const Shadows: Story = () => {
+export const Shadows: StoryFn = () => {
   const theme = useTheme();
   const shadows = theme.shadows;
   return (
@@ -307,7 +305,7 @@ Shadows.parameters = {
   }),
 };
 
-export const Sizes: Story = () => {
+export const Sizes: StoryFn = () => {
   const theme = useTheme();
   // Get the relevant sizing keys
   const sizeKeys = Object.keys(theme.sizes)
@@ -396,7 +394,7 @@ Sizes.parameters = {
   }),
 };
 
-export const Spacing: Story = () => {
+export const Spacing: StoryFn = () => {
   const theme = useTheme();
   const spacing = Object.keys(theme.space)
     .map((key) => {

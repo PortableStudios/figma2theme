@@ -1,0 +1,7 @@
+{
+  "extends": "./tsconfig.storybook.json",
+  "compilerOptions": {
+    "noEmit": false
+  },
+  "include": ["stories/**/*"]
+}

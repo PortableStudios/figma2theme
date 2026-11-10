@@ -1,13 +1,11 @@
 import React from 'react';
-import { Story, Meta } from '@storybook/react';
-import { withDesign } from 'storybook-addon-designs';
+import type { StoryFn, Meta } from '@storybook/react-vite';
 import { Box, Flex, Heading, Stack, Text, useTheme } from '@chakra-ui/react';
 
 import { ifFigmaDesignsForThemeEnabled } from '../utils';
 
 export default {
   title: 'Theme/Foundations/Typography',
-  decorators: [withDesign],
   parameters: {
     design: ifFigmaDesignsForThemeEnabled({
       type: 'figma',
@@ -56,27 +54,27 @@ const Section: React.FC<SectionProps> = ({ property, values }) => {
   );
 };
 
-export const FontStacks: Story = () => {
+export const FontStacks: StoryFn = () => {
   const theme = useTheme();
   return <Section property="fontFamily" values={theme.fonts} />;
 };
 
-export const FontSizes: Story = () => {
+export const FontSizes: StoryFn = () => {
   const theme = useTheme();
   return <Section property="fontSize" values={theme.fontSizes} />;
 };
 
-export const FontWeights: Story = () => {
+export const FontWeights: StoryFn = () => {
   const theme = useTheme();
   return <Section property="fontWeight" values={theme.fontWeights} />;
 };
 
-export const LineHeights: Story = () => {
+export const LineHeights: StoryFn = () => {
   const theme = useTheme();
   return <Section property="lineHeight" values={theme.lineHeights} />;
 };
 
-export const LetterSpacings: Story = () => {
+export const LetterSpacings: StoryFn = () => {
   const theme = useTheme();
   return <Section property="letterSpacing" values={theme.letterSpacings} />;
 };

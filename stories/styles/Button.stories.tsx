@@ -1,5 +1,4 @@
 import React from 'react';
-import { action } from '@storybook/addon-actions';
 import {
   Button,
   Divider,
@@ -8,18 +7,25 @@ import {
   Stack,
   useTheme,
 } from '@chakra-ui/react';
-import type { Story, Meta } from '@storybook/react';
+import type { StoryFn, Meta } from '@storybook/react-vite';
 
 export default {
   title: 'Theme/Styles/Button',
+  argTypes: { onClick: { action: 'clicked' } },
 } as Meta;
 
 type ListProps = {
   property: 'variant' | 'size';
   values: string[];
   defaultValue?: string;
+  onClick?: React.MouseEventHandler<HTMLButtonElement>;
 };
-const List: React.FC<ListProps> = ({ property, values, defaultValue }) => {
+const List: React.FC<ListProps> = ({
+  property,
+  values,
+  defaultValue,
+  onClick,
+}) => {
   return (
     <Stack spacing={8}>
       {values.map((value) => (
@@ -39,7 +45,7 @@ const List: React.FC<ListProps> = ({ property, values, defaultValue }) => {
             )}
             <Divider marginTop={2} />
           </Flex>
-          <Button {...{ [property]: value }} onClick={action('clicked')}>
+          <Button {...{ [property]: value }} onClick={onClick}>
             Click Me!
           </Button>
         </Stack>
@@ -48,18 +54,30 @@ const List: React.FC<ListProps> = ({ property, values, defaultValue }) => {
   );
 };
 
-export const Variants: Story = () => {
+export const Variants: StoryFn = ({ onClick }) => {
   const theme = useTheme();
   const variants = Object.keys(theme.components.Button.variants ?? {});
   const defaultValue = theme.components.Button.defaultProps?.variant;
   return (
-    <List property="variant" values={variants} defaultValue={defaultValue} />
+    <List
+      property="variant"
+      values={variants}
+      defaultValue={defaultValue}
+      onClick={onClick}
+    />
   );
 };
 
-export const Sizes: Story = () => {
+export const Sizes: StoryFn = ({ onClick }) => {
   const theme = useTheme();
   const sizes = Object.keys(theme.components.Button.sizes ?? {});
   const defaultValue = theme.components.Button.defaultProps?.size;
-  return <List property="size" values={sizes} defaultValue={defaultValue} />;
+  return (
+    <List
+      property="size"
+      values={sizes}
+      defaultValue={defaultValue}
+      onClick={onClick}
+    />
+  );
 };
