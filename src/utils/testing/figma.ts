@@ -8,7 +8,7 @@ import {
   PaintType,
   StrokeAlign,
 } from 'figma-api';
-import merge from 'lodash.merge';
+import merge from 'lodash/merge';
 import { v4 as uuidv4 } from 'uuid';
 import Color from 'colorjs.io';
 import type { Node } from 'figma-api';

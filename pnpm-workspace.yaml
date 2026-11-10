@@ -1,0 +1,23 @@
+minimumReleaseAge: 10080 # refuse to install any dependencies less than 7 days old
+
+allowBuilds:
+  esbuild: true # installs the platform-specific binary (used by Storybook/Vite)
+  '@parcel/watcher': false # prebuilt binaries ship as optional dependencies
+  '@swc/core': false # prebuilt binaries ship as optional dependencies
+  core-js: false # postinstall only prints a funding banner
+  core-js-pure: false # postinstall only prints a funding banner
+
+patchedDependencies:
+  figma-api@1.7.0: patches/figma-api@1.7.0.patch
+
+# Force patched versions of vulnerable transitive dependencies (Dependabot alerts)
+overrides:
+  '@babel/runtime@<7.26.10': ^7.26.10
+  axios@<0.34.0: ^0.34.0 # via figma-api@1
+  brace-expansion@<1.1.21: ^1.1.21
+  glob@>=9.0.0 <14.0.2: ^14.0.2 # via style-dictionary, jest
+  minimatch@<3.1.4: ^3.1.4
+  minimatch@>=7.0.0 <11.0.1: ^11.0.1
+  uuid@<11.1.1: ^11.1.1 # via @storybook/test-runner
+  xml2js@<0.5.0: ^0.6.2 # via svg-to-jsx
+  yaml@>=1.0.0 <1.10.3: ^1.10.3

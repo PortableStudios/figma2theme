@@ -7,24 +7,25 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
       - uses: actions/setup-node@v4
         with:
           node-version-file: '.nvmrc'
-          cache: yarn
+          cache: pnpm
           registry-url: https://npm.pkg.github.com
           scope: '@portablestudios'
 
       - name: Install dependencies
-        run: yarn install --frozen-lockfile
+        run: pnpm install --frozen-lockfile
 
       - name: Update the package name for GitHub
         run: |
           sed -i 's/"name": "figma2theme"/"name": "@portablestudios\/figma2theme"/' package.json
 
       - name: Build the project
-        run: yarn build
+        run: pnpm build
 
       - name: Publish the project
-        run: yarn publish --non-interactive --registry https://npm.pkg.github.com
+        run: pnpm publish --no-git-checks --registry https://npm.pkg.github.com
         env:
           NODE_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}

@@ -2,7 +2,7 @@ import * as Figma from 'figma-api';
 import SVGO from 'svgo';
 import fetch from 'node-fetch';
 import { em, rem } from 'polished';
-import setWith from 'lodash.setwith';
+import setWith from 'lodash/setWith';
 import Color from 'colorjs.io';
 
 import { getFile } from '../api';

@@ -1,13 +1,13 @@
 import React from 'react';
 import { ChakraProvider } from '@chakra-ui/react';
-import type { StoryWrapper } from '@storybook/addons';
+import type { Decorator } from '@storybook/react-vite';
 
 import theme from '../theme';
 
-const withThemeProvider: StoryWrapper = (Story, context) => {
+const withThemeProvider: Decorator = (Story) => {
   return (
     <ChakraProvider theme={theme}>
-      <Story {...context} />
+      <Story />
     </ChakraProvider>
   );
 };
